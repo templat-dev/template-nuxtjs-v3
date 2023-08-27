@@ -175,7 +175,7 @@ const validateForm = () => {
 }
 
 const save = async () => {
-<%_ if (struct.screenType !== 'struct') { -%><%# Structでない場合 -%>
+<%_ if (struct.screenType !== 'struct') { -%><%#_ Structでない場合 -%>
   if (hasParent) {
     // 親要素側で保存
     return
