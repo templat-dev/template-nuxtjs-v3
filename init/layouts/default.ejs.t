@@ -33,7 +33,7 @@ const menus = computed(() => {
   ]
 })
 
-<%_ if (struct.plugins.includes('auth')) { -%>
+<%_ if (project.plugins.find(p => p.name === 'auth')?.enable) { -%>
 const isLoginPage = computed(() => {
   return this.$route.path === '/login'
 })
@@ -70,7 +70,7 @@ const signOut = computed(async () =>
         <span>{{ currentPageTitle }}</span>
       </div>
       <v-spacer/>
-<%_ if (struct.plugins.includes('auth')) { -%>
+<%_ if (project.plugins.find(p => p.name === 'auth')?.enable) { -%>
       <v-btn @click="signOut" icon v-if="!isLoginPage">
         <v-icon>mdi-logout-variant</v-icon>
       </v-btn>

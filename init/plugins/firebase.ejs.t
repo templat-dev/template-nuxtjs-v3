@@ -1,5 +1,5 @@
 ---
-to: "<%= struct.plugins.includes('auth') ? `${rootDirectory}/plugins/firebase.client.ts` : null %>"
+to: "<%= if (project.plugins.find(p => p.name === 'pay')?.enable) ? `${rootDirectory}/plugins/firebase.client.ts` : null %>"
 force: true
 ---
 import {initializeApp} from 'firebase/app'

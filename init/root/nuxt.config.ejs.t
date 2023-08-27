@@ -30,7 +30,7 @@ export default defineNuxtConfig({
   },
   modules: [
     "nuxt-lodash",
-<%_ if (struct.plugins.includes('pay')) { -%>
+<%_ if (project.plugins.find(p => p.name === 'pay')?.enable) { -%>
     "nuxt-stripe-module"
 <%_ } -%>
   ],
@@ -45,7 +45,7 @@ export default defineNuxtConfig({
       ["isDate", "isLodashDate"], // => _isLodashDate
     ],
   },
-<%_ if (struct.plugins.includes('pay')) { -%>
+<%_ if (project.plugins.find(p => p.name === 'pay')?.enable) { -%>
   stripe: {
     publishableKey: 'YOUR_STRIPE_PUBLISHABLE_KEY',
   },
@@ -68,7 +68,7 @@ export default defineNuxtConfig({
   css: ['@/assets/common.scss'],
   plugins: [
     '@/plugins/apiPlugin.ts',
-<%_ if (struct.plugins.includes('auth')) { -%>
+<%_ if (project.plugins.find(p => p.name === 'auth')?.enable) { -%>
     '@/plugins/firebase.client.ts'
 <%_ } -%>
   ],

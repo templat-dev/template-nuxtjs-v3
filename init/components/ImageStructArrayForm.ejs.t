@@ -1,5 +1,5 @@
 ---
-to: "<%= struct.plugins.includes('image') ? `${rootDirectory}/components/form/ImageStructArrayForm.vue` : null %>"
+to: "<%= if (project.plugins.find(p => p.name === 'image')?.enable) ? `${rootDirectory}/components/form/ImageStructArrayForm.vue` : null %>"
 force: true
 ---
 <script setup lang="ts" generic="T">

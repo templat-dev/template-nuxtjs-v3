@@ -30,13 +30,13 @@ force: true
     "@types/node": "^18",
     "axios": "^1.4.0",
     "date-fns": "^2.30.0",
-<%_ if (struct.plugins.includes('auth')) { -%>
+<%_ if (project.plugins.find(p => p.name === 'auth')?.enable) { -%>
     "firebase": "^9.23.0",
     "firebaseui": "^6.0.2",
 <%_ } -%>
     "nuxt": "^3.5.2",
     "nuxt-lodash": "^2.5.0",
-<%_ if (struct.plugins.includes('pay')) { -%>
+<%_ if (project.plugins.find(p => p.name === 'pay')?.enable) { -%>
     "nuxt-stripe-module": "^3.2.0",
 <%_ } -%>
     "sass": "^1.63.4",
