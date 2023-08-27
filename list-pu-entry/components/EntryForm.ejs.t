@@ -29,7 +29,7 @@ import ImageArrayForm from '@/components/form/ImageArrayForm.vue'
 <%_ let importExpansion = false -%>
 <%_ let importStructArrayForm = false -%>
 <%_ let importArrayForm = false -%>
-<%_ let importDateTime = false -%>
+<%_ importDateTime = false -%>
 <%_ if (struct.fields) { -%>
 <%_ struct.fields.forEach(function(property, index){ -%>
   <%_ if (property.editType === 'array-struct') { -%>
