@@ -16,14 +16,15 @@ import <%= struct.name.pascalName %>SearchForm, {
 const headers = [
   <%_ if (struct.fields) { -%>
   <%_ struct.fields.forEach(function(field, index){ -%>
-    <%_ if (property.listType !== 'none' && property.dataType !== 'struct' && property.dataType !== 'array-struct') { -%>
+    <%_ if (field.listType !== 'none' && field.dataType !== 'struct' && field.dataType !== 'array-struct') { -%>
   {
-    text: '<%= property.screenLabel ? property.screenLabel : property.name.lowerCamelName === 'id' ? 'ID' : property.name.lowerCamelName %>',
-    align: '<%= property.align %>',
-    value: '<%= property.name.lowerCamelName %>'
+    text: '<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName === 'id' ? 'ID' : field.name.lowerCamelName %>',
+    align: '<%= field.align %>',
+    value: '<%= field.name.lowerCamelName %>'
   },
     <%_ } -%>
   <%_ }); -%>
+  <%_ } -%>
   {
     text: '',
     align: 'center',
@@ -131,37 +132,37 @@ const remove = (item: Model<%= struct.pascalName %>) => {
           </v-btn>
         </v-toolbar>
       </template>
-<%_ if (struct.listProperties.listExtraProperties) { -%>
-<%_ struct.listProperties.listExtraProperties.forEach(function(property, index){ -%>
-<%_ if (property.type === 'time' || property.type === 'time-range') { -%>
-      <template #item.<%= property.name %>="{ item }">
-        <span>{{ formatDate(item.<%= property.name %>) }}</span>
+<%_ if (struct.fields) { -%>
+<%_ struct.fields.forEach(function(field, index){ -%>
+<%_ if (field.type === 'time' || field.type === 'time-range') { -%>
+      <template #item.<%= field.name %>="{ item }">
+        <span>{{ formatDate(item.<%= field.name %>) }}</span>
       </template>
 <%_ } -%>
-<%_ if (property.type === 'bool') { -%>
-      <template #item.<%= property.name %>="{ item }">
-        <v-checkbox v-model="item.<%= property.name %>" :ripple="false" class="ma-0 pa-0" hide-details readonly></v-checkbox>
+<%_ if (field.type === 'bool') { -%>
+      <template #item.<%= field.name %>="{ item }">
+        <v-checkbox v-model="item.<%= field.name %>" :ripple="false" class="ma-0 pa-0" hide-details readonly></v-checkbox>
       </template>
 <%_ } -%>
-<%_ if (property.type === 'array-string' || property.type === 'array-number' || property.type === 'array-bool') { -%>
-      <template #item.<%= property.name %>="{ item }">
-        <span>{{ toStringArray(item.<%= property.name %>) }}</span>
+<%_ if (field.type === 'array-string' || field.type === 'array-number' || field.type === 'array-bool') { -%>
+      <template #item.<%= field.name %>="{ item }">
+        <span>{{ toStringArray(item.<%= field.name %>) }}</span>
       </template>
 <%_ } -%>
-<%_ if (property.type === 'array-time') { -%>
-      <template #item.<%= property.name %>="{ item }">
-        <span>{{ toStringTimeArray(item.<%= property.name %>) }}</span>
+<%_ if (field.type === 'array-time') { -%>
+      <template #item.<%= field.name %>="{ item }">
+        <span>{{ toStringTimeArray(item.<%= field.name %>) }}</span>
       </template>
 <%_ } -%>
-<%_ if (property.type === 'image' && property.dataType === 'string') { -%>
-      <template #item.<%= property.name %>="{ item }">
-        <v-img :src="item.<%= property.name %>" max-height="100px" max-width="100px"></v-img>
+<%_ if (field.type === 'image' && field.dataType === 'string') { -%>
+      <template #item.<%= field.name %>="{ item }">
+        <v-img :src="item.<%= field.name %>" max-height="100px" max-width="100px"></v-img>
       </template>
 <%_ } -%>
-<%_ if (property.type === 'array-image') { -%>
-      <template #item.<%= property.name %>="{ item }">
+<%_ if (field.type === 'array-image') { -%>
+      <template #item.<%= field.name %>="{ item }">
         <v-carousel
-          v-if="item.<%= property.name %> && item.<%= property.name %>.length > 0"
+          v-if="item.<%= field.name %> && item.<%= field.name %>.length > 0"
           class="carousel" height="100px" hide-delimiters>
           <template #prev="{ on, attrs }">
             <v-btn v-bind="attrs" v-on="on" icon x-small>
@@ -173,7 +174,7 @@ const remove = (item: Model<%= struct.pascalName %>) => {
               <v-icon>mdi-chevron-right</v-icon>
             </v-btn>
           </template>
-          <v-carousel-item v-for="(image,i) in item.<%= property.name %>" :key="i">
+          <v-carousel-item v-for="(image,i) in item.<%= field.name %>" :key="i">
             <v-layout justify-center>
               <v-img :src="image" contain max-height="100px" max-width="100px"/>
             </v-layout>
