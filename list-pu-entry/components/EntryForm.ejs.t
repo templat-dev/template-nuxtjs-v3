@@ -386,18 +386,18 @@ const close = () => {
           <v-flex xs12>
             <expansion label="<%= property.screenLabel ? property.screenLabel : property.name.lowerCamelName %>一覧">
               <struct-array-form
-                :initial="initial<%= h.changeCase.pascal(property.structType) %>"
+                :initial="initial<%= field.structName.pascalNam %>"
                 :items.sync="target.<%= property.name.lowerCamelName %>">
                 <template v-slot:table="{items, openEntryForm, removeRow}">
-                  <<%= h.changeCase.param(property.structType) %>-data-table
+                  <<%= property.structName.lowerCamelName %>-data-table
                     :has-parent="true"
                     :items="items"
                     @openEntryForm="openEntryForm"
                     @remove="removeRow"
-                  ></<%= h.changeCase.param(property.structType) %>-data-table>
+                  ></<%= property.structName.lowerCamelName %>-data-table>
                 </template>
                 <template v-slot:form="{editIndex, isEntryFormOpen, editTarget, closeForm, removeForm, updatedForm}">
-                  <<%= h.changeCase.param(property.structType) %>-entry-form
+                  <<%= property.structName.lowerCamelName %>-entry-form
                     :has-parent="true"
                     :is-new="editIndex === NEW_INDEX"
                     :open="isEntryFormOpen"
@@ -405,7 +405,7 @@ const close = () => {
                     @close="closeForm"
                     @remove="removeForm"
                     @updated="updatedForm"
-                  ></<%= h.changeCase.param(property.structType) %>-entry-form>
+                  ></<%= property.structName.lowerCamelName %>-entry-form>
                 </template>
               </struct-array-form>
             </expansion>
@@ -414,12 +414,12 @@ const close = () => {
           <%_ if (property.editType === 'struct') { -%>
           <v-flex xs12>
             <expansion expanded label="<%= property.screenLabel ? property.screenLabel : property.name.lowerCamelName %>">
-              <<%= h.changeCase.param(property.structType) %>-entry-form
+              <<%= property.structName.lowerCamelName %>-entry-form
                 ref="<%= property.name.lowerCamelName %>Form"
                 :has-parent="true"
                 :is-embedded="true"
                 :target.sync="target.<%= property.name.lowerCamelName %>"
-              ></<%= h.changeCase.param(property.structType) %>-entry-form>
+              ></<%= property.structName.lowerCamelName %>-entry-form>
             </expansion>
           </v-flex>
           <%_ } -%>

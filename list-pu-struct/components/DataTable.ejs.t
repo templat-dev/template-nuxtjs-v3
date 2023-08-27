@@ -193,11 +193,11 @@ const props = withDefaults(defineProps<Props>(), {
       </template>
     </app-data-table>
 <%_ if (struct.screenType !== 'struct') { -%>
-    <<%= h.changeCase.param(struct.name) %>-search-form
+    <<%= struct.name.lowerCamelName %>-search-form
       :current-search-condition="syncedSearchCondition"
       :open.sync="isSearchFormOpen"
       @search="search"
-    ></<%= h.changeCase.param(struct.name) %>-search-form>
+    ></<%= struct.name.lowerCamelName %>-search-form>
 <%_ } -%>
   </v-flex>
 </template>

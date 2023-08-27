@@ -145,58 +145,57 @@ const initializeTarget = () => {
   this.target = INITIAL_<%= struct.name.upperSnakeName %>
 }
 
-  validateForm() {
+const validateForm = () => {
 <%_ if (structForms.length === 0) { -%>
-    if (!(this.$refs.entryForm as VForm).validate()) {
+  if (!(entryForm as VForm).validate()) {
 <%_ } else { -%>
-    if (!(this.$refs.entryForm as VForm).validate()
+  if (!(entryForm as VForm).validate()
 <%_ structForms.forEach(function (name, index) { -%>
-      || ((this.$refs.<%= name %>Form as Vue)?.$refs.entryForm as VForm)?.validate() === false<% if (structForms.length - 1 === index) { %>) {<% } %>
+    || ((<%= name %>Form as Vue)?.$refs.entryForm as VForm)?.validate() === false<% if (structForms.length - 1 === index) { %>) {<% } %>
 <%_ }) -%>
 <%_ } -%>
-      vxm.app.showDialog({
-        title: 'エラー',
-        message: '入力項目を確認して下さい。'
-      })
-      return
-    }
-    this.save()
+    dialog.showDialog({
+      title: 'エラー',
+      message: '入力項目を確認して下さい。'
+    })
+    return
   }
+  save()
+}
 
-  @Emit('updated')
-  async save() {
+const save = async () => {
   <%_ if (struct.screenType !== 'struct') { -%><%# Structでない場合 -%>
-    if (this.hasParent) {
-      // 親要素側で保存
-      return
+  if (props.hasParent) {
+    // 親要素側で保存
+    return
+  }
+  loading.showLoading()
+  try {
+    if (props.isNew) {
+      // 新規の場合
+      await new <%= struct.name.pascalName %>Api().create<%= struct.name.pascalName %>({
+        body: this.syncedTarget
+      })
+    } else {
+      // 更新の場合
+      await new <%= struct.name.pascalName %>Api().update<%= struct.name.pascalName %>({
+        id: target.id!,
+        body: target
+      })
     }
-    vxm.app.showLoading()
-    try {
-      if (this.isNew) {
-        // 新規の場合
-        await new <%= h.changeCase.upperCaseFirst(struct.name) %>Api().create<%= struct.pascalName %>({
-          body: this.syncedTarget
-        })
-      } else {
-        // 更新の場合
-        await new <%= h.changeCase.upperCaseFirst(struct.name) %>Api().update<%= struct.pascalName %>({
-          id: this.syncedTarget.id!,
-          body: this.syncedTarget
-        })
-      }
-      this.close()
-    } finally {
-      vxm.app.hideLoading()
-    }
+    close()
+    emit('updated', target)
+  } finally {
+    loading.hideLoading()
+  }
   <%_ } else { -%>
-    this.close()
+  close()
   <%_ } -%>
-  }
+}
 
-  @Emit('remove')
-  async remove() {
-    return this.syncedTarget
-  }
+const remove async () => {
+  emit('remove', target)
+}
 
   @Emit('close')
   close() {

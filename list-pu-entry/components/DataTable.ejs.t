@@ -135,34 +135,34 @@ const remove = (item: Model<%= struct.pascalName %>) => {
 <%_ if (struct.fields) { -%>
 <%_ struct.fields.forEach(function(field, index){ -%>
 <%_ if (field.type === 'time' || field.type === 'time-range') { -%>
-      <template #item.<%= field.name %>="{ item }">
-        <span>{{ formatDate(item.<%= field.name %>) }}</span>
+      <template #item.<%= field.name.lowerCamelName %>="{ item }">
+        <span>{{ formatDate(item.<%= field.name.lowerCamelName %>) }}</span>
       </template>
 <%_ } -%>
 <%_ if (field.type === 'bool') { -%>
-      <template #item.<%= field.name %>="{ item }">
-        <v-checkbox v-model="item.<%= field.name %>" :ripple="false" class="ma-0 pa-0" hide-details readonly></v-checkbox>
+      <template #item.<%= field.name.lowerCamelName %>="{ item }">
+        <v-checkbox v-model="item.<%= field.name.lowerCamelName %>" :ripple="false" class="ma-0 pa-0" hide-details readonly></v-checkbox>
       </template>
 <%_ } -%>
 <%_ if (field.type === 'array-string' || field.type === 'array-number' || field.type === 'array-bool') { -%>
-      <template #item.<%= field.name %>="{ item }">
-        <span>{{ toStringArray(item.<%= field.name %>) }}</span>
+      <template #item.<%= field.name.lowerCamelName %>="{ item }">
+        <span>{{ toStringArray(item.<%= field.name.lowerCamelName %>) }}</span>
       </template>
 <%_ } -%>
 <%_ if (field.type === 'array-time') { -%>
-      <template #item.<%= field.name %>="{ item }">
-        <span>{{ toStringTimeArray(item.<%= field.name %>) }}</span>
+      <template #item.<%= field.name.lowerCamelName %>="{ item }">
+        <span>{{ toStringTimeArray(item.<%= field.name.lowerCamelName %>) }}</span>
       </template>
 <%_ } -%>
 <%_ if (field.type === 'image' && field.dataType === 'string') { -%>
-      <template #item.<%= field.name %>="{ item }">
-        <v-img :src="item.<%= field.name %>" max-height="100px" max-width="100px"></v-img>
+      <template #item.<%= field.name.lowerCamelName %>="{ item }">
+        <v-img :src="item.<%= field.name.lowerCamelName %>" max-height="100px" max-width="100px"></v-img>
       </template>
 <%_ } -%>
 <%_ if (field.type === 'array-image') { -%>
-      <template #item.<%= field.name %>="{ item }">
+      <template #item.<%= field.name.lowerCamelName %>="{ item }">
         <v-carousel
-          v-if="item.<%= field.name %> && item.<%= field.name %>.length > 0"
+          v-if="item.<%= field.name.lowerCamelName %> && item.<%= field.name.lowerCamelName %>.length > 0"
           class="carousel" height="100px" hide-delimiters>
           <template #prev="{ on, attrs }">
             <v-btn v-bind="attrs" v-on="on" icon x-small>
@@ -174,7 +174,7 @@ const remove = (item: Model<%= struct.pascalName %>) => {
               <v-icon>mdi-chevron-right</v-icon>
             </v-btn>
           </template>
-          <v-carousel-item v-for="(image,i) in item.<%= field.name %>" :key="i">
+          <v-carousel-item v-for="(image,i) in item.<%= field.name.lowerCamelName %>" :key="i">
             <v-layout justify-center>
               <v-img :src="image" contain max-height="100px" max-width="100px"/>
             </v-layout>
@@ -182,7 +182,7 @@ const remove = (item: Model<%= struct.pascalName %>) => {
         </v-carousel>
       </template>
 <%_ } -%>
-<%_ }); -%>
+<%_ }) -%>
 <%_ } -%>
       <!-- 行操作列 -->
       <template #item.action="{ item }">
@@ -192,11 +192,11 @@ const remove = (item: Model<%= struct.pascalName %>) => {
       </template>
     </app-data-table>
 <%_ if (struct.screenType !== 'struct') { -%>
-    <<%= h.changeCase.param(struct.name) %>-search-form
+    <<%= struct.name.lowerCamelName %>-search-form
       :current-search-condition="syncedSearchCondition"
       :open.sync="isSearchFormOpen"
       @search="search"
-    ></<%= h.changeCase.param(struct.name) %>-search-form>
+    ></<%= struct.name.lowerCamelName %>-search-form>
 <%_ } -%>
   </v-flex>
 </template>
