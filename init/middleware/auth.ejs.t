@@ -1,5 +1,5 @@
 ---
-to: "<%= if (project.plugins.find(p => p.name === 'auth')?.enable) ? `${rootDirectory}/middleware/auth.global.ts` : null %>"
+to: "<%= project.plugins.find(p => p.name === 'auth')?.enable ? `${rootDirectory}/middleware/auth.global.ts` : null %>"
 force: true
 ---
 import {useAuth} from "~/composables/useAuth";

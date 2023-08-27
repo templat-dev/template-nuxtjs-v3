@@ -1,5 +1,5 @@
 ---
-to: "<%= if (project.plugins.find(p => p.name === 'image')?.enable) ? `${rootDirectory}/components/form/ImageForm.vue` : null %>"
+to: "<%= project.plugins.find(p => p.name === 'image')?.enable ? `${rootDirectory}/components/form/ImageForm.vue` : null %>"
 force: true
 ---
 <script setup lang="ts">

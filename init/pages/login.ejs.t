@@ -1,5 +1,5 @@
 ---
-to: "<%= if (project.plugins.find(p => p.name === 'auth')?.enable) ? `${rootDirectory}/pages/login.vue` : null %>"
+to: "<%= project.plugins.find(p => p.name === 'auth')?.enable ? `${rootDirectory}/pages/login.vue` : null %>"
 force: true
 ---
 <script setup lang="ts">
