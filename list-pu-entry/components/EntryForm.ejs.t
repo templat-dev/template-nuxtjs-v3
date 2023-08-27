@@ -8,7 +8,7 @@ to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct
     <%_ structForms.push(property.name.lowerCamelName) -%>
   <%_ } -%>
 <%_ }) -%>
-import {<%_ if (struct.screenType !== 'struct') { -%><%= struct.name.pascalNameApi, <% } -%>Model<%= struct.name.pascalName %>} from '@/apis'
+import {<%_ if (struct.screenType !== 'struct') { -%><%= struct.name.pascalName %>Api, <% } -%>Model<%= struct.name.pascalName %>} from '@/apis'
 <%_ let importDateTime = false -%>
 <%_ if (struct.fields) { -%>
 <%_ struct.fields.forEach(function(property, index){ -%>
