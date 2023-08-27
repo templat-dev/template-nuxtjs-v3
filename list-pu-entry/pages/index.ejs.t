@@ -1,211 +1,196 @@
 ---
-to: "<%= entity.enable ? `${rootDirectory}/${projectName}/pages/${entity.name}/index.vue` : null %>"
+to: "<%= struct.generateEnable ? `${rootDirectory}/pages/${struct.name.lowerCamelName}/index.vue` : null %>"
 ---
+<script setup lang="ts">
+<%_ const searchConditions = [] -%>
+<%_ struct.fields.forEach(function(property, index){ -%>
+  <%_ if ((property.listType === 'string' || property.listType === 'array-string' || property.listType === 'time' || property.listType === 'array-time') && property.searchType === 1) { -%>
+    <%_ searchConditions.push({name: property.name.lowerCamelNam, type: 'string', range: false}) -%>
+  <%_ } -%>
+  <%_ if ((property.listType === 'bool' || property.listType === 'array-bool') && property.searchType === 1) { -%>
+    <%_ searchConditions.push({name: property.name.lowerCamelNam, type: 'boolean', range: false}) -%>
+  <%_ } -%>
+  <%_ if ((property.listType === 'number' || property.listType === 'array-number') && property.searchType === 1) { -%>
+    <%_ searchConditions.push({name: property.name.lowerCamelNam, type: 'number', range: false}) -%>
+  <%_ } -%>
+  <%_ if ((property.listType === 'number' || property.listType === 'array-number') && 2 <= property.searchType &&  property.searchType <= 5) { -%>
+    <%_ searchConditions.push({name: property.name.lowerCamelNam, type: 'number', range: true}) -%>
+  <%_ } -%>
+  <%_ if ((property.listType === 'time' || property.listType === 'array-time') && 2 <= property.searchType &&  property.searchType <= 5) { -%>
+    <%_ searchConditions.push({name: property.name.lowerCamelNam, type: 'string', range: true}) -%>
+  <%_ } -%>
+<%_ }) -%>
+import {cloneDeep} from 'lodash-es'
+import {Context} from '@nuxt/types'
+import {<%= struct.name.pascalName %>Api, Model<%= struct.name.pascalName %>, Model<%= struct.name.pascalName %>} from '@/apis'
+import {DataTablePageInfo, INITIAL_DATA_TABLE_PAGE_INFO} from '@/components/common/AppDataTable.vue'
+import <%= struct.name.pascalName %>DataTable from '@/components/<%= struct.name.pascalName %>/<%= struct.name.pascalName %>DataTable.vue'
+import {
+  <%= struct.name.pascalName %>SearchCondition,
+  INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION
+} from '@/components/<%= struct.name.pascalName %>/<%= struct.name.pascalName %>SearchForm.vue'
+import <%= struct.name.pascalName %>EntryForm, {INITIAL_<%= struct.name.upperSnakeName %>} from '@/components/<%= struct.name.pascalName %>/<%= struct.name.pascalName %>EntryForm.vue'
+
+const loading = useLoading()
+const snackbar = useSnackbar()
+
+/** 一覧表示用の配列 */
+const <%= struct.name.lowerCamelPluralName %> = ref<Model<%= struct.name.pascalName %>[]>([])
+
+/** 一覧の表示ページ情報 */
+const pageInfo = ref<DataTablePageInfo>(cloneDeep(INITIAL_DATA_TABLE_PAGE_INFO))
+
+/** 一覧の合計件数 */
+const totalCount = ref<number>(0)
+
+/** 一覧の読み込み状態 */
+const isLoading = ref<boolean>(false)
+
+/** 検索条件 */
+const searchCondition = ref<<%= struct.name.pascalName %>SearchCondition>(cloneDeep(INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION))
+
+/** 入力フォームの表示表示状態 (true: 表示, false: 非表示) */
+const isEntryFormOpen = ref<boolean>(false)
+
+/** 編集対象 */
+const editTarget = ref<Model<%= struct.name.pascalName %> | null>(null)
+
+/** 編集対象のインデックス */
+const editIndex = ref<number>(0)
+
+const fetch = async (
+  {searchCondition = INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION, pageInfo = INITIAL_DATA_TABLE_PAGE_INFO}
+    : { searchCondition: <%= struct.name.pascalName %>SearchCondition, pageInfo: DataTablePageInfo }
+    = {searchCondition: INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION, pageInfo: INITIAL_DATA_TABLE_PAGE_INFO}
+): Promise<Model<%= struct.name.pascalPluralName %>> => {
+  return await new <%= struct.name.pascalName %>Api().search<%= struct.name.pascalName %>({
+  <%_ struct.fields.forEach(function(property, index){ -%>
+<%#_ 通常の検索 -%>
+    <%_ if ((property.listType === 'string' || property.listType === 'time' || property.listType === 'bool' || property.listType === 'number')  && property.searchType === 1) { -%>
+    <%= property.name.lowerCamelName %>: searchCondition.<%= property.name.lowerCamelName %>.enabled ? searchCondition.<%= property.name.lowerCamelName %>.value : undefined,
+<%#_ 配列の検索 -%>
+    <%_ } else if ((property.listType === 'array-string' || property.listType === 'array-time' || property.listType === 'array-bool' || property.listType === 'array-number')  && property.searchType === 1) { -%>
+    <%= property.name.lowerCamelName %>: searchCondition.<%= property.name.lowerCamelName %>.enabled ? [searchCondition.<%= property.name.lowerCamelName %>.value] : undefined,
+<%#_ 範囲検索 -%>
+    <%_ } else if ((property.listType === 'time' || property.listType === 'number') && 2 <= property.searchType &&  property.searchType <= 5) { -%>
+    <%= property.name.lowerCamelName %>: searchCondition.<%= property.name.lowerCamelName %>.enabled ? searchCondition.<%= property.name.lowerCamelName %>.value : undefined,
+    <%= property.name.lowerCamelName %>From: searchCondition.<%= property.name.lowerCamelName %>From.enabled ? searchCondition.<%= property.name.lowerCamelName %>From.value : undefined,
+    <%= property.name.lowerCamelName %>To: searchCondition.<%= property.name.lowerCamelName %>To.enabled ? searchCondition.<%= property.name.lowerCamelName %>To.value : undefined,
+<%#_ 配列の範囲検索 -%>
+    <%_ } else if ((property.listType === 'array-time' || property.listType === 'array-number') && 2 <= property.searchType &&  property.searchType <= 5) { -%>
+    <%= property.name.lowerCamelName %>: searchCondition.<%= property.name.lowerCamelName %>.enabled ? [searchCondition.<%= property.name.lowerCamelName %>.value] : undefined,
+    <%= property.name.lowerCamelName %>From: searchCondition.<%= property.name.lowerCamelName %>From.enabled ? searchCondition.<%= property.name.lowerCamelName %>From.value : undefined,
+    <%= property.name.lowerCamelName %>To: searchCondition.<%= property.name.lowerCamelName %>To.enabled ? searchCondition.<%= property.name.lowerCamelName %>To.value : undefined,
+    <%_ } -%>
+  <%_ }) -%>
+    limit: pageInfo.itemsPerPage !== -1 ? pageInfo.itemsPerPage : undefined,
+<%_ if (project.dbType === 'datastore') { -%>
+    cursor: pageInfo.page !== 1 ? pageInfo.cursors[pageInfo.page - 2] : undefined,
+    orderBy: pageInfo.sortBy.map((sb, i) => `${(pageInfo.sortDesc)[i] ? '-' : ''}${sb}`).join(',') || undefined
+<%_ } else { -%>
+    offset: (pageInfo.page - 1) * pageInfo.itemsPerPage,
+    orderBy: pageInfo.sortBy.map((sb, i) => `${sb} ${(pageInfo.sortDesc)[i] ? 'desc' : 'asc'}`).join(',') || undefined
+<%_ } -%>
+  }).then(res => res.data)
+}
+
+onMounted(async () => {
+  const data = await <%= struct.name.pascalPluralName %>.fetch()
+  const pageInfo = cloneDeep(INITIAL_DATA_TABLE_PAGE_INFO)
+<%_ if (project.dbType === 'datastore') { -%>
+  if (data.cursor) {
+    pageInfo.cursors[0] = data.cursor
+  }
+<%_ } -%>
+  <%= struct.name.lowerCamelPluralName %>.value = data.<%= struct.name.lowerCamelPluralName %>
+  totalCount.value = data.count
+  pageInfo.value = pageInfo
+})
+
+const reFetch = async () => {
+  loading.isLoading = true
+  try {
+    const data = await <%= struct.name.pascalPluralName %>.fetch({
+      searchCondition: searchCondition.value,
+      pageInfo: pageInfo.value
+    })
+<%_ if (project.dbType === 'datastore') { -%>
+    if (data.cursor) {
+      pageInfo.value.cursors[pageInfo.value.page - 1] = data.cursor
+    }
+<%_ } -%>
+    <%= struct.name.lowerCamelPluralName %>.value = data.<%= struct.name.lowerCamelPluralName %> || []
+    totalCount.value = data.count || 0
+  } finally {
+    loading.isLoading = false
+  }
+}
+
+const openEntryForm = (<%= struct.name.lowerCamelPluralName %>?: Model<%= struct.name.pascalName %>) => {
+  if (!!<%= struct.name.lowerCamelPluralName %>) {
+    editTarget.value = cloneDeep(<%= struct.name.lowerCamelPluralName %>)
+    editIndex.value = <%= struct.name.lowerCamelPluralName %>.value.indexOf(<%= struct.name.lowerCamelPluralName %>)
+  } else {
+    editTarget.value = cloneDeep(INITIAL_<%= struct.name.upperSnakeName %>)
+    editIndex.value = NEW_INDEX
+  }
+  isEntryFormOpen.value = true
+}
+
+const removeRow = (item: Model<%= struct.name.pascalName %>) => {
+  const index = <%= struct.name.lowerCamelPluralName %>.value.indexOf(item)
+  remove(index)
+}
+
+const removeForm = () => {
+  remove(editIndex.value)
+}
+
+const remove = async(index: number) => {
+  dialog.showDialog({
+    title: '削除確認',
+    message: '削除してもよろしいですか？',
+    negativeText: 'Cancel',
+    positive: async () => {
+      loading.showLoading()
+      try {
+        await new <%= struct.name.pascalName %>Api().delete<%= struct.name.pascalName %>({id: <%= struct.name.lowerCamelPluralName %>.value[index].id!})
+        isEntryFormOpen.value = false
+        await reFetch()
+      } finally {
+        loading.hideLoading()
+      }
+      snackbar.showSnackbar({text: '削除しました。'})
+    }
+  })
+}
+</script>
+
 <template>
   <v-layout>
-    <<%= h.changeCase.param(entity.name) %>-data-table
+    <<%= struct.name.lowerCamelName %>-data-table
       :is-loading="isLoading"
-      :items="<%= entity.pluralName %>"
-      :page-info.sync="pageInfo"
-      :search-condition.sync="searchCondition"
+      :items="<%= struct.name.lowerCamelPluralName %>"
+      v-model:page-info="pageInfo"
+      v-model:search-condition="searchCondition"
       :total-count="totalCount"
       class="elevation-1"
       @onChangePageInfo="reFetch"
       @onChangeSearch="reFetch"
       @openEntryForm="openEntryForm"
       @remove="removeRow"
-    ></<%= h.changeCase.param(entity.name) %>-data-table>
+    ></<%= struct.name.lowerCamelName %>-data-table>
     <v-dialog v-model="isEntryFormOpen" max-width="800px" persistent>
-      <<%= h.changeCase.param(entity.name) %>-entry-form
+      <<%= struct.name.lowerCamelName %>-entry-form
         :dialog="true"
         :is-new="editIndex === NEW_INDEX"
-        :open.sync="isEntryFormOpen"
-        :target.sync="editTarget"
+        v-model:open="isEntryFormOpen"
+        v-model:target="editTarget"
         @remove="removeForm"
         @updated="reFetch"
-      ></<%= h.changeCase.param(entity.name) %>-entry-form>
+      ></<%= struct.name.lowerCamelName %>-entry-form>
     </v-dialog>
   </v-layout>
 </template>
-
-<script lang="ts">
-<%_ const searchConditions = [] -%>
-<%_ if (entity.listProperties.listExtraProperties && entity.listProperties.listExtraProperties.length > 0) { -%>
-<%_ entity.listProperties.listExtraProperties.forEach(function (property, key) { -%>
-  <%_ if ((property.type === 'string' || property.type === 'array-string' || property.type === 'time' || property.type === 'array-time') && property.searchType === 1) { -%>
-    <%_ searchConditions.push({name: property.name, type: 'string', range: false}) -%>
-  <%_ } -%>
-  <%_ if ((property.type === 'bool' || property.type === 'array-bool') && property.searchType === 1) { -%>
-    <%_ searchConditions.push({name: property.name, type: 'boolean', range: false}) -%>
-  <%_ } -%>
-  <%_ if ((property.type === 'number' || property.type === 'array-number') && property.searchType === 1) { -%>
-    <%_ searchConditions.push({name: property.name, type: 'number', range: false}) -%>
-  <%_ } -%>
-  <%_ if ((property.type === 'number' || property.type === 'array-number') && 2 <= property.searchType &&  property.searchType <= 5) { -%>
-    <%_ searchConditions.push({name: property.name, type: 'number', range: true}) -%>
-  <%_ } -%>
-  <%_ if ((property.type === 'time' || property.type === 'array-time') && 2 <= property.searchType &&  property.searchType <= 5) { -%>
-    <%_ searchConditions.push({name: property.name, type: 'string', range: true}) -%>
-  <%_ } -%>
-<%_ }) -%>
-<%_ } -%>
-import {Component, mixins} from 'nuxt-property-decorator'
-import {cloneDeep} from 'lodash-es'
-import {Context} from '@nuxt/types'
-import {vxm} from '@/store'
-import Base from '@/mixins/base'
-import {<%= h.changeCase.upperCaseFirst(entity.name) %>Api, Model<%= h.changeCase.pascal(entity.pluralName) %>, Model<%= entity.pascalName %>} from '@/apis'
-import {DataTablePageInfo, INITIAL_DATA_TABLE_PAGE_INFO} from '@/components/common/AppDataTable.vue'
-import <%= h.changeCase.pascal(entity.name) %>DataTable from '@/components/<%= entity.name %>/<%= h.changeCase.pascal(entity.name) %>DataTable.vue'
-import {
-  <%= h.changeCase.pascal(entity.name) %>SearchCondition,
-  INITIAL_<%= h.changeCase.constant(entity.name) %>_SEARCH_CONDITION
-} from '@/components/<%= entity.name %>/<%= h.changeCase.pascal(entity.name) %>SearchForm.vue'
-import <%= h.changeCase.pascal(entity.name) %>EntryForm, {INITIAL_<%= h.changeCase.constant(entity.name) %>} from '@/components/<%= entity.name %>/<%= h.changeCase.pascal(entity.name) %>EntryForm.vue'
-
-@Component({
-  components: {
-    <%= h.changeCase.pascal(entity.name) %>DataTable,
-    <%= h.changeCase.pascal(entity.name) %>EntryForm
-  },
-<%_ if (entity.plugins.includes('auth')) { -%>
-  middleware: 'auth'
-<%_ } -%>
-})
-export default class <%= h.changeCase.pascal(entity.pluralName) %> extends mixins(Base) {
-  /** 一覧表示用の配列 */
-  <%= entity.pluralName %>: Model<%= entity.pascalName %>[] = []
-
-  /** 一覧の表示ページ情報 */
-  pageInfo = cloneDeep(INITIAL_DATA_TABLE_PAGE_INFO)
-
-  /** 一覧の合計件数 */
-  totalCount: number = 0
-
-  /** 一覧の読み込み状態 */
-  isLoading: boolean = false
-
-  /** 検索条件 */
-  searchCondition: <%= h.changeCase.pascal(entity.name) %>SearchCondition = cloneDeep(INITIAL_<%= h.changeCase.constant(entity.name) %>_SEARCH_CONDITION)
-
-  /** 入力フォームの表示表示状態 (true: 表示, false: 非表示) */
-  isEntryFormOpen: boolean = false
-
-  /** 編集対象 */
-  editTarget: Model<%= entity.pascalName %> | null = null
-
-  /** 編集対象のインデックス */
-  editIndex: number = 0
-
-  static async fetch(
-    {searchCondition = INITIAL_<%= h.changeCase.constant(entity.name) %>_SEARCH_CONDITION, pageInfo = INITIAL_DATA_TABLE_PAGE_INFO}
-      : { searchCondition: <%= h.changeCase.pascal(entity.name) %>SearchCondition, pageInfo: DataTablePageInfo }
-      = {searchCondition: INITIAL_<%= h.changeCase.constant(entity.name) %>_SEARCH_CONDITION, pageInfo: INITIAL_DATA_TABLE_PAGE_INFO}
-  ): Promise<Model<%= h.changeCase.upperCaseFirst(entity.pluralName) %>> {
-    return await new <%= h.changeCase.upperCaseFirst(entity.name) %>Api().search<%= entity.pascalName %>({
-    <%_ entity.listProperties.listExtraProperties.forEach(function(property, index){ -%>
-<%#_ 通常の検索 -%>
-      <%_ if ((property.type === 'string' || property.type === 'time' || property.type === 'bool' || property.type === 'number')  && property.searchType === 1) { -%>
-      <%= property.name %>: searchCondition.<%= property.name %>.enabled ? searchCondition.<%= property.name %>.value : undefined,
-<%#_ 配列の検索 -%>
-      <%_ } else if ((property.type === 'array-string' || property.type === 'array-time' || property.type === 'array-bool' || property.type === 'array-number')  && property.searchType === 1) { -%>
-      <%= property.name %>: searchCondition.<%= property.name %>.enabled ? [searchCondition.<%= property.name %>.value] : undefined,
-<%#_ 範囲検索 -%>
-      <%_ } else if ((property.type === 'time' || property.type === 'number') && 2 <= property.searchType &&  property.searchType <= 5) { -%>
-      <%= property.name %>: searchCondition.<%= property.name %>.enabled ? searchCondition.<%= property.name %>.value : undefined,
-      <%= property.name %>From: searchCondition.<%= property.name %>From.enabled ? searchCondition.<%= property.name %>From.value : undefined,
-      <%= property.name %>To: searchCondition.<%= property.name %>To.enabled ? searchCondition.<%= property.name %>To.value : undefined,
-<%#_ 配列の範囲検索 -%>
-      <%_ } else if ((property.type === 'array-time' || property.type === 'array-number') && 2 <= property.searchType &&  property.searchType <= 5) { -%>
-      <%= property.name %>: searchCondition.<%= property.name %>.enabled ? [searchCondition.<%= property.name %>.value] : undefined,
-      <%= property.name %>From: searchCondition.<%= property.name %>From.enabled ? searchCondition.<%= property.name %>From.value : undefined,
-      <%= property.name %>To: searchCondition.<%= property.name %>To.enabled ? searchCondition.<%= property.name %>To.value : undefined,
-      <%_ } -%>
-    <%_ }) -%>
-      limit: pageInfo.itemsPerPage !== -1 ? pageInfo.itemsPerPage : undefined,
-<%_ if (entity.dbType === 'datastore') { -%>
-      cursor: pageInfo.page !== 1 ? pageInfo.cursors[pageInfo.page - 2] : undefined,
-      orderBy: pageInfo.sortBy.map((sb, i) => `${(pageInfo.sortDesc)[i] ? '-' : ''}${sb}`).join(',') || undefined
-<%_ } else { -%>
-      offset: (pageInfo.page - 1) * pageInfo.itemsPerPage,
-      orderBy: pageInfo.sortBy.map((sb, i) => `${sb} ${(pageInfo.sortDesc)[i] ? 'desc' : 'asc'}`).join(',') || undefined
-<%_ } -%>
-    }).then(res => res.data)
-  }
-
-  async asyncData({}: Context) {
-    const data = await <%= h.changeCase.pascal(entity.pluralName) %>.fetch()
-    const pageInfo = cloneDeep(INITIAL_DATA_TABLE_PAGE_INFO)
-<%_ if (entity.dbType === 'datastore') { -%>
-    if (data.cursor) {
-      pageInfo.cursors[0] = data.cursor
-    }
-<%_ } -%>
-    return {
-      <%= entity.pluralName %>: data.<%= entity.pluralName %>,
-      totalCount: data.count,
-      pageInfo
-    }
-  }
-
-  async reFetch() {
-    this.isLoading = true
-    try {
-      const data = await <%= h.changeCase.pascal(entity.pluralName) %>.fetch({
-        searchCondition: this.searchCondition,
-        pageInfo: this.pageInfo
-      })
-<%_ if (entity.dbType === 'datastore') { -%>
-      if (data.cursor) {
-        this.pageInfo.cursors[this.pageInfo.page - 1] = data.cursor
-      }
-<%_ } -%>
-      this.<%= entity.pluralName %> = data.<%= entity.pluralName %> || []
-      this.totalCount = data.count || 0
-    } finally {
-      this.isLoading = false
-    }
-  }
-
-  openEntryForm(<%= entity.name %>?: Model<%= entity.pascalName %>) {
-    if (!!<%= entity.name %>) {
-      this.editTarget = cloneDeep(<%= entity.name %>)
-      this.editIndex = this.<%= entity.pluralName %>.indexOf(<%= entity.name %>)
-    } else {
-      this.editTarget = cloneDeep(INITIAL_<%= h.changeCase.constant(entity.name) %>)
-      this.editIndex = this.NEW_INDEX
-    }
-    this.isEntryFormOpen = true
-  }
-
-  removeRow(item: Model<%= entity.pascalName %>) {
-    const index = this.<%= entity.pluralName %>.indexOf(item)
-    this.remove(index)
-  }
-
-  removeForm() {
-    this.remove(this.editIndex)
-  }
-
-  async remove(index: number) {
-    vxm.app.showDialog({
-      title: '削除確認',
-      message: '削除してもよろしいですか？',
-      negativeText: 'Cancel',
-      positive: async () => {
-        vxm.app.showLoading()
-        try {
-          await new <%= h.changeCase.upperCaseFirst(entity.name) %>Api().delete<%= entity.pascalName %>({id: this.<%= entity.pluralName %>[index].id!})
-          this.isEntryFormOpen = false
-          await this.reFetch()
-        } finally {
-          vxm.app.hideLoading()
-        }
-        vxm.app.showSnackbar({text: '削除しました。'})
-      }
-    })
-  }
-}
-</script>
 
 <style scoped></style>

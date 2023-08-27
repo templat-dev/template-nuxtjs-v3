@@ -1,14 +1,14 @@
 ---
-to: <%= rootDirectory %>/<%= projectName %>/cloudbuild.yaml
+to: <%= rootDirectory %>/cloudbuild.yaml
 force: true
 ---
 steps:
   - id: yarn-install
-    name: node:14
+    name: node:18
     entrypoint: yarn
     args: ['install']
   - id: build
-    name: node:14
+    name: node:18
     entrypoint: yarn
     args: ['build:prod']
   - id: deploy

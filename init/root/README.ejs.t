@@ -1,5 +1,5 @@
 ---
-to: <%= rootDirectory %>/<%= projectName %>/README.md
+to: <%= rootDirectory %>/README.md
 force: true
 ---
 # <%= projectName %>
@@ -10,7 +10,7 @@ https://templat.dev/
 ## Environment
 
 * Node
-  ver v14.17.6
+  ver v18
 
 ## Docs
 https://templat.dev/templat/usage/

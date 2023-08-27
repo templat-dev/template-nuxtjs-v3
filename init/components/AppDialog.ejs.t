@@ -1,70 +1,64 @@
 ---
-to: <%= rootDirectory %>/<%= projectName %>/components/modal/AppDialog.vue
+to: <%= rootDirectory %>/components/modal/AppDialog.vue
 force: true
 ---
-<template>
-  <v-dialog v-model="state.open" :persistent="state.persistent" width="400">
-    <v-card>
-      <v-card-title class="dialog-title">{{ state.title }}</v-card-title>
+<script setup lang="ts">
+import {useAppDialog} from "~/composables/states"
 
-      <v-card-text class="dialog-text">{{ state.message }}</v-card-text>
+const appDialog = useAppDialog()
+
+const close = () => {
+  appDialog.open = false
+  if (appDialog.close) {
+    appDialog.close()
+  }
+}
+
+const positive = () => {
+  if (appDialog.positive) {
+    appDialog.positive()
+  }
+  close()
+}
+
+const neutral = () => {
+  if (appDialog.neutral) {
+    appDialog.neutral()
+  }
+  close()
+}
+
+const negative = () => {
+  if (appDialog.negative) {
+    appDialog.negative()
+  }
+  close()
+}
+</script>
+
+<template>
+  <v-dialog v-model="appDialog.open" :persistent="appDialog.persistent" width="400">
+    <v-card>
+      <v-card-title class="dialog-title">{{ appDialog.title }}</v-card-title>
+
+      <v-card-text class="dialog-text">{{ appDialog.message }}</v-card-text>
 
       <v-card-actions>
-        <v-btn v-if="!!state.negativeText" color="grey darken-1" text @click="negative">
-          {{ state.negativeText }}
+        <v-btn v-if="!!appDialog.negativeText" color="grey darken-1" text @click="negative">
+          {{ appDialog.negativeText }}
         </v-btn>
         <v-spacer></v-spacer>
-        <v-btn v-if="!!state.neutralText" color="red darken-1" text @click="neutral">
-          {{ state.neutralText }}
+        <v-btn v-if="!!appDialog.neutralText" color="red darken-1" text @click="neutral">
+          {{ appDialog.neutralText }}
         </v-btn>
         <v-spacer></v-spacer>
         <v-btn color="blue darken-1" text @click="positive">
-          {{ state.positiveText }}
+          {{ appDialog.positiveText }}
         </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
-
-<script lang="ts">
-import {Component, Vue} from 'nuxt-property-decorator'
-import {vxm} from '@/store'
-
-@Component
-export default class AppDialog extends Vue {
-  get state() {
-    return vxm.app.dialog
-  }
-
-  close() {
-    this.state.open = false
-    if (this.state.close) {
-      this.state.close()
-    }
-  }
-
-  positive() {
-    if (this.state.positive) {
-      this.state.positive()
-    }
-    this.close()
-  }
-
-  neutral() {
-    if (this.state.neutral) {
-      this.state.neutral()
-    }
-    this.close()
-  }
-
-  negative() {
-    if (this.state.negative) {
-      this.state.negative()
-    }
-    this.close()
-  }
-}
-</script>
 
 <style scoped>
 .dialog-title {

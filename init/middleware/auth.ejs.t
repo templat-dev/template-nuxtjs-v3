@@ -1,15 +1,28 @@
 ---
-to: "<%= entity.plugins.includes('auth') ? `${rootDirectory}/${projectName}/middleware/auth.ts` : null %>"
+to: "<%= struct.plugins.includes('auth') ? `${rootDirectory}/middleware/auth.global.ts` : null %>"
 force: true
 ---
-import {Context} from '@nuxt/types'
-import {auth} from '~/plugins/firebase'
+import {useAuth} from "~/composables/useAuth";
+import {RouteLocationNormalized} from "vue-router";
+import {defineNuxtRouteMiddleware, navigateTo} from "#app";
+import {USER_TYPE_ADMIN, USER_TYPE_CONST} from "~/constants/constants";
 
-export default async ({route, redirect}: Context) => {
-  if (route.path === '/login') {
-    return
+export default defineNuxtRouteMiddleware(async (to: RouteLocationNormalized) => {
+  if (!process.server) {
+    const { checkAuthState, user } = useAuth()
+    await checkAuthState()
+
+    if (to.path === '/login') {
+      if (user.value) {
+        console.log(`auth.global.ts: ${user.value.email} is logged in`)
+        return navigateTo('/', {replace: true})
+      }
+      return
+    }
+    // tokenがなければログインページにリダイレクト
+    if (!user.value) {
+      console.log(`auth.global.ts: token.value is null`)
+      return navigateTo('/login', {replace: true})
+    }
   }
-  if (!auth.currentUser) {
-    return redirect('/login')
-  }
-}
+})

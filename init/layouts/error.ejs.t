@@ -1,7 +1,32 @@
 ---
-to: <%= rootDirectory %>/<%= projectName %>/layouts/error.vue
+to: <%= rootDirectory %>/layouts/error.vue
 force: true
 ---
+<script lang="ts" setup>
+
+interface Props {
+  error?: Object
+}
+const props = defineProps<Props>()
+
+const pageNotFound = '404 Not Found'
+const otherError = this.error.message || 'An error occurred'
+const to = computed(() => {
+  return '/'
+})
+
+const linkTitle = computed(() => {
+  return 'Topに戻る'
+})
+
+const head = () => {
+  const title = props.error.statusCode === 404 ? pageNotFound : otherError
+  return {
+    title
+  }
+}
+</script>
+
 <template>
   <v-layout align-center>
     <v-card class="auto-flex root">
@@ -21,38 +46,6 @@ force: true
     </v-card>
   </v-layout>
 </template>
-
-<script>
-export default {
-  layout: 'empty',
-  props: {
-    error: {
-      type: Object,
-      default: null
-    }
-  },
-  data() {
-    return {
-      pageNotFound: '404 Not Found',
-      otherError: this.error.message || 'An error occurred'
-    }
-  },
-  computed: {
-    to: function () {
-      return '/'
-    },
-    linkTitle: function () {
-      return 'Topに戻る'
-    }
-  },
-  head() {
-    const title = this.error.statusCode === 404 ? this.pageNotFound : this.otherError
-    return {
-      title
-    }
-  }
-}
-</script>
 
 <style scoped>
 .root {

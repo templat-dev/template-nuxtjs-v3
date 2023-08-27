@@ -1,5 +1,5 @@
 ---
-to: <%= rootDirectory %>/<%= projectName %>/.editorconfig
+to: <%= rootDirectory %>/.editorconfig
 force: true
 ---
 # editorconfig.org

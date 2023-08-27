@@ -1,8 +1,8 @@
 ---
-to: <%= rootDirectory %>/<%= projectName %>/app_stg.yaml
+to: <%= rootDirectory %>/app_stg.yaml
 force: true
 ---
-runtime: nodejs14
+runtime: nodejs18
 
 instance_class: F2
 

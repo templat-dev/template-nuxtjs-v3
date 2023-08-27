@@ -1,7 +1,105 @@
 ---
-to: "<%= entity.plugins.includes('image') ? `${rootDirectory}/${projectName}/components/form/ImageStructArrayForm.vue` : null %>"
+to: "<%= struct.plugins.includes('image') ? `${rootDirectory}/components/form/ImageStructArrayForm.vue` : null %>"
 force: true
 ---
+<script setup lang="ts" generic="T">
+import {ImageApi} from '@/apis'
+import appUtils from '@/utils/appUtils'
+import {cloneDeep} from 'lodash-es'
+
+interface ImageStruct {
+  url?: string
+  thumbnailURL?: string
+}
+interface Props {
+  /** 画面表示ラベル */
+  label?: string,
+  /** 画像保存ディレクトリ名 */
+  dir?: string,
+  /** 単一の編集対象の初期値 */
+  initial: T,
+  /** 編集対象 */
+  imageStructs?: T[],
+  /** サムネイル作成有無 (true: 作成する, false: 作成しない) */
+  thumbnail?: boolean,
+  /** サムネイルのサイズ */
+  thumbnailSize?: number,
+}
+const props = withDefaults(defineProps<Props>(), {
+  label: '',
+  dir: '',
+  initial: {}
+  imageStructs: [],
+  thumbnail: false,
+  thumbnailSize: 200,
+})
+
+/** 画像ドロップエリアの表示 (true: 表示, false: 非表示) */
+const dragOvered = ref<boolean>(false)
+
+const selectFile = () => {
+  (fileInput.value as HTMLInputElement).click()
+}
+
+const uploadImage = async (file: File) => {
+  const responseImage = await new ImageApi().uploadImage({
+    name: appUtils.generateRandomString(8),
+    dir: `${props.dir}/${props.label}`,
+    image: file,
+    thumbnail: props.thumbnail,
+    thumbnailSize: props.thumbnailSize
+  }).then(res => res.data)
+  if (responseImage && responseImage.url) {
+    const imageStruct = cloneDeep(props.initial)
+    imageStruct.url = responseImage.url
+    imageStruct.thumbnailURL = responseImage.thumbnailURL
+    addImageStruct(imageStruct)
+  }
+}
+
+const dropImages = async (e: DragEvent) => {
+  dragOvered.value = false
+  if (!e.dataTransfer || !e.dataTransfer.files || e.dataTransfer.files.length === 0) {
+    return
+  }
+  try {
+    loading.showLoading()
+    for (const file of Array.from(e.dataTransfer.files)) {
+      await uploadImage(file)
+    }
+  } finally {
+    loading.hideLoading()
+  }
+}
+
+const selectImages = async (e: InputEvent) => {
+  const files = (e.target as HTMLInputElement).files
+  if (!files || files.length === 0) {
+    return
+  }
+  try {
+    loading.showLoading()
+    for (const file of Array.from(files)) {
+      await uploadImage(file)
+    }
+  } finally {
+    loading.hideLoading()
+  }
+}
+
+const removeImage = (index: number) => {
+  if (!imageURLs) {
+    return
+  }
+  emit('remove-image', index)
+}
+
+const addImageStruct = (imageStruct: T) => {
+  console.log(`addImageStruct ${JSON.stringify(imageStruct)}`)
+  emit('add-image-struct', imageStruct)
+}
+</script>
+
 <template>
   <div
     :class="{ droppable: dragOvered }"
@@ -12,7 +110,7 @@ force: true
       <span>{{ label }}</span>
     </v-layout>
     <v-layout wrap>
-      <div v-for="(imageStruct, index) in syncedImageStructs" :key="index" class="relative mb-4 mr-4">
+      <div v-for="(imageStruct, index) in imageStructs" :key="index" class="relative mb-4 mr-4">
         <v-img :src="imageStruct.url" aspect-ratio="1" class="grey lighten-2" height="100px" width="100px">
           <template #placeholder>
             <v-row align="center" class="fill-height ma-0" justify="center">
@@ -34,110 +132,6 @@ force: true
     </v-layout>
   </div>
 </template>
-
-<script lang="ts">
-import {Component, Prop, PropSync, Vue} from 'nuxt-property-decorator'
-import {ImageApi} from '@/apis'
-import appUtils from '@/utils/appUtils'
-import {vxm} from '@/store'
-import {cloneDeep} from 'lodash-es'
-
-interface ImageStruct {
-  url?: string
-  thumbnailURL?: string
-}
-
-@Component
-export default class ImageStructArrayForm<T extends ImageStruct> extends Vue {
-  /** 画面表示ラベル */
-  @Prop({type: String, default: ''})
-  label!: string
-
-  /** 画像保存ディレクトリ名 */
-  @Prop({type: String, required: true})
-  dir!: string
-
-  /** 単一の編集対象の初期値 */
-  @Prop({type: Object, required: true})
-  initial!: T
-
-  /** 編集対象 */
-  @PropSync('imageStructs', {type: Array, default: undefined})
-  syncedImageStructs: T[] | undefined
-
-  /** サムネイル作成有無 (true: 作成する, false: 作成しない) */
-  @Prop({type: Boolean, default: false})
-  thumbnail!: boolean
-
-  /** サムネイルのサイズ */
-  @Prop({type: Number, default: 200})
-  thumbnailSize!: number
-
-  /** 画像ドロップエリアの表示 (true: 表示, false: 非表示) */
-  dragOvered: boolean = false
-
-  selectFile() {
-    (this.$refs.fileInput as HTMLElement).click()
-  }
-
-  async uploadImage(file: File) {
-    const responseImage = await new ImageApi().uploadImage({
-      name: appUtils.generateRandomString(8),
-      dir: `${this.dir}/${this.label}`,
-      image: file,
-      thumbnail: this.thumbnail,
-      thumbnailSize: this.thumbnailSize
-    }).then(res => res.data)
-    if (responseImage && responseImage.url) {
-      const imageStruct = cloneDeep(this.initial)
-      imageStruct.url = responseImage.url
-      imageStruct.thumbnailURL = responseImage.thumbnailURL
-      if (this.syncedImageStructs) {
-        this.syncedImageStructs.push(imageStruct)
-      } else {
-        this.syncedImageStructs = [imageStruct]
-      }
-    }
-  }
-
-  async dropImages(e: DragEvent) {
-    this.dragOvered = false
-    if (!e.dataTransfer || !e.dataTransfer.files || e.dataTransfer.files.length === 0) {
-      return
-    }
-    try {
-      vxm.app.showLoading()
-      for (const file of Array.from(e.dataTransfer.files)) {
-        await this.uploadImage(file)
-      }
-    } finally {
-      vxm.app.hideLoading()
-    }
-  }
-
-  async selectImages(e: InputEvent) {
-    const files = (e.target as HTMLInputElement).files
-    if (!files || files.length === 0) {
-      return
-    }
-    try {
-      vxm.app.showLoading()
-      for (const file of Array.from(files)) {
-        await this.uploadImage(file)
-      }
-    } finally {
-      vxm.app.hideLoading()
-    }
-  }
-
-  removeImage(index: number) {
-    if (!this.syncedImageStructs) {
-      return
-    }
-    this.syncedImageStructs.splice(index, 1)
-  }
-}
-</script>
 
 <style scoped>
 .droppable {

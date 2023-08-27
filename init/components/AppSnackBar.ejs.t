@@ -1,39 +1,33 @@
 ---
-to: <%= rootDirectory %>/<%= projectName %>/components/modal/AppSnackBar.vue
+to: <%= rootDirectory %>/components/modal/AppSnackBar.vue
 force: true
 ---
+<script setup lang="ts">
+import {useAppDialog} from "~/composables/states"
+
+const appDialog = useAppDialog()
+
+const close = () => {
+  appDialog.open = false
+}
+
+const action = () => {
+  if (appDialog.action) {
+    appDialog.action()
+  }
+  close()
+}
+</script>
+
 <template>
-  <v-snackbar v-model="state.open" :timeout="state.timeout">
+  <v-snackbar v-model="appDialog.open" :timeout="appDialog.timeout">
     {{ state.text }}
-    <template v-if="state.actionText" v-slot:action="{ attrs }">
+    <template v-if="appDialog.actionText" v-slot:action="{ attrs }">
       <v-btn v-bind="attrs" color="primary" text @click="action">
-        {{ state.actionText }}
+        {{ appDialog.actionText }}
       </v-btn>
     </template>
   </v-snackbar>
 </template>
-
-<script lang="ts">
-import {Component, Vue} from 'nuxt-property-decorator'
-import {vxm} from '@/store'
-
-@Component
-export default class AppSnackBar extends Vue {
-  get state() {
-    return vxm.app.snackbar
-  }
-
-  close() {
-    this.state.open = false
-  }
-
-  action() {
-    if (this.state.action) {
-      this.state.action()
-    }
-    this.close()
-  }
-}
-</script>
 
 <style scoped></style>

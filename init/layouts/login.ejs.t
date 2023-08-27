@@ -1,5 +1,5 @@
 ---
-to: "<%= entity.plugins.includes('auth') ? `${rootDirectory}/${projectName}/layouts/login.vue` : null %>"
+to: "<%= struct.plugins.includes('auth') ? `${rootDirectory}/layouts/login.vue` : null %>"
 force: true
 ---
 <template>

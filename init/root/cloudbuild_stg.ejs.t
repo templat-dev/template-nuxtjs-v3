@@ -1,14 +1,14 @@
 ---
-to: <%= rootDirectory %>/<%= projectName %>/cloudbuild_stg.yaml
+to: <%= rootDirectory %>/cloudbuild_stg.yaml
 force: true
 ---
 steps:
   - id: yarn-install
-    name: node:14
+    name: node:18
     entrypoint: yarn
     args: ['install']
   - id: build
-    name: node:14
+    name: node:18
     entrypoint: yarn
     args: ['build:stg']
   - id: deploy

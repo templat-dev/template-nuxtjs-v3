@@ -1,70 +1,101 @@
 ---
-to: "<%= entity.plugins.includes('auth') ? `${rootDirectory}/${projectName}/pages/login.vue` : null %>"
+to: "<%= struct.plugins.includes('auth') ? `${rootDirectory}/pages/login.vue` : null %>"
 force: true
 ---
-<template>
-  <v-row justify="center">
-    <v-col class="login-panel pa-8" cols="10" md="6" sm="8">
-      <img alt="ロゴ" class="logo mb-4" src="@/assets/image/logo.png">
-      <span class="login-headline">ログイン</span>
-      <div id="firebaseui-auth-container"></div>
-    </v-col>
-  </v-row>
-</template>
+<script setup lang="ts">
+import {navigateTo} from "#app";
+import {useAuth} from "~/composables/useAuth";
+import {Ref, ref, watch} from "vue";
+import {definePageMeta} from "#imports";
+import {USER_TYPE_CONST} from "~/constants/constants";
+import {ModelUser} from "~/apis";
 
-<script lang="ts">
-import {Component, mixins} from 'nuxt-property-decorator'
-import firebase from 'firebase/app'
-import Base from '@/mixins/base'
-import {authUI} from '@/plugins/firebase'
-import {vxm} from '@/store'
+definePageMeta({
+  layout: 'login',
+})
 
-const AUTH_UI_DEFAULT_CONFIG = {
-  signInOptions: [
-    {
-      provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-      scopes: []
-    }
-  ]
+const {user, checkAuthState} = useAuth()
+const email: Ref<string> = ref('')
+const password: Ref<string> = ref('')
+const show: Ref<boolean> = ref(false)
+
+watch(show, (show) => {
+  if (user) {
+    navigateOnSignIn()
+  }
+})
+
+const navigateOnSignIn = () => {
+  if (user.value?.userType === USER_TYPE_CONST.SELLER) {
+    navigateTo('/seller/estate')
+    return
+  }
+  navigateTo('/')
 }
 
-@Component
-export default class LoginPage extends mixins(Base) {
-  mounted() {
-    if (authUI.isPendingRedirect()) {
-      vxm.app.showLoading()
+const signIn = async (): Promise<void> => {
+  await useAuth().signIn(email.value, password.value)
+  checkAuthState().then((user: ModelUser | null) => {
+    if (user) {
+      navigateOnSignIn()
+    } else {
+      console.log('ユーザー情報が存在しません')
     }
-    let signInSuccessUrl = '/'
-    if (this.$route.query.r) {
-      signInSuccessUrl = this.$route.query.r.toString()
-    }
-    authUI.start('#firebaseui-auth-container', {
-      ...AUTH_UI_DEFAULT_CONFIG,
-      signInSuccessUrl
-    })
+  })
+}
+
+const signUp = async (): Promise<void> => {
+  await useAuth().signUp(email.value, password.value)
+  if (useAuth().user.value) {
+    navigateOnSignIn()
+  } else {
+    console.log('ユーザー情報が存在しません')
   }
 }
 </script>
 
-<style scoped>
-.logo {
-  width: 120px;
-  height: 120px;
-}
-
-.login-headline {
-  font-size: 20px;
-}
-
-.login-panel {
-  background-color: rgba(0, 0, 0, 0.02);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  border-radius: 4px;
-}
-
-#firebaseui-auth-container >>> ul {
-  padding-left: 0;
-}
-</style>
+<template>
+  <v-container>
+    <v-card max-width="500" class="mx-auto">
+      <v-card-text>
+        <v-text-field
+            v-model="email"
+            label="メールアドレス"
+            type="email"
+        >
+        </v-text-field>
+        <v-text-field
+            v-model="password"
+            label="パスワード"
+            :type="show ? 'text' : 'password'"
+            :append-inner-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
+            @click:append-inner="show = !show"
+        >
+        </v-text-field>
+      </v-card-text>
+      <v-card-actions>
+        <v-container>
+          <v-row>
+            <v-col>
+              <v-btn color="#e974b3" variant="flat" @click="signIn">
+                ログイン
+              </v-btn>
+            </v-col>
+            <v-col>
+              <v-btn color="#e974b3" variant="text" @click="signUp">
+                アカウント登録
+              </v-btn>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-btn color="#e974b3" variant="text">
+                パスワードを忘れた方はこちら
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-card-actions>
+    </v-card>
+  </v-container>
+</template>

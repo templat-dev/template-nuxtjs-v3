@@ -1,5 +1,5 @@
 ---
-to: <%= rootDirectory %>/<%= projectName %>/.gitignore
+to: <%= rootDirectory %>/.gitignore
 force: true
 ---
 # Created by .ignore support plugin (hsz.mobi)

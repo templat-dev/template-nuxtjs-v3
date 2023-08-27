@@ -1,5 +1,5 @@
 ---
-to: <%= rootDirectory %>/<%= projectName %>/env/.env.stg
+to: <%= rootDirectory %>/env/.env.stg
 force: true
 ---
-NUXT_ENV_API_BASE_PATH=<%= entity.apiSchemeSTG %>://<%= entity.apiHostSTG %><%= entity.apiBasePathSTG %>
+NUXT_PUBLIC_API_BASE_PATH=<%= struct.apiSchemeSTG %>://<%= struct.apiHostSTG %><%= struct.apiBasePathSTG %>

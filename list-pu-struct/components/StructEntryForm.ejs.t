@@ -1,14 +1,220 @@
 ---
-to: <%= rootDirectory %>/<%= projectName %>/components/<%= entity.name %>/<%= h.changeCase.pascal(entity.name) %>EntryForm.vue
+to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct.name.pascalName %>EntryForm.vue
 ---
+<script setup lang="ts">
+<%_ let structForms = [] -%>
+<%_ struct.fields.forEach(function (property, key) { -%>
+  <%_ if (property.editType === 'struct') { -%>
+    <%_ structForms.push(property.name) -%>
+  <%_ } -%>
+<%_ }) -%>
+import {<%_ if (struct.screenType !== 'struct') { -%><%= h.changeCase.upperCaseFirst(struct.name) %>Api, <% } -%>Model<%= struct.pascalName %>} from '@/apis'
+<%_ let importDateTime = false -%>
+<%_ struct.fields.forEach(function (property, key) { -%>
+  <%_ if ((property.editType === 'time' || property.editType === 'array-time') && !importDateTime) { -%>
+import DateTimeForm from '@/components/form/DateTimeForm.vue'
+      <%_ importDateTime = true -%>
+  <%_ } -%>
+<%_ }) -%>
+<%_ if (struct.hasImage === true) { -%>
+import ImageForm from '@/components/form/ImageForm.vue'
+<%_ } -%>
+<%_ if (struct.hasMultiImage === true) { -%>
+import ImageArrayForm from '@/components/form/ImageArrayForm.vue'
+<%_ } -%>
+<%_ const importArrayStructSet = new Set() -%>
+<%_ const importStructSet = new Set() -%>
+<%_ let importExpansion = false -%>
+<%_ let importStructArrayForm = false -%>
+<%_ let importArrayForm = false -%>
+<%_ struct.fields.forEach(function (property, key) { -%>
+  <%_ if (property.editType === 'array-struct') { -%>
+    <%_ if (!importStructArrayForm) { -%>
+import StructArrayForm from '@/components/form/StructArrayForm.vue'
+      <%_ importStructArrayForm = true -%>
+    <%_ } -%>
+    <%_ if (!importExpansion) { -%>
+import Expansion from '@/components/form/Expansion.vue'
+      <%_ importExpansion = true -%>
+    <%_ } -%>
+    <%_ if (!importArrayStructSet.has(property.structType)) { -%>
+import <%= h.changeCase.pascal(property.structType) %>EntryForm, {INITIAL_<%= h.changeCase.constant(property.structType) %>} from '@/components/<%= h.changeCase.camel(property.structType) %>/<%= h.changeCase.pascal(property.structType) %>EntryForm.vue'
+import <%= h.changeCase.pascal(property.structType) %>DataTable from '@/components/<%= h.changeCase.camel(property.structType) %>/<%= h.changeCase.pascal(property.structType) %>DataTable.vue'
+      <%_ importArrayStructSet.add(property.structType) -%>
+    <%_ } -%>
+  <%_ } -%>
+<%_ }) -%>
+<%_ struct.fields.forEach(function (property, key) { -%>
+  <%_ if (property.editType === 'struct') { -%>
+    <%_ if (!importExpansion) { -%>
+import Expansion from '@/components/form/Expansion.vue'
+      <%_ importExpansion = true -%>
+    <%_ } -%>
+    <%_ if (!importArrayStructSet.has(property.structType) && !importStructSet.has(property.structType)) { -%>
+import <%= h.changeCase.pascal(property.structType) %>EntryForm, {INITIAL_<%= h.changeCase.constant(property.structType) %>} from '@/components/<%= h.changeCase.camel(property.structType) %>/<%= h.changeCase.pascal(property.structType) %>EntryForm.vue'
+      <%_ importStructSet.add(property.structType) -%>
+    <%_ } -%>
+  <%_ } -%>
+  <%_ if (property.editType === 'array-string' || property.editType === 'array-textarea' || property.editType === 'array-number' || property.editType === 'array-time' || property.editType === 'array-bool') { -%>
+    <%_ if (!importExpansion) { -%>
+import Expansion from '@/components/form/Expansion.vue'
+      <%_ importExpansion = true -%>
+    <%_ } -%>
+    <%_ if (!importArrayForm) { -%>
+import ArrayForm from '@/components/form/ArrayForm.vue'
+      <%_ importArrayForm = true -%>
+    <%_ } -%>
+  <%_ } -%>
+<%_ }) -%>
+
+export const INITIAL_<%= struct.name.upperSnakeName %>: Model<%= struct.pascalName %> = {
+<%_ struct.fields.forEach(function (property, key) { -%>
+  <%_ if (property.editType === 'struct') { -%>
+  <%= property.name %>: INITIAL_<%= h.changeCase.constant(property.structType) %>,
+  <%_ } -%>
+  <%_ if (property.editType.startsWith('array')) { -%>
+  <%= property.name %>: [],
+  <%_ } -%>
+  <%_ if (property.editType === 'string' || property.editType === 'textarea' || property.editType === 'time') { -%>
+  <%= property.name %>: undefined,
+  <%_ } -%>
+  <%_ if (property.editType === 'bool') { -%>
+  <%= property.name %>: undefined,
+  <%_ } -%>
+  <%_ if (property.editType === 'number') { -%>
+  <%= property.name %>: undefined,
+  <%_ } -%>
+<%_ }) -%>
+}
+
+interface Props {
+  /** 表示状態 (true: 表示, false: 非表示) */
+  open!: boolean
+  /** 編集対象 */
+  target!: Model<%= struct.pascalName %>
+  /** 表示方式 (true: 埋め込み, false: ダイアログ) */
+  isEmbedded!: boolean
+  /** 表示方式 (true: 子要素として表示, false: 親要素として表示) */
+  hasParent!: boolean
+  /** 編集状態 (true: 新規, false: 更新) */
+  isNew!: boolean
+}
+const props = withDefaults(defineProps<Props>(), {
+  open: true,
+  target: {},
+  isEmbedded: false,
+  hasParent: false,
+  isNew: true,
+})
+
+interface Emits {
+  (e: "updated", item: T): void;
+  (e: "remove", item: T): void;
+  (e: "update:open", open: boolean): void;
+}
+const emit = defineEmits<Emits>()
+
+const dialog = useAppDialog()
+
+<%_ struct.fields.forEach(function (property, key) { -%>
+  <%_ if (property.editType === 'array-struct') { -%>
+
+  /** <%= property.structName.pascalName %>の初期値 */
+const initial<%= property.structName.pascalName %> = ref<Model<%= struct.pascalName %>>(INITIAL_<%= property.structName.upperSnakeName %>)
+  <%_ } -%>
+<%_ }) -%>
+
+const validationRules = ref<any>({
+<%_ struct.fields.forEach(function (property, key) { -%>
+  <%_ if (property.editType !== 'array-struct' && property.editType !== 'struct') { -%>
+    <%= field.name.lowerCamelName %>: [],
+  <%_ } -%>
+<%_ }) -%>
+})
+
+watch(open, (open) => {
+  if (props.open) {
+    entryForm.value.resetValidation()<% if (structForms.length > 0) { %>;<% } %>
+<%_ structForms.forEach(function (name, index) { -%>
+    (<%= name %>Form.value?.$refs.entryForm as VForm)?.resetValidation()<% if (structForms.length - 1 !== index) { %>;<% } %>
+<%_ }) -%>
+  }
+})
+
+const initializeTarget = () => {
+  this.target = INITIAL_<%= struct.name.upperSnakeName %>
+}
+
+  validateForm() {
+<%_ if (structForms.length === 0) { -%>
+    if (!(this.$refs.entryForm as VForm).validate()) {
+<%_ } else { -%>
+    if (!(this.$refs.entryForm as VForm).validate()
+<%_ structForms.forEach(function (name, index) { -%>
+      || ((this.$refs.<%= name %>Form as Vue)?.$refs.entryForm as VForm)?.validate() === false<% if (structForms.length - 1 === index) { %>) {<% } %>
+<%_ }) -%>
+<%_ } -%>
+      vxm.app.showDialog({
+        title: 'エラー',
+        message: '入力項目を確認して下さい。'
+      })
+      return
+    }
+    this.save()
+  }
+
+  @Emit('updated')
+  async save() {
+  <%_ if (struct.screenType !== 'struct') { -%><%# Structでない場合 -%>
+    if (this.hasParent) {
+      // 親要素側で保存
+      return
+    }
+    vxm.app.showLoading()
+    try {
+      if (this.isNew) {
+        // 新規の場合
+        await new <%= h.changeCase.upperCaseFirst(struct.name) %>Api().create<%= struct.pascalName %>({
+          body: this.syncedTarget
+        })
+      } else {
+        // 更新の場合
+        await new <%= h.changeCase.upperCaseFirst(struct.name) %>Api().update<%= struct.pascalName %>({
+          id: this.syncedTarget.id!,
+          body: this.syncedTarget
+        })
+      }
+      this.close()
+    } finally {
+      vxm.app.hideLoading()
+    }
+  <%_ } else { -%>
+    this.close()
+  <%_ } -%>
+  }
+
+  @Emit('remove')
+  async remove() {
+    return this.syncedTarget
+  }
+
+  @Emit('close')
+  close() {
+    if (!this.isEmbedded) {
+      this.syncedOpen = false
+    }
+  }
+}
+</script>
+
 <template>
   <v-card :elevation="0">
-    <v-card-title v-if="!isEmbedded"><%= entity.label || h.changeCase.pascal(entity.name) %>{{ isNew ? '追加' : '編集' }}</v-card-title>
+    <v-card-title v-if="!isEmbedded"><%= struct.label || struct.name.pascalName %>{{ isNew ? '追加' : '編集' }}</v-card-title>
     <v-card-text>
       <v-layout v-if="syncedTarget" wrap>
         <v-form ref="entryForm" class="full-width" lazy-validation>
-        <%_ entity.editProperties.forEach(function (property, key) { -%>
-          <%_ if (property.type === 'string' && property.name === 'id') { -%>
+        <%_ struct.fields.forEach(function (property, key) { -%>
+          <%_ if (property.editType === 'string' && property.name === 'id') { -%>
           <v-flex md12 sm12 xs12>
             <v-text-field
               v-model="syncedTarget.<%= property.name %>"
@@ -19,7 +225,7 @@ to: <%= rootDirectory %>/<%= projectName %>/components/<%= entity.name %>/<%= h.
             ></v-text-field>
           </v-flex>
           <%_ } -%>
-          <%_ if (property.type === 'string' && property.name !== 'id') { -%>
+          <%_ if (property.editType === 'string' && property.name !== 'id') { -%>
           <v-flex md12 sm12 xs12>
             <v-text-field
               v-model="syncedTarget.<%= property.name %>"
@@ -28,7 +234,7 @@ to: <%= rootDirectory %>/<%= projectName %>/components/<%= entity.name %>/<%= h.
             ></v-text-field>
           </v-flex>
           <%_ } -%>
-          <%_ if (property.type === 'number' && property.name === 'id') { -%>
+          <%_ if (property.editType === 'number' && property.name === 'id') { -%>
           <v-flex md12 sm12 xs12>
             <v-text-field
               :disabled="!isNew"
@@ -41,7 +247,7 @@ to: <%= rootDirectory %>/<%= projectName %>/components/<%= entity.name %>/<%= h.
             ></v-text-field>
           </v-flex>
           <%_ } -%>
-          <%_ if (property.type === 'number' && property.name !== 'id') { -%>
+          <%_ if (property.editType === 'number' && property.name !== 'id') { -%>
           <v-flex md12 sm12 xs12>
             <v-text-field
               :rules="validationRules.<%= property.name %>"
@@ -52,14 +258,14 @@ to: <%= rootDirectory %>/<%= projectName %>/components/<%= entity.name %>/<%= h.
             ></v-text-field>
           </v-flex>
           <%_ } -%>
-          <%_ if (property.type === 'time') { -%>
+          <%_ if (property.editType === 'time') { -%>
           <date-time-form
             :date-time.sync="syncedTarget.<%= property.name %>"
             :rules="validationRules.<%= property.name %>"
             label="<%= property.screenLabel ? property.screenLabel : property.name %>"
           ></date-time-form>
           <%_ } -%>
-          <%_ if (property.type === 'textarea') { -%>
+          <%_ if (property.editType === 'textarea') { -%>
           <v-flex md12 sm12 xs12>
             <v-textarea
               v-model="syncedTarget.<%= property.name %>"
@@ -68,7 +274,7 @@ to: <%= rootDirectory %>/<%= projectName %>/components/<%= entity.name %>/<%= h.
             ></v-textarea>
           </v-flex>
           <%_ } -%>
-          <%_ if (property.type === 'bool') { -%>
+          <%_ if (property.editType === 'bool') { -%>
           <v-flex md12 sm12 xs12>
             <v-checkbox
               v-model="syncedTarget.<%= property.name %>"
@@ -77,27 +283,27 @@ to: <%= rootDirectory %>/<%= projectName %>/components/<%= entity.name %>/<%= h.
             ></v-checkbox>
           </v-flex>
           <%_ } -%>
-          <%_ if (property.type === 'image' && property.dataType === 'string') { -%>
+          <%_ if (property.editType === 'image' && property.dataType === 'string') { -%>
           <v-flex xs12>
             <image-form
               :image-url.sync="syncedTarget.<%= property.name %>"
               :rules="validationRules.<%= property.name %>"
-              dir="<%= entity.name %>/<%= property.name %>"
+              dir="<%= struct.name.lowerCamelName %>/<%= property.name %>"
               label="<%= property.screenLabel ? property.screenLabel : property.name %>"
             ></image-form>
           </v-flex>
           <%_ } -%>
-          <%_ if (property.type === 'array-image') { -%>
+          <%_ if (property.editType === 'array-image') { -%>
           <v-flex xs12>
             <image-array-form
               :image-urls.sync="syncedTarget.<%= property.name %>"
               :rules="validationRules.<%= property.name %>"
-              dir="<%= entity.name %>/<%= property.name %>"
+              dir="<%= struct.name.lowerCamelName %>/<%= property.name %>"
               label="<%= property.screenLabel ? property.screenLabel : property.name %>"
             ></image-array-form>
           </v-flex>
           <%_ } -%>
-          <%_ if (property.type === 'array-string' || property.type === 'array-textarea' || property.type === 'array-number' || property.type === 'array-time' || property.type === 'array-bool') { -%>
+          <%_ if (property.editType === 'array-string' || property.editType === 'array-textarea' || property.editType === 'array-number' || property.editType === 'array-time' || property.editType === 'array-bool') { -%>
           <v-flex xs12>
             <expansion label="<%= property.screenLabel ? property.screenLabel : property.name %>一覧">
               <%_ if (property.childType === 'string') { -%>
@@ -169,7 +375,7 @@ to: <%= rootDirectory %>/<%= projectName %>/components/<%= entity.name %>/<%= h.
             </expansion>
           </v-flex>
           <%_ } -%>
-          <%_ if (property.type === 'array-struct') { -%>
+          <%_ if (property.editType === 'array-struct') { -%>
           <v-flex xs12>
             <expansion label="<%= property.screenLabel ? property.screenLabel : property.name %>一覧">
               <struct-array-form
@@ -198,7 +404,7 @@ to: <%= rootDirectory %>/<%= projectName %>/components/<%= entity.name %>/<%= h.
             </expansion>
           </v-flex>
           <%_ } -%>
-          <%_ if (property.type === 'struct') { -%>
+          <%_ if (property.editType === 'struct') { -%>
           <v-flex xs12>
             <expansion expanded label="<%= property.screenLabel ? property.screenLabel : property.name %>">
               <<%= h.changeCase.param(property.structType) %>-entry-form
@@ -229,271 +435,6 @@ to: <%= rootDirectory %>/<%= projectName %>/components/<%= entity.name %>/<%= h.
     </v-card-actions>
   </v-card>
 </template>
-
-<script lang="ts">
-<%_ let structForms = [] -%>
-<%_ entity.editProperties.forEach(function (property, key) { -%>
-  <%_ if (property.type === 'struct') { -%>
-    <%_ structForms.push(property.name) -%>
-  <%_ } -%>
-<%_ }) -%>
-import {Component, Emit, mixins, Prop, PropSync, <% if (structForms.length > 0) { %>Vue, <% } %>Watch} from 'nuxt-property-decorator'
-import {vxm} from '@/store'
-import Base, {VForm} from '@/mixins/base'
-import {<%_ if (entity.screenType !== 'struct') { -%><%= h.changeCase.upperCaseFirst(entity.name) %>Api, <% } -%>Model<%= entity.pascalName %>} from '@/apis'
-<%_ let importDateTime = false -%>
-<%_ entity.editProperties.forEach(function (property, key) { -%>
-  <%_ if ((property.type === 'time' || property.type === 'array-time') && !importDateTime) { -%>
-import DateTimeForm from '@/components/form/DateTimeForm.vue'
-      <%_ importDateTime = true -%>
-  <%_ } -%>
-<%_ }) -%>
-<%_ if (entity.hasImage === true) { -%>
-import ImageForm from '@/components/form/ImageForm.vue'
-<%_ } -%>
-<%_ if (entity.hasMultiImage === true) { -%>
-import ImageArrayForm from '@/components/form/ImageArrayForm.vue'
-<%_ } -%>
-<%_ const importArrayStructSet = new Set() -%>
-<%_ const importStructSet = new Set() -%>
-<%_ let importExpansion = false -%>
-<%_ let importStructArrayForm = false -%>
-<%_ let importArrayForm = false -%>
-<%_ entity.editProperties.forEach(function (property, key) { -%>
-  <%_ if (property.type === 'array-struct') { -%>
-    <%_ if (!importStructArrayForm) { -%>
-import StructArrayForm from '@/components/form/StructArrayForm.vue'
-      <%_ importStructArrayForm = true -%>
-    <%_ } -%>
-    <%_ if (!importExpansion) { -%>
-import Expansion from '@/components/form/Expansion.vue'
-      <%_ importExpansion = true -%>
-    <%_ } -%>
-    <%_ if (!importArrayStructSet.has(property.structType)) { -%>
-import <%= h.changeCase.pascal(property.structType) %>EntryForm, {INITIAL_<%= h.changeCase.constant(property.structType) %>} from '@/components/<%= h.changeCase.camel(property.structType) %>/<%= h.changeCase.pascal(property.structType) %>EntryForm.vue'
-import <%= h.changeCase.pascal(property.structType) %>DataTable from '@/components/<%= h.changeCase.camel(property.structType) %>/<%= h.changeCase.pascal(property.structType) %>DataTable.vue'
-      <%_ importArrayStructSet.add(property.structType) -%>
-    <%_ } -%>
-  <%_ } -%>
-<%_ }) -%>
-<%_ entity.editProperties.forEach(function (property, key) { -%>
-  <%_ if (property.type === 'struct') { -%>
-    <%_ if (!importExpansion) { -%>
-import Expansion from '@/components/form/Expansion.vue'
-      <%_ importExpansion = true -%>
-    <%_ } -%>
-    <%_ if (!importArrayStructSet.has(property.structType) && !importStructSet.has(property.structType)) { -%>
-import <%= h.changeCase.pascal(property.structType) %>EntryForm, {INITIAL_<%= h.changeCase.constant(property.structType) %>} from '@/components/<%= h.changeCase.camel(property.structType) %>/<%= h.changeCase.pascal(property.structType) %>EntryForm.vue'
-      <%_ importStructSet.add(property.structType) -%>
-    <%_ } -%>
-  <%_ } -%>
-  <%_ if (property.type === 'array-string' || property.type === 'array-textarea' || property.type === 'array-number' || property.type === 'array-time' || property.type === 'array-bool') { -%>
-    <%_ if (!importExpansion) { -%>
-import Expansion from '@/components/form/Expansion.vue'
-      <%_ importExpansion = true -%>
-    <%_ } -%>
-    <%_ if (!importArrayForm) { -%>
-import ArrayForm from '@/components/form/ArrayForm.vue'
-      <%_ importArrayForm = true -%>
-    <%_ } -%>
-  <%_ } -%>
-<%_ }) -%>
-
-export const INITIAL_<%= h.changeCase.constant(entity.name) %>: Model<%= entity.pascalName %> = {
-<%_ entity.editProperties.forEach(function (property, key) { -%>
-  <%_ if (property.type === 'struct') { -%>
-  <%= property.name %>: INITIAL_<%= h.changeCase.constant(property.structType) %>,
-  <%_ } -%>
-  <%_ if (property.type.startsWith('array')) { -%>
-  <%= property.name %>: [],
-  <%_ } -%>
-  <%_ if (property.type === 'string' || property.type === 'textarea' || property.type === 'time') { -%>
-  <%= property.name %>: undefined,
-  <%_ } -%>
-  <%_ if (property.type === 'bool') { -%>
-  <%= property.name %>: undefined,
-  <%_ } -%>
-  <%_ if (property.type === 'number') { -%>
-  <%= property.name %>: undefined,
-  <%_ } -%>
-<%_ }) -%>
-}
-
-@Component({
-  components: {
-<%_ if (entity.hasImage === true) { -%>
-    ImageForm,
-<%_ } -%>
-<%_ if (entity.hasMultiImage === true) { -%>
-    ImageArrayForm,
-<%_ } -%>
-<%_ let componentsDateTime = false -%>
-<%_ entity.editProperties.forEach(function (property, key) { -%>
-  <%_ if ((property.type === 'time' || property.type === 'array-time') && !componentsDateTime) { -%>
-    DateTimeForm,
-      <%_ componentsDateTime = true -%>
-  <%_ } -%>
-<%_ }) -%>
-<%_ const componentsStructTableSet = new Set() -%>
-<%_ const componentsStructFormSet = new Set() -%>
-<%_ let componentsExpansion = false -%>
-<%_ let componentsStructArrayForm = false -%>
-<%_ let componentsArrayForm = false -%>
-<%_ entity.editProperties.forEach(function (property, key) { -%>
-  <%_ if (property.type === 'struct' && !componentsStructFormSet.has(property.structType)) { -%>
-    <%_ if (!componentsExpansion) { -%>
-    Expansion,
-      <%_ componentsExpansion = true -%>
-    <%_ } -%>
-    <%_ if (!componentsStructFormSet.has(property.structType)) { -%>
-    <%= h.changeCase.pascal(property.structType) %>EntryForm,
-      <%_ componentsStructFormSet.add(property.structType) -%>
-    <%_ } -%>
-  <%_ } -%>
-  <%_ if (property.type === 'array-struct') { -%>
-    <%_ if (!componentsExpansion) { -%>
-    Expansion,
-      <%_ componentsExpansion = true -%>
-    <%_ } -%>
-    <%_ if (!componentsStructArrayForm) { -%>
-    StructArrayForm,
-      <%_ componentsStructArrayForm = true -%>
-    <%_ } -%>
-    <%_ if (!componentsStructTableSet.has(property.structType)) { -%>
-    <%= h.changeCase.pascal(property.structType) %>DataTable,
-      <%_ componentsStructTableSet.add(property.structType) -%>
-    <%_ } -%>
-    <%_ if (!componentsStructFormSet.has(property.structType)) { -%>
-    <%= h.changeCase.pascal(property.structType) %>EntryForm,
-      <%_ componentsStructFormSet.add(property.structType) -%>
-    <%_ } -%>
-  <%_ } -%>
-  <%_ if (property.type === 'array-string' || property.type === 'array-textarea' || property.type === 'array-number' || property.type === 'array-time' || property.type === 'array-bool') { -%>
-    <%_ if (!componentsExpansion) { -%>
-    Expansion,
-      <%_ componentsExpansion = true -%>
-    <%_ } -%>
-    <%_ if (!componentsArrayForm) { -%>
-    ArrayForm,
-      <%_ componentsArrayForm = true -%>
-    <%_ } -%>
-  <%_ } -%>
-<%_ }) -%>
-  }
-})
-export default class <%= h.changeCase.pascal(entity.name) %>EntryForm extends mixins(Base) {
-  /** 表示状態 (true: 表示, false: 非表示) */
-  @PropSync('open', {type: Boolean, default: true})
-  syncedOpen!: boolean
-
-  /** 編集対象 */
-  @PropSync('target', {type: Object})
-  syncedTarget!: Model<%= entity.pascalName %>
-
-  /** 表示方式 (true: 埋め込み, false: ダイアログ) */
-  @Prop({type: Boolean, default: false})
-  isEmbedded!: boolean
-
-  /** 表示方式 (true: 子要素として表示, false: 親要素として表示) */
-  @Prop({type: Boolean, default: false})
-  hasParent!: boolean
-
-  /** 編集状態 (true: 新規, false: 更新) */
-  @Prop({type: Boolean, default: true})
-  isNew!: boolean
-<%_ entity.editProperties.forEach(function (property, key) { -%>
-  <%_ if (property.type === 'array-struct') { -%>
-
-  /** <%= h.changeCase.pascal(property.structType) %>の初期値 */
-  initial<%= h.changeCase.pascal(property.structType) %> = INITIAL_<%= h.changeCase.constant(property.structType) %>
-  <%_ } -%>
-<%_ }) -%>
-
-  get validationRules() {
-    return {
-<%_ entity.editProperties.forEach(function (property, key) { -%>
-  <%_ if (property.type !== 'array-struct' && property.type !== 'struct') { -%>
-      <%= property.name %>: [],
-  <%_ } -%>
-<%_ }) -%>
-    }
-  }
-
-  @Watch('syncedOpen')
-  onOpen() {
-    if (this.syncedOpen) {
-      (this.$refs.entryForm as VForm).resetValidation()<% if (structForms.length > 0) { %>;<% } %>
-<%_ structForms.forEach(function (name, index) { -%>
-      ((this.$refs.<%= name %>Form as Vue)?.$refs.entryForm as VForm)?.resetValidation()<% if (structForms.length - 1 !== index) { %>;<% } %>
-<%_ }) -%>
-    }
-  }
-
-  initializeTarget() {
-    this.syncedTarget = INITIAL_<%= h.changeCase.constant(entity.name) %>
-  }
-
-  validateForm() {
-<%_ if (structForms.length === 0) { -%>
-    if (!(this.$refs.entryForm as VForm).validate()) {
-<%_ } else { -%>
-    if (!(this.$refs.entryForm as VForm).validate()
-<%_ structForms.forEach(function (name, index) { -%>
-      || ((this.$refs.<%= name %>Form as Vue)?.$refs.entryForm as VForm)?.validate() === false<% if (structForms.length - 1 === index) { %>) {<% } %>
-<%_ }) -%>
-<%_ } -%>
-      vxm.app.showDialog({
-        title: 'エラー',
-        message: '入力項目を確認して下さい。'
-      })
-      return
-    }
-    this.save()
-  }
-
-  @Emit('updated')
-  async save() {
-  <%_ if (entity.screenType !== 'struct') { -%><%# Structでない場合 -%>
-    if (this.hasParent) {
-      // 親要素側で保存
-      return
-    }
-    vxm.app.showLoading()
-    try {
-      if (this.isNew) {
-        // 新規の場合
-        await new <%= h.changeCase.upperCaseFirst(entity.name) %>Api().create<%= entity.pascalName %>({
-          body: this.syncedTarget
-        })
-      } else {
-        // 更新の場合
-        await new <%= h.changeCase.upperCaseFirst(entity.name) %>Api().update<%= entity.pascalName %>({
-          id: this.syncedTarget.id!,
-          body: this.syncedTarget
-        })
-      }
-      this.close()
-    } finally {
-      vxm.app.hideLoading()
-    }
-  <%_ } else { -%>
-    this.close()
-  <%_ } -%>
-  }
-
-  @Emit('remove')
-  async remove() {
-    return this.syncedTarget
-  }
-
-  @Emit('close')
-  close() {
-    if (!this.isEmbedded) {
-      this.syncedOpen = false
-    }
-  }
-}
-</script>
 
 <style scoped>
 .action-button {

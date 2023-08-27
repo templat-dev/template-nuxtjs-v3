@@ -1,6 +1,106 @@
 ---
-to: <%= rootDirectory %>/<%= projectName %>/components/<%= entity.name %>/<%= h.changeCase.pascal(entity.name) %>DataTable.vue
+to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct.name.pascalName %>DataTable.vue
 ---
+<script setup lang="ts">
+import {cloneDeep} from 'lodash-es'
+import {Model<%= struct.pascalName %>} from '@/apis'
+import AppDataTable, {DataTablePageInfo, INITIAL_DATA_TABLE_PAGE_INFO} from '@/components/common/AppDataTable.vue'
+<%_ if (struct.screenType !== 'struct') { -%>
+import <%= struct.name.pascalName %>SearchForm, {
+  <%= struct.name.pascalName %>SearchCondition,
+  INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION
+} from '@/components/<%= struct.name.lowerCamelName %>/<%= struct.name.pascalName %>SearchForm.vue'
+<%_ } -%>
+
+  /** ヘッダー定義 */
+const headers = [
+<%_ struct.fields.forEach(function (property, key) { -%>
+  <%_ if (property.listType !== 'none' && property.dataType !== 'struct' && property.dataType !== 'array-struct') { -%>
+  {
+    text: '<%= property.screenLabel ? property.screenLabel : property.name === 'id' ? 'ID' : property.name %>',
+    align: '<%= property.align %>',
+    value: '<%= property.name %>'
+  },
+  <%_ } -%>
+<%_ }); -%>
+  {
+    text: '',
+    align: 'center',
+    value: 'action',
+    sortable: false
+  }
+]
+
+interface Props {
+  /** 一覧表示用の配列 */
+  items!: Model<%= struct.pascalName %>[]
+  /** 一覧の表示ページ情報 */
+  pageInfo!: DataTablePageInfo
+  /** 一覧の合計件数 */
+  totalCount!: number | undefined
+  /** 一覧の読み込み状態 */
+  isLoading!: boolean
+}
+const props = withDefaults(defineProps<Props>(), {
+  items: [],
+  pageInfo: cloneDeep(INITIAL_DATA_TABLE_PAGE_INFO),
+  totalCount: undefined
+  isLoading: false
+
+})
+
+<%_ if (struct.screenType !== 'struct') { -%>
+
+  /** 検索フォームの表示表示状態 (true: 表示, false: 非表示) */
+  isSearchFormOpen: boolean = false
+
+  /** 検索条件 */
+  @PropSync('searchCondition', {type: Object, default: () => cloneDeep(INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION)})
+  syncedSearchCondition!: <%= struct.name.pascalName %>SearchCondition
+
+  /** 表示方式 (true: 子要素として表示, false: 親要素として表示) */
+  @Prop({type: Boolean, default: false})
+  hasParent!: boolean
+
+  get previewSearchCondition() {
+    const previewSearchConditions = []
+    for (const [key, value] of Object.entries(this.syncedSearchCondition)) {
+      if (!value.enabled) {
+        continue
+      }
+      previewSearchConditions.push(`${key}=${value.value}`)
+    }
+    return previewSearchConditions.join(', ')
+  }
+<%_ } -%>
+
+  @Emit('onChangePageInfo')
+  onChangePageInfo() {
+  }
+<%_ if (struct.screenType !== 'struct') { -%>
+
+  @Emit('onChangeSearch')
+  onChangeSearch() {
+  }
+
+  search(searchCondition: <%= struct.name.pascalName %>SearchCondition) {
+    this.syncedSearchCondition = searchCondition
+    this.onChangeSearch()
+  }
+<%_ } -%>
+
+  @Emit('openEntryForm')
+  openEntryForm(item?: Model<%= struct.pascalName %>) {
+    return item
+  }
+
+  @Emit('remove')
+  remove(item: Model<%= struct.pascalName %>) {
+    return item
+  }
+}
+</script>
+
 <template>
   <v-flex>
     <app-data-table
@@ -17,8 +117,8 @@ to: <%= rootDirectory %>/<%= projectName %>/components/<%= entity.name %>/<%= h.
       <!-- ヘッダー -->
       <template #top>
         <v-toolbar color="white" flat>
-          <v-toolbar-title><%= entity.listLabel %></v-toolbar-title>
-<%_ if (entity.screenType !== 'struct') { -%>
+          <v-toolbar-title><%= struct.listLabel %></v-toolbar-title>
+<%_ if (struct.screenType !== 'struct') { -%>
           <template v-if="!hasParent">
             <v-divider class="mx-4" inset vertical></v-divider>
             <v-btn icon @click="isSearchFormOpen = true">
@@ -33,34 +133,34 @@ to: <%= rootDirectory %>/<%= projectName %>/components/<%= entity.name %>/<%= h.
           </v-btn>
         </v-toolbar>
       </template>
-<%_ if (entity.listProperties.listExtraProperties) { -%>
-<%_ entity.listProperties.listExtraProperties.forEach(function(property, index){ -%>
-<%_ if (property.type === 'time' || property.type === 'time-range') { -%>
+<%_ if (struct.fields && struct.fields.length > 0) { -%>
+<%_ struct.fields.forEach(function (property, key) { -%>
+<%_ if (property.listType === 'time' || property.listType === 'time-range') { -%>
       <template #item.<%= property.name %>="{ item }">
         <span>{{ formatDate(item.<%= property.name %>) }}</span>
       </template>
 <%_ } -%>
-<%_ if (property.type === 'bool') { -%>
+<%_ if (property.listType === 'bool') { -%>
       <template #item.<%= property.name %>="{ item }">
         <v-checkbox v-model="item.<%= property.name %>" :ripple="false" class="ma-0 pa-0" hide-details readonly></v-checkbox>
       </template>
 <%_ } -%>
-<%_ if (property.type === 'array-string' || property.type === 'array-number' || property.type === 'array-bool') { -%>
+<%_ if (property.listType === 'array-string' || property.listType === 'array-number' || property.listType === 'array-bool') { -%>
       <template #item.<%= property.name %>="{ item }">
         <span>{{ toStringArray(item.<%= property.name %>) }}</span>
       </template>
 <%_ } -%>
-<%_ if (property.type === 'array-time') { -%>
+<%_ if (property.listType === 'array-time') { -%>
       <template #item.<%= property.name %>="{ item }">
         <span>{{ toStringTimeArray(item.<%= property.name %>) }}</span>
       </template>
 <%_ } -%>
-<%_ if (property.type === 'image' && property.dataType === 'string') { -%>
+<%_ if (property.listType === 'image' && property.dataType === 'string') { -%>
       <template #item.<%= property.name %>="{ item }">
         <v-img :src="item.<%= property.name %>" max-height="100px" max-width="100px"></v-img>
       </template>
 <%_ } -%>
-<%_ if (property.type === 'array-image') { -%>
+<%_ if (property.listType === 'array-image') { -%>
       <template #item.<%= property.name %>="{ item }">
         <v-carousel
           v-if="item.<%= property.name %> && item.<%= property.name %>.length > 0"
@@ -92,129 +192,15 @@ to: <%= rootDirectory %>/<%= projectName %>/components/<%= entity.name %>/<%= h.
         </v-btn>
       </template>
     </app-data-table>
-<%_ if (entity.screenType !== 'struct') { -%>
-    <<%= h.changeCase.param(entity.name) %>-search-form
+<%_ if (struct.screenType !== 'struct') { -%>
+    <<%= h.changeCase.param(struct.name) %>-search-form
       :current-search-condition="syncedSearchCondition"
       :open.sync="isSearchFormOpen"
       @search="search"
-    ></<%= h.changeCase.param(entity.name) %>-search-form>
+    ></<%= h.changeCase.param(struct.name) %>-search-form>
 <%_ } -%>
   </v-flex>
 </template>
-
-<script lang="ts">
-import {Component, Emit, mixins, Prop, PropSync} from 'nuxt-property-decorator'
-import {cloneDeep} from 'lodash-es'
-import Base from '@/mixins/base'
-import {Model<%= entity.pascalName %>} from '@/apis'
-import AppDataTable, {DataTablePageInfo, INITIAL_DATA_TABLE_PAGE_INFO} from '@/components/common/AppDataTable.vue'
-<%_ if (entity.screenType !== 'struct') { -%>
-import <%= h.changeCase.pascal(entity.name) %>SearchForm, {
-  <%= h.changeCase.pascal(entity.name) %>SearchCondition,
-  INITIAL_<%= h.changeCase.constant(entity.name) %>_SEARCH_CONDITION
-} from '@/components/<%= entity.name %>/<%= h.changeCase.pascal(entity.name) %>SearchForm.vue'
-<%_ } -%>
-
-<%_ if (entity.screenType !== 'struct') { -%>
-@Component({
-  components: {
-    AppDataTable,
-    <%= h.changeCase.pascal(entity.name) %>SearchForm
-  }
-})
-<%_ } else { -%>
-@Component({
-  components: {AppDataTable}
-})
-<%_ } -%>
-export default class <%= h.changeCase.pascal(entity.name) %>DataTable extends mixins(Base) {
-  /** ヘッダー定義 */
-  headers = [
-    <%_ if (entity.listProperties.listExtraProperties) { -%>
-    <%_ entity.listProperties.listExtraProperties.forEach(function(property, index){ -%>
-      <%_ if (property.type !== 'none' && property.dataType !== 'struct' && property.dataType !== 'array-struct') { -%>
-    {
-      text: '<%= property.screenLabel ? property.screenLabel : property.name === 'id' ? 'ID' : property.name %>',
-      align: '<%= property.align %>',
-      value: '<%= property.name %>'
-    },
-    <%_ } -%>
-    <%_ }); -%>
-    <%_ } -%>
-    {
-      text: '',
-      align: 'center',
-      value: 'action',
-      sortable: false
-    }
-  ]
-
-  /** 一覧表示用の配列 */
-  @Prop({type: Array})
-  items!: Model<%= entity.pascalName %>[]
-
-  /** 一覧の表示ページ情報 */
-  @PropSync('pageInfo', {type: Object, default: () => cloneDeep(INITIAL_DATA_TABLE_PAGE_INFO)})
-  syncedPageInfo!: DataTablePageInfo
-
-  /** 一覧の合計件数 */
-  @Prop({type: Number, default: undefined})
-  totalCount!: number | undefined
-
-  /** 一覧の読み込み状態 */
-  @Prop({type: Boolean, default: false})
-  isLoading!: boolean
-<%_ if (entity.screenType !== 'struct') { -%>
-
-  /** 検索フォームの表示表示状態 (true: 表示, false: 非表示) */
-  isSearchFormOpen: boolean = false
-
-  /** 検索条件 */
-  @PropSync('searchCondition', {type: Object, default: () => cloneDeep(INITIAL_<%= h.changeCase.constant(entity.name) %>_SEARCH_CONDITION)})
-  syncedSearchCondition!: <%= h.changeCase.pascal(entity.name) %>SearchCondition
-
-  /** 表示方式 (true: 子要素として表示, false: 親要素として表示) */
-  @Prop({type: Boolean, default: false})
-  hasParent!: boolean
-
-  get previewSearchCondition() {
-    const previewSearchConditions = []
-    for (const [key, value] of Object.entries(this.syncedSearchCondition)) {
-      if (!value.enabled) {
-        continue
-      }
-      previewSearchConditions.push(`${key}=${value.value}`)
-    }
-    return previewSearchConditions.join(', ')
-  }
-<%_ } -%>
-
-  @Emit('onChangePageInfo')
-  onChangePageInfo() {
-  }
-<%_ if (entity.screenType !== 'struct') { -%>
-
-  @Emit('onChangeSearch')
-  onChangeSearch() {
-  }
-
-  search(searchCondition: <%= h.changeCase.pascal(entity.name) %>SearchCondition) {
-    this.syncedSearchCondition = searchCondition
-    this.onChangeSearch()
-  }
-<%_ } -%>
-
-  @Emit('openEntryForm')
-  openEntryForm(item?: Model<%= entity.pascalName %>) {
-    return item
-  }
-
-  @Emit('remove')
-  remove(item: Model<%= entity.pascalName %>) {
-    return item
-  }
-}
-</script>
 
 <style scoped>
 .action-button {

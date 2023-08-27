@@ -1,7 +1,83 @@
 ---
-to: <%= rootDirectory %>/<%= projectName %>/components/form/DateTimeForm.vue
+to: <%= rootDirectory %>/components/form/DateTimeForm.vue
 force: true
 ---
+<script setup lang="ts">
+import {format, formatISO, startOfDay} from 'date-fns'
+import parse from 'date-fns/parse'
+
+interface Props {
+  /** 画面表示ラベル */
+  label?: string,
+  /** 編集対象 */
+  dateTime?: string,
+  /** 編集状態 (true: 編集不可, false: 編集可能) */
+  disabled?: boolean,
+}
+const props = withDefaults(defineProps<Props>(), {
+  label: '',
+  dateTime?: '',
+  disabled?: false,
+})
+
+interface Emits {
+  (e: "update-datetime", dateTime: string): void
+}
+const emit = defineEmits<Emits>()
+
+/** 日付選択表示状態 (true: 表示, false: 非表示) */
+const dateMenu = ref<boolean>(false)
+
+/** 時刻選択表示状態 (true: 表示, false: 非表示) */
+const timeMenu = ref<boolean>(false)
+
+const dateValue = computed((): string => {
+  get: () => {
+    if (!props.dateTime) {
+      return ''
+    }
+    return format(new Date(this.syncedDateTime), 'yyyy-MM-dd')
+  },
+  set: (dateValue: string) => {
+    let timeValue = '00:00'
+    if (!!props.dateTime) {
+      timeValue = format(new Date(props.dateTime), 'HH:mm')
+    }
+    const newDateTime: string = formatISO(parse(`${dateValue} ${timeValue}`, 'yyyy-MM-dd HH:mm', new Date()))
+    emit('update-datetime', newDateTime)
+  }
+})
+
+const timeValue = computed((): string => {
+  get: () => {
+    if (!props.dateTime) {
+      return ''
+    }
+    return format(new Date(props.dateTime), 'HH:mm')
+  },
+  set: (timeValue: string) => {
+    let dateValue = format(new Date(), 'yyyy-MM-dd')
+    if (!!props.dateTime) {
+      dateValue = format(new Date(props.dateTime), 'yyyy-MM-dd')
+    }
+    const newDateTime: string = formatISO(parse(`${dateValue} ${timeValue}`, 'yyyy-MM-dd HH:mm', new Date()))
+    emit('update-date', newDateTime)
+  }
+})
+
+const clearDate = () => {
+  this.syncedDateTime = undefined
+}
+
+const clearTime = () => {
+  if (!props.dateTime) {
+    return
+  }
+  const newDateTime = formatISO(startOfDay(new Date(props.dateTime)))
+  emit('update-date', newDateTime)
+}
+</script>
+
 <template>
   <v-layout>
     <v-flex xs6>
@@ -30,73 +106,5 @@ force: true
     </v-flex>
   </v-layout>
 </template>
-
-<script lang="ts">
-import {Component, Prop, PropSync, Vue} from 'nuxt-property-decorator'
-import {format, formatISO, startOfDay} from 'date-fns'
-import parse from 'date-fns/parse'
-
-@Component
-export default class DateTimeFrom extends Vue {
-  /** 画面表示ラベル */
-  @Prop({type: String, default: ''})
-  label!: string
-
-  /** 編集対象 */
-  @PropSync('dateTime', {type: String, default: undefined})
-  syncedDateTime: string | undefined = undefined
-
-  /** 編集状態 (true: 編集不可, false: 編集可能) */
-  @Prop({type: Boolean, default: false})
-  disabled!: boolean
-
-  /** 日付選択表示状態 (true: 表示, false: 非表示) */
-  dateMenu = false
-
-  /** 時刻選択表示状態 (true: 表示, false: 非表示) */
-  timeMenu = false
-
-  get dateValue(): string {
-    if (!this.syncedDateTime) {
-      return ''
-    }
-    return format(new Date(this.syncedDateTime), 'yyyy-MM-dd')
-  }
-
-  set dateValue(dateValue: string) {
-    let timeValue = '00:00'
-    if (!!this.syncedDateTime) {
-      timeValue = format(new Date(this.syncedDateTime), 'HH:mm')
-    }
-    this.syncedDateTime = formatISO(parse(`${dateValue} ${timeValue}`, 'yyyy-MM-dd HH:mm', new Date()))
-  }
-
-  get timeValue(): string {
-    if (!this.syncedDateTime) {
-      return ''
-    }
-    return format(new Date(this.syncedDateTime), 'HH:mm')
-  }
-
-  set timeValue(timeValue: string) {
-    let dateValue = format(new Date(), 'yyyy-MM-dd')
-    if (!!this.syncedDateTime) {
-      dateValue = format(new Date(this.syncedDateTime), 'yyyy-MM-dd')
-    }
-    this.syncedDateTime = formatISO(parse(`${dateValue} ${timeValue}`, 'yyyy-MM-dd HH:mm', new Date()))
-  }
-
-  clearDate() {
-    this.syncedDateTime = undefined
-  }
-
-  clearTime() {
-    if (!this.syncedDateTime) {
-      return
-    }
-    this.syncedDateTime = formatISO(startOfDay(new Date(this.syncedDateTime)))
-  }
-}
-</script>
 
 <style scoped></style>

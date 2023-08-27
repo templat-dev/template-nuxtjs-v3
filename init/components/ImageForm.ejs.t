@@ -1,19 +1,107 @@
 ---
-to: "<%= entity.plugins.includes('image') ? `${rootDirectory}/${projectName}/components/form/ImageForm.vue` : null %>"
+to: "<%= struct.plugins.includes('image') ? `${rootDirectory}/components/form/ImageForm.vue` : null %>"
 force: true
 ---
+<script setup lang="ts">
+
+import {useNuxtApp} from "#app";
+import {ref} from "vue";
+import appUtils from '~/utils/appUtils'
+
+const {$api} = useNuxtApp()
+const imageApi = $api.imageApi()
+
+const loading = useLoading()
+
+const fileInput = ref<HTMLInputElement | null>(null)
+
+interface Props {
+  label?: string,
+  dir?: string,
+  imageURL?: string,
+  thumbnail?: boolean,
+  thumbnailSize?: number,
+}
+const props = withDefaults(defineProps<Props>(), {
+  label: '',
+  dir: '',
+  imageURL: '',
+  thumbnail: false,
+  thumbnailSize: 200,
+})
+
+interface Emits {
+  (e: "update:imageUrl", url: string): void;
+}
+const emit = defineEmits<Emits>()
+
+const dragOvered = ref<boolean>(false)
+
+const selectFile = () => {
+  (fileInput.value as HTMLInputElement).click()
+}
+
+const uploadImage = async (file: File) => {
+  const responseImage = await imageApi.uploadImage({
+    name: appUtils.generateRandomString(8),
+    dir: props.dir,
+    image: file,
+    thumbnail: props.thumbnail,
+    thumbnailSize: props.thumbnailSize
+  }).then(res => res.data)
+  if (responseImage && responseImage.url) {
+    updateImageURL(responseImage.url)
+  }
+}
+
+const dropImage = async (e: DragEvent) => {
+  dragOvered.value = false
+  if (!e.dataTransfer || !e.dataTransfer.files || e.dataTransfer.files.length === 0) {
+    return
+  }
+  try {
+    loading.showLoading()
+    await uploadImage(e.dataTransfer.files[0])
+  } finally {
+    loading.hideLoading()
+  }
+}
+
+const selectImage = async (e: InputEvent) => {
+  const files = (e.target as HTMLInputElement).files
+  if (!files || files.length === 0) {
+    return
+  }
+  try {
+    loading.showLoading()
+    await uploadImage(files[0])
+  } finally {
+    loading.hideLoading()
+  }
+}
+
+const removeImage = () => {
+  updateImageURL('')
+}
+
+const updateImageURL = (imageURL: string) => {
+  console.log(`updateImageURL ${imageURL}`)
+  emit('update:imageUrl', imageURL)
+}
+</script>
+
 <template>
   <div
-    :class="{ droppable: dragOvered }"
-    @drop.prevent="dropImage"
-    @dragover.prevent="dragOvered = true"
-    @dragleave.prevent="dragOvered = false">
-    <v-layout v-if="label" class="mb-2">
+      :class="{ droppable: dragOvered }"
+      @drop.prevent="dropImage"
+      @dragover.prevent="dragOvered = true"
+      @dragleave.prevent="dragOvered = false">
+    <v-container v-if="label" class="mb-2">
       <span>{{ label }}</span>
-    </v-layout>
-    <v-layout>
-      <div v-if="!!syncedImageURL" class="relative mb-4 mr-4">
-        <v-img :src="syncedImageURL" aspect-ratio="1" class="grey lighten-2" height="100px" width="100px">
+    </v-container>
+    <v-container>
+      <div v-if="!!imageURL" class="relative mb-4 mr-4">
+        <v-img :src="imageURL" aspect-ratio="1" class="grey lighten-2" height="100px" width="100px">
           <template #placeholder>
             <v-row align="center" class="fill-height ma-0" justify="center">
               <v-progress-circular color="grey lighten-5" indeterminate></v-progress-circular>
@@ -31,89 +119,10 @@ force: true
           <v-icon color="grey darken-1" x-large>mdi-plus-thick</v-icon>
         </v-btn>
       </div>
-    </v-layout>
+    </v-container>
   </div>
+
 </template>
-
-<script lang="ts">
-import {Component, Prop, PropSync, Vue} from 'nuxt-property-decorator'
-import {ImageApi} from '@/apis'
-import appUtils from '@/utils/appUtils'
-import {vxm} from '@/store'
-
-@Component
-export default class ImageForm extends Vue {
-  /** 画面表示ラベル */
-  @Prop({type: String, default: ''})
-  label!: string
-
-  /** 画像保存ディレクトリ名 */
-  @Prop({type: String, required: true})
-  dir!: string
-
-  /** 編集対象 */
-  @PropSync('imageUrl', {type: String, default: undefined})
-  syncedImageURL: string | undefined
-
-  /** サムネイル作成有無 (true: 作成する, false: 作成しない) */
-  @Prop({type: Boolean, default: false})
-  thumbnail!: boolean
-
-  /** サムネイルのサイズ */
-  @Prop({type: Number, default: 200})
-  thumbnailSize!: number
-
-  /** 画像ドロップエリアの表示 (true: 表示, false: 非表示) */
-  dragOvered: boolean = false
-
-  selectFile() {
-    (this.$refs.fileInput as HTMLElement).click()
-  }
-
-  async uploadImage(file: File) {
-    const responseImage = await new ImageApi().uploadImage({
-      name: appUtils.generateRandomString(8),
-      dir: this.dir,
-      image: file,
-      thumbnail: this.thumbnail,
-      thumbnailSize: this.thumbnailSize
-    }).then(res => res.data)
-    if (responseImage && responseImage.url) {
-      this.syncedImageURL = responseImage.url
-    }
-  }
-
-  async dropImage(e: DragEvent) {
-    this.dragOvered = false
-    if (!e.dataTransfer || !e.dataTransfer.files || e.dataTransfer.files.length === 0) {
-      return
-    }
-    try {
-      vxm.app.showLoading()
-      await this.uploadImage(e.dataTransfer.files[0])
-    } finally {
-      vxm.app.hideLoading()
-    }
-  }
-
-  async selectImage(e: InputEvent) {
-    const files = (e.target as HTMLInputElement).files
-    if (!files || files.length === 0) {
-      return
-    }
-    try {
-      vxm.app.showLoading()
-      await this.uploadImage(files[0])
-    } finally {
-      vxm.app.hideLoading()
-    }
-  }
-
-  removeImage() {
-    this.syncedImageURL = ''
-  }
-}
-</script>
 
 <style scoped>
 .droppable {

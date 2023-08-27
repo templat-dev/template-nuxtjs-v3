@@ -1,7 +1,50 @@
 ---
-to: <%= rootDirectory %>/<%= projectName %>/layouts/default.vue
+to: <%= rootDirectory %>>/layouts/default.vue
 force: true
 ---
+<script lang="ts" setup>
+import AppLoading from '@/components/modal/AppLoading.vue'
+import AppDialog from '@/components/modal/AppDialog.vue'
+import AppSnackBar from '@/components/modal/AppSnackBar.vue'
+
+const route = useRoute()
+
+/** ドロワー表示状態 (true: 表示, false: 非表示) */
+const drawer = ref<boolean>(false)
+
+const activeMenu = computed(() => {
+  return menus.find(menu => route.path === menu.to)
+})
+
+const currentPageTitle = computed(() {
+  if (route.path === '/' || !activeMenu) {
+    return null
+  }
+  return activeMenu.title
+})
+
+const menus = computed(() => {
+  return [
+    {
+      title: 'Top',
+      to: `/`
+    },
+    // メニュー
+  ]
+})
+
+<%_ if (struct.plugins.includes('auth')) { -%>
+const isLoginPage = computed(() => {
+  return this.$route.path === '/login'
+})
+
+const signOut = computed(async () =>
+  await auth.signOut()
+  window.location.reload()
+})
+<%_ } -%>
+</script>
+
 <template>
   <v-app>
     <v-navigation-drawer v-model="drawer" :clipped="true" app fixed>
@@ -21,13 +64,13 @@ force: true
     <v-app-bar :clipped-left="true" app color="primary" dark dense fixed>
       <v-app-bar-nav-icon @click="drawer = !drawer"/>
       <nuxt-link class="no-decoration-link" to="/">
-        <v-toolbar-title><%= entity.label %></v-toolbar-title>
+        <v-toolbar-title><%= struct.label %></v-toolbar-title>
       </nuxt-link>
       <div v-if="currentPageTitle" class="page-name-area">
         <span>{{ currentPageTitle }}</span>
       </div>
       <v-spacer/>
-<%_ if (entity.plugins.includes('auth')) { -%>
+<%_ if (struct.plugins.includes('auth')) { -%>
       <v-btn @click="signOut" icon v-if="!isLoginPage">
         <v-icon>mdi-logout-variant</v-icon>
       </v-btn>
@@ -49,56 +92,6 @@ force: true
     <app-snack-bar/>
   </v-app>
 </template>
-
-<script lang="ts">
-import {Component, Vue} from 'nuxt-property-decorator'
-<%_ if (entity.plugins.includes('auth')) { -%>
-import {auth} from '~/plugins/firebase'
-<%_ } -%>
-import AppLoading from '@/components/modal/AppLoading.vue'
-import AppDialog from '@/components/modal/AppDialog.vue'
-import AppSnackBar from '@/components/modal/AppSnackBar.vue'
-
-@Component({
-  components: {AppLoading, AppDialog, AppSnackBar}
-})
-export default class DefaultLayout extends Vue {
-  /** ドロワー表示状態 (true: 表示, false: 非表示) */
-  drawer = false
-
-  get activeMenu() {
-    return this.menus.find(menu => this.$route.path === menu.to)
-  }
-
-  get currentPageTitle() {
-    if (this.$route.path === '/' || !this.activeMenu) {
-      return null
-    }
-    return this.activeMenu.title
-  }
-
-  get menus() {
-    return [
-      {
-        title: 'Top',
-        to: `/`
-      },
-      // メニュー
-    ]
-  }
-<%_ if (entity.plugins.includes('auth')) { -%>
-
-  get isLoginPage() {
-    return this.$route.path === '/login'
-  }
-
-  async signOut() {
-    await auth.signOut()
-    window.location.reload()
-  }
-<%_ } -%>
-}
-</script>
 
 <style scoped>
 .page-name-area {

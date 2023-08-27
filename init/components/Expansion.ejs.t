@@ -1,12 +1,26 @@
 ---
-to: <%= rootDirectory %>/<%= projectName %>/components/form/Expansion.vue
+to: <%= rootDirectory %>/components/form/Expansion.vue
 force: true
 ---
+<script setup lang="ts">
+interface Props {
+  /** ラベル */
+  label!: string,
+  /** 開閉状態（true: 開、false:閉） */
+  expanded!: boolean
+}
+const props = withDefaults(defineProps<Props>(), {
+  items?: [],
+  initial!: {},
+})
+const panel = ref<number | null>(this.expanded ? 0 : null)
+</script>
+
 <template>
   <v-expansion-panels v-model="panel" class="mb-4">
     <v-expansion-panel expand>
       <v-expansion-panel-header>
-        {{ label }}
+        {{ props.label }}
       </v-expansion-panel-header>
       <v-expansion-panel-content class="expansion-content">
         <v-container grid-list-md>
@@ -17,26 +31,10 @@ force: true
   </v-expansion-panels>
 </template>
 
-<script lang="ts">
-import {Component, Prop, Vue} from 'nuxt-property-decorator'
-
-@Component
-export default class Expansion extends Vue {
-  @Prop({type: String, required: true})
-  readonly label!: string
-
-  @Prop({type: Boolean, default: false})
-  expanded!: boolean
-
-  panel: number | null = this.expanded ? 0 : null
-}
-</script>
-
 <style scoped>
 .expansion-content {
   background-color: #EEEEEE;
 }
-
 .expansion-content >>> .v-expansion-panel-content__wrap {
   padding: 0;
 }

@@ -1,11 +1,11 @@
 ---
-to: <%= rootDirectory %>/<%= projectName %>/layouts/default.vue
+to: <%= rootDirectory %>/layouts/default.vue
 inject: true
-skip_if: // メニュー <%= entity.name %>
+skip_if: // メニュー <%= struct.name.lowerCamelName %>
 after: // メニュー
 ---
-      // メニュー <%= entity.name %>
+      // メニュー <%= struct.name.lowerCamelName %>
       {
-        title: '<%= entity.screenLabel || h.changeCase.pascal(entity.name) %>',
-        to: `/<%= entity.name %>`
+        title: '<%= struct.screenLabel || struct.name.pascalNam %>',
+        to: `/<%= struct.name.lowerCamelName %>`
       },

@@ -1,20 +1,22 @@
 ---
-to: "<%= entity.plugins.includes('auth') ? `${rootDirectory}/${projectName}/plugins/firebase.ts` : null %>"
+to: "<%= struct.plugins.includes('auth') ? `${rootDirectory}/plugins/firebase.client.ts` : null %>"
 force: true
 ---
-import firebase from 'firebase/app'
-import 'firebase/analytics'
-import 'firebase/auth'
-import 'firebaseui/dist/firebaseui.css'
-import * as firebaseui from 'firebaseui'
+import {initializeApp} from 'firebase/app'
+import {defineNuxtPlugin, useRuntimeConfig} from "#app";
 
-// Your web app's Firebase configuration
-<%- entity.authParameter %>
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig)
-  firebase.analytics()
-}
-const auth = firebase.auth()
-const authUI = new firebaseui.auth.AuthUI(auth)
+export default defineNuxtPlugin(() => {
+  const config = useRuntimeConfig()
 
-export {auth, authUI}
+  const firebaseConfig = {
+    apiKey: "AIzaSyBTbLQ1upwZ_vbd9vNciKSJrEy1qUS-JxI",
+    authDomain: "estate-market-2022-371905.firebaseapp.com",
+    projectId: "estate-market-2022-371905",
+    storageBucket: "estate-market-2022-371905.appspot.com",
+    messagingSenderId: "285275681139",
+    appId: "1:285275681139:web:fe07c14ba1cc0795e05506",
+    measurementId: "G-RY4SJB03CN"
+  }
+
+  initializeApp(firebaseConfig)
+})
