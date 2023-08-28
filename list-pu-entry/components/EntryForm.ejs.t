@@ -48,7 +48,6 @@ import <%= field.structName.pascalName %>EntryForm, {INITIAL_<%= field.structNam
       <%_ importStructFormSet.add(field.structName.pascalName) -%>
     <%_ } -%>
   <%_ } -%>
-  <%_ } -%>
 <%_ }) -%>
 <%_ } -%>
 <%_ if (struct.fields) { -%>
