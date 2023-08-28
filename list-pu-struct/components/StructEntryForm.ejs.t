@@ -3,15 +3,15 @@ to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct
 ---
 <script setup lang="ts">
 <%_ let structForms = [] -%>
-<%_ struct.fields.forEach(function (property, key) { -%>
-  <%_ if (property.editType === 'struct') { -%>
-    <%_ structForms.push(property.name) -%>
+<%_ struct.fields.forEach(function (field, key) { -%>
+  <%_ if (field.editType === 'struct') { -%>
+    <%_ structForms.push(field.name) -%>
   <%_ } -%>
 <%_ }) -%>
 import {<%_ if (struct.screenType !== 'struct') { -%><%= h.changeCase.upperCaseFirst(struct.name) %>Api, <% } -%>Model<%= struct.pascalName %>} from '@/apis'
 <%_ let importDateTime = false -%>
-<%_ struct.fields.forEach(function (property, key) { -%>
-  <%_ if ((property.editType === 'time' || property.editType === 'array-time') && !importDateTime) { -%>
+<%_ struct.fields.forEach(function (field, key) { -%>
+  <%_ if ((field.editType === 'time' || field.editType === 'array-time') && !importDateTime) { -%>
 import DateTimeForm from '@/components/form/DateTimeForm.vue'
       <%_ importDateTime = true -%>
   <%_ } -%>
@@ -27,8 +27,8 @@ import ImageArrayForm from '@/components/form/ImageArrayForm.vue'
 <%_ let importExpansion = false -%>
 <%_ let importStructArrayForm = false -%>
 <%_ let importArrayForm = false -%>
-<%_ struct.fields.forEach(function (property, key) { -%>
-  <%_ if (property.editType === 'array-struct') { -%>
+<%_ struct.fields.forEach(function (field, key) { -%>
+  <%_ if (field.editType === 'array-struct') { -%>
     <%_ if (!importStructArrayForm) { -%>
 import StructArrayForm from '@/components/form/StructArrayForm.vue'
       <%_ importStructArrayForm = true -%>
@@ -37,25 +37,25 @@ import StructArrayForm from '@/components/form/StructArrayForm.vue'
 import Expansion from '@/components/form/Expansion.vue'
       <%_ importExpansion = true -%>
     <%_ } -%>
-    <%_ if (!importArrayStructSet.has(property.structType)) { -%>
-import <%= h.changeCase.pascal(property.structType) %>EntryForm, {INITIAL_<%= h.changeCase.constant(property.structType) %>} from '@/components/<%= h.changeCase.camel(property.structType) %>/<%= h.changeCase.pascal(property.structType) %>EntryForm.vue'
-import <%= h.changeCase.pascal(property.structType) %>DataTable from '@/components/<%= h.changeCase.camel(property.structType) %>/<%= h.changeCase.pascal(property.structType) %>DataTable.vue'
-      <%_ importArrayStructSet.add(property.structType) -%>
+    <%_ if (!importArrayStructSet.has(field.structType)) { -%>
+import <%= h.changeCase.pascal(field.structType) %>EntryForm, {INITIAL_<%= h.changeCase.constant(field.structType) %>} from '@/components/<%= h.changeCase.camel(field.structType) %>/<%= h.changeCase.pascal(field.structType) %>EntryForm.vue'
+import <%= h.changeCase.pascal(field.structType) %>DataTable from '@/components/<%= h.changeCase.camel(field.structType) %>/<%= h.changeCase.pascal(field.structType) %>DataTable.vue'
+      <%_ importArrayStructSet.add(field.structType) -%>
     <%_ } -%>
   <%_ } -%>
 <%_ }) -%>
-<%_ struct.fields.forEach(function (property, key) { -%>
-  <%_ if (property.editType === 'struct') { -%>
+<%_ struct.fields.forEach(function (field, key) { -%>
+  <%_ if (field.editType === 'struct') { -%>
     <%_ if (!importExpansion) { -%>
 import Expansion from '@/components/form/Expansion.vue'
       <%_ importExpansion = true -%>
     <%_ } -%>
-    <%_ if (!importArrayStructSet.has(property.structType) && !importStructSet.has(property.structType)) { -%>
-import <%= h.changeCase.pascal(property.structType) %>EntryForm, {INITIAL_<%= h.changeCase.constant(property.structType) %>} from '@/components/<%= h.changeCase.camel(property.structType) %>/<%= h.changeCase.pascal(property.structType) %>EntryForm.vue'
-      <%_ importStructSet.add(property.structType) -%>
+    <%_ if (!importArrayStructSet.has(field.structType) && !importStructSet.has(field.structType)) { -%>
+import <%= h.changeCase.pascal(field.structType) %>EntryForm, {INITIAL_<%= h.changeCase.constant(field.structType) %>} from '@/components/<%= h.changeCase.camel(field.structType) %>/<%= h.changeCase.pascal(field.structType) %>EntryForm.vue'
+      <%_ importStructSet.add(field.structType) -%>
     <%_ } -%>
   <%_ } -%>
-  <%_ if (property.editType === 'array-string' || property.editType === 'array-textarea' || property.editType === 'array-number' || property.editType === 'array-time' || property.editType === 'array-bool') { -%>
+  <%_ if (field.editType === 'array-string' || field.editType === 'array-textarea' || field.editType === 'array-number' || field.editType === 'array-time' || field.editType === 'array-bool') { -%>
     <%_ if (!importExpansion) { -%>
 import Expansion from '@/components/form/Expansion.vue'
       <%_ importExpansion = true -%>
@@ -68,21 +68,21 @@ import ArrayForm from '@/components/form/ArrayForm.vue'
 <%_ }) -%>
 
 export const INITIAL_<%= struct.name.upperSnakeName %>: Model<%= struct.pascalName %> = {
-<%_ struct.fields.forEach(function (property, key) { -%>
-  <%_ if (property.editType === 'struct') { -%>
-  <%= property.name %>: INITIAL_<%= h.changeCase.constant(property.structType) %>,
+<%_ struct.fields.forEach(function (field, key) { -%>
+  <%_ if (field.editType === 'struct') { -%>
+  <%= field.name %>: INITIAL_<%= h.changeCase.constant(field.structType) %>,
   <%_ } -%>
-  <%_ if (property.editType.startsWith('array')) { -%>
-  <%= property.name %>: [],
+  <%_ if (field.editType.startsWith('array')) { -%>
+  <%= field.name %>: [],
   <%_ } -%>
-  <%_ if (property.editType === 'string' || property.editType === 'textarea' || property.editType === 'time') { -%>
-  <%= property.name %>: undefined,
+  <%_ if (field.editType === 'string' || field.editType === 'textarea' || field.editType === 'time') { -%>
+  <%= field.name %>: undefined,
   <%_ } -%>
-  <%_ if (property.editType === 'bool') { -%>
-  <%= property.name %>: undefined,
+  <%_ if (field.editType === 'bool') { -%>
+  <%= field.name %>: undefined,
   <%_ } -%>
-  <%_ if (property.editType === 'number') { -%>
-  <%= property.name %>: undefined,
+  <%_ if (field.editType === 'number') { -%>
+  <%= field.name %>: undefined,
   <%_ } -%>
 <%_ }) -%>
 }
@@ -116,17 +116,17 @@ const emit = defineEmits<Emits>()
 
 const dialog = useAppDialog()
 
-<%_ struct.fields.forEach(function (property, key) { -%>
-  <%_ if (property.editType === 'array-struct') { -%>
+<%_ struct.fields.forEach(function (field, key) { -%>
+  <%_ if (field.editType === 'array-struct') { -%>
 
-  /** <%= property.structName.pascalName %>の初期値 */
-const initial<%= property.structName.pascalName %> = ref<Model<%= struct.pascalName %>>(INITIAL_<%= property.structName.upperSnakeName %>)
+  /** <%= field.structName.pascalName %>の初期値 */
+const initial<%= field.structName.pascalName %> = ref<Model<%= struct.pascalName %>>(INITIAL_<%= field.structName.upperSnakeName %>)
   <%_ } -%>
 <%_ }) -%>
 
 const validationRules = ref<any>({
-<%_ struct.fields.forEach(function (property, key) { -%>
-  <%_ if (property.editType !== 'array-struct' && property.editType !== 'struct') { -%>
+<%_ struct.fields.forEach(function (field, key) { -%>
+  <%_ if (field.editType !== 'array-struct' && field.editType !== 'struct') { -%>
     <%= field.name.lowerCamelName %>: [],
   <%_ } -%>
 <%_ }) -%>
@@ -212,161 +212,161 @@ const remove async () => {
     <v-card-text>
       <v-layout v-if="syncedTarget" wrap>
         <v-form ref="entryForm" class="full-width" lazy-validation>
-        <%_ struct.fields.forEach(function (property, key) { -%>
-          <%_ if (property.editType === 'string' && property.name === 'id') { -%>
+        <%_ struct.fields.forEach(function (field, key) { -%>
+          <%_ if (field.editType === 'string' && field.name === 'id') { -%>
           <v-flex md12 sm12 xs12>
             <v-text-field
-              v-model="syncedTarget.<%= property.name %>"
+              v-model="syncedTarget.<%= field.name %>"
               :disabled="!isNew"
-              :rules="validationRules.<%= property.name %>"
-              label="<%= property.screenLabel ? property.screenLabel : property.name %>"
+              :rules="validationRules.<%= field.name %>"
+              label="<%= field.screenLabel ? field.screenLabel : field.name %>"
               required
             ></v-text-field>
           </v-flex>
           <%_ } -%>
-          <%_ if (property.editType === 'string' && property.name !== 'id') { -%>
+          <%_ if (field.editType === 'string' && field.name !== 'id') { -%>
           <v-flex md12 sm12 xs12>
             <v-text-field
-              v-model="syncedTarget.<%= property.name %>"
-              :rules="validationRules.<%= property.name %>"
-              label="<%= property.screenLabel ? property.screenLabel : property.name %>"
+              v-model="syncedTarget.<%= field.name %>"
+              :rules="validationRules.<%= field.name %>"
+              label="<%= field.screenLabel ? field.screenLabel : field.name %>"
             ></v-text-field>
           </v-flex>
           <%_ } -%>
-          <%_ if (property.editType === 'number' && property.name === 'id') { -%>
+          <%_ if (field.editType === 'number' && field.name === 'id') { -%>
           <v-flex md12 sm12 xs12>
             <v-text-field
               :disabled="!isNew"
-              :rules="validationRules.<%= property.name %>"
-              :value="syncedTarget.<%= property.name %>"
-              label="<%= property.screenLabel ? property.screenLabel : property.name %>"
+              :rules="validationRules.<%= field.name %>"
+              :value="syncedTarget.<%= field.name %>"
+              label="<%= field.screenLabel ? field.screenLabel : field.name %>"
               required
               type="number"
-              @input="v => syncedTarget.<%= property.name %> = v === '' ? undefined : Number(v)"
+              @input="v => syncedTarget.<%= field.name %> = v === '' ? undefined : Number(v)"
             ></v-text-field>
           </v-flex>
           <%_ } -%>
-          <%_ if (property.editType === 'number' && property.name !== 'id') { -%>
+          <%_ if (field.editType === 'number' && field.name !== 'id') { -%>
           <v-flex md12 sm12 xs12>
             <v-text-field
-              :rules="validationRules.<%= property.name %>"
-              :value="syncedTarget.<%= property.name %>"
-              label="<%= property.screenLabel ? property.screenLabel : property.name %>"
+              :rules="validationRules.<%= field.name %>"
+              :value="syncedTarget.<%= field.name %>"
+              label="<%= field.screenLabel ? field.screenLabel : field.name %>"
               type="number"
-              @input="v => syncedTarget.<%= property.name %> = v === '' ? undefined : Number(v)"
+              @input="v => syncedTarget.<%= field.name %> = v === '' ? undefined : Number(v)"
             ></v-text-field>
           </v-flex>
           <%_ } -%>
-          <%_ if (property.editType === 'time') { -%>
+          <%_ if (field.editType === 'time') { -%>
           <date-time-form
-            :date-time.sync="syncedTarget.<%= property.name %>"
-            :rules="validationRules.<%= property.name %>"
-            label="<%= property.screenLabel ? property.screenLabel : property.name %>"
+            :date-time.sync="syncedTarget.<%= field.name %>"
+            :rules="validationRules.<%= field.name %>"
+            label="<%= field.screenLabel ? field.screenLabel : field.name %>"
           ></date-time-form>
           <%_ } -%>
-          <%_ if (property.editType === 'textarea') { -%>
+          <%_ if (field.editType === 'textarea') { -%>
           <v-flex md12 sm12 xs12>
             <v-textarea
-              v-model="syncedTarget.<%= property.name %>"
-              :rules="validationRules.<%= property.name %>"
-              label="<%= property.screenLabel ? property.screenLabel : property.name %>"
+              v-model="syncedTarget.<%= field.name %>"
+              :rules="validationRules.<%= field.name %>"
+              label="<%= field.screenLabel ? field.screenLabel : field.name %>"
             ></v-textarea>
           </v-flex>
           <%_ } -%>
-          <%_ if (property.editType === 'bool') { -%>
+          <%_ if (field.editType === 'bool') { -%>
           <v-flex md12 sm12 xs12>
             <v-checkbox
-              v-model="syncedTarget.<%= property.name %>"
-              :rules="validationRules.<%= property.name %>"
-              label="<%= property.screenLabel ? property.screenLabel : property.name %>"
+              v-model="syncedTarget.<%= field.name %>"
+              :rules="validationRules.<%= field.name %>"
+              label="<%= field.screenLabel ? field.screenLabel : field.name %>"
             ></v-checkbox>
           </v-flex>
           <%_ } -%>
-          <%_ if (property.editType === 'image' && property.dataType === 'string') { -%>
+          <%_ if (field.editType === 'image' && field.dataType === 'string') { -%>
           <v-flex xs12>
             <image-form
-              :image-url.sync="syncedTarget.<%= property.name %>"
-              :rules="validationRules.<%= property.name %>"
-              dir="<%= struct.name.lowerCamelName %>/<%= property.name %>"
-              label="<%= property.screenLabel ? property.screenLabel : property.name %>"
+              :image-url.sync="syncedTarget.<%= field.name %>"
+              :rules="validationRules.<%= field.name %>"
+              dir="<%= struct.name.lowerCamelName %>/<%= field.name %>"
+              label="<%= field.screenLabel ? field.screenLabel : field.name %>"
             ></image-form>
           </v-flex>
           <%_ } -%>
-          <%_ if (property.editType === 'array-image') { -%>
+          <%_ if (field.editType === 'array-image') { -%>
           <v-flex xs12>
             <image-array-form
-              :image-urls.sync="syncedTarget.<%= property.name %>"
-              :rules="validationRules.<%= property.name %>"
-              dir="<%= struct.name.lowerCamelName %>/<%= property.name %>"
-              label="<%= property.screenLabel ? property.screenLabel : property.name %>"
+              :image-urls.sync="syncedTarget.<%= field.name %>"
+              :rules="validationRules.<%= field.name %>"
+              dir="<%= struct.name.lowerCamelName %>/<%= field.name %>"
+              label="<%= field.screenLabel ? field.screenLabel : field.name %>"
             ></image-array-form>
           </v-flex>
           <%_ } -%>
-          <%_ if (property.editType === 'array-string' || property.editType === 'array-textarea' || property.editType === 'array-number' || property.editType === 'array-time' || property.editType === 'array-bool') { -%>
+          <%_ if (field.editType === 'array-string' || field.editType === 'array-textarea' || field.editType === 'array-number' || field.editType === 'array-time' || field.editType === 'array-bool') { -%>
           <v-flex xs12>
-            <expansion label="<%= property.screenLabel ? property.screenLabel : property.name %>一覧">
-              <%_ if (property.childType === 'string') { -%>
+            <expansion label="<%= field.screenLabel ? field.screenLabel : field.name %>一覧">
+              <%_ if (field.childType === 'string') { -%>
               <array-form
                 v-slot="{editTarget, updatedForm}"
-                :items.sync="syncedTarget.<%= property.name %>"
+                :items.sync="syncedTarget.<%= field.name %>"
                 initial="">
                 <v-text-field
-                  :rules="validationRules.<%= property.name %>"
+                  :rules="validationRules.<%= field.name %>"
                   :value="editTarget"
-                  label="<%= property.screenLabel ? property.screenLabel : property.name %>"
+                  label="<%= field.screenLabel ? field.screenLabel : field.name %>"
                   @input="updatedForm"
                 ></v-text-field>
               </array-form>
               <%_ } -%>
-              <%_ if (property.childType === 'textarea') { -%>
+              <%_ if (field.childType === 'textarea') { -%>
               <array-form
                 v-slot="{editTarget, updatedForm}"
-                :items.sync="syncedTarget.<%= property.name %>"
+                :items.sync="syncedTarget.<%= field.name %>"
                 initial="">
                 <v-textarea
-                  :rules="validationRules.<%= property.name %>"
+                  :rules="validationRules.<%= field.name %>"
                   :value="editTarget"
-                  label="<%= property.screenLabel ? property.screenLabel : property.name %>"
+                  label="<%= field.screenLabel ? field.screenLabel : field.name %>"
                   @input="updatedForm"
                 ></v-textarea>
               </array-form>
               <%_ } -%>
-              <%_ if (property.childType === 'number') { -%>
+              <%_ if (field.childType === 'number') { -%>
               <array-form
                 v-slot="{editTarget, updatedForm}"
                 :initial="0"
-                :items.sync="syncedTarget.<%= property.name %>">
+                :items.sync="syncedTarget.<%= field.name %>">
                 <v-text-field
-                  :rules="validationRules.<%= property.name %>"
+                  :rules="validationRules.<%= field.name %>"
                   :value="editTarget"
-                  label="<%= property.screenLabel ? property.screenLabel : property.name %>"
+                  label="<%= field.screenLabel ? field.screenLabel : field.name %>"
                   type="number"
                   @input="v => updatedForm(v === '' ? undefined : Number(v))"
                 ></v-text-field>
               </array-form>
               <%_ } -%>
-              <%_ if (property.childType === 'bool') { -%>
+              <%_ if (field.childType === 'bool') { -%>
               <array-form
                 v-slot="{editTarget, updatedForm}"
                 :initial="false"
-                :items.sync="syncedTarget.<%= property.name %>">
+                :items.sync="syncedTarget.<%= field.name %>">
                 <v-checkbox
-                  :rules="validationRules.<%= property.name %>"
+                  :rules="validationRules.<%= field.name %>"
                   :value="editTarget"
-                  label="<%= property.screenLabel ? property.screenLabel : property.name %>"
+                  label="<%= field.screenLabel ? field.screenLabel : field.name %>"
                   @change="updatedForm"
                 ></v-checkbox>
               </array-form>
               <%_ } -%>
-              <%_ if (property.childType === 'time') { -%>
+              <%_ if (field.childType === 'time') { -%>
               <array-form
                 v-slot="{editTarget, updatedForm}"
                 :initial="formatISO(new Date())"
-                :items.sync="syncedTarget.<%= property.name %>">
+                :items.sync="syncedTarget.<%= field.name %>">
                 <date-time-form
                   :date-time.sync="editTarget"
-                  :rules="validationRules.<%= property.name %>"
-                  label="<%= property.screenLabel ? property.screenLabel : property.name %>"
+                  :rules="validationRules.<%= field.name %>"
+                  label="<%= field.screenLabel ? field.screenLabel : field.name %>"
                   @update:dateTime="updatedForm"
                 ></date-time-form>
               </array-form>
@@ -374,22 +374,22 @@ const remove async () => {
             </expansion>
           </v-flex>
           <%_ } -%>
-          <%_ if (property.editType === 'array-struct') { -%>
+          <%_ if (field.editType === 'array-struct') { -%>
           <v-flex xs12>
-            <expansion label="<%= property.screenLabel ? property.screenLabel : property.name %>一覧">
+            <expansion label="<%= field.screenLabel ? field.screenLabel : field.name %>一覧">
               <struct-array-form
-                :initial="initial<%= h.changeCase.pascal(property.structType) %>"
-                :items.sync="syncedTarget.<%= property.name %>">
+                :initial="initial<%= h.changeCase.pascal(field.structType) %>"
+                :items.sync="syncedTarget.<%= field.name %>">
                 <template v-slot:table="{items, openEntryForm, removeRow}">
-                  <<%= h.changeCase.param(property.structType) %>-data-table
+                  <<%= h.changeCase.param(field.structType) %>-data-table
                     :has-parent="true"
                     :items="items"
                     @openEntryForm="openEntryForm"
                     @remove="removeRow"
-                  ></<%= h.changeCase.param(property.structType) %>-data-table>
+                  ></<%= h.changeCase.param(field.structType) %>-data-table>
                 </template>
                 <template v-slot:form="{editIndex, isEntryFormOpen, editTarget, closeForm, removeForm, updatedForm}">
-                  <<%= h.changeCase.param(property.structType) %>-entry-form
+                  <<%= h.changeCase.param(field.structType) %>-entry-form
                     :has-parent="true"
                     :is-new="editIndex === NEW_INDEX"
                     :open="isEntryFormOpen"
@@ -397,21 +397,21 @@ const remove async () => {
                     @close="closeForm"
                     @remove="removeForm"
                     @updated="updatedForm"
-                  ></<%= h.changeCase.param(property.structType) %>-entry-form>
+                  ></<%= h.changeCase.param(field.structType) %>-entry-form>
                 </template>
               </struct-array-form>
             </expansion>
           </v-flex>
           <%_ } -%>
-          <%_ if (property.editType === 'struct') { -%>
+          <%_ if (field.editType === 'struct') { -%>
           <v-flex xs12>
-            <expansion expanded label="<%= property.screenLabel ? property.screenLabel : property.name %>">
-              <<%= h.changeCase.param(property.structType) %>-entry-form
-                ref="<%= property.name %>Form"
+            <expansion expanded label="<%= field.screenLabel ? field.screenLabel : field.name %>">
+              <<%= h.changeCase.param(field.structType) %>-entry-form
+                ref="<%= field.name %>Form"
                 :has-parent="true"
                 :is-embedded="true"
-                :target.sync="syncedTarget.<%= property.name %>"
-              ></<%= h.changeCase.param(property.structType) %>-entry-form>
+                :target.sync="syncedTarget.<%= field.name %>"
+              ></<%= h.changeCase.param(field.structType) %>-entry-form>
             </expansion>
           </v-flex>
           <%_ } -%>
