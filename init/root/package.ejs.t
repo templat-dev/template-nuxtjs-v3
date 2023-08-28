@@ -17,7 +17,7 @@ force: true
     "build:dev": "nuxt build --dotenv ./env/.env.dev",
     "build:stg": "nuxt build --dotenv ./env/.env.stg",
     "build:prod": "nuxt build --dotenv ./env/.env.prod",
-    "start": "node .output/server/index.mjs"
+    "start": "node .output/server/index.mjs",
     "generate": "nuxt generate"
   },
   "dependencies": {},
