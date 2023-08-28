@@ -2,6 +2,80 @@
 to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct.name.pascalName %>EntryForm.vue
 ---
 <script setup lang="ts">
+<%_ let structForms = [] -%>
+<%_ struct.fields.forEach(function (field, key) { -%>
+  <%_ if (field.editType === 'struct') { -%>
+    <%_ structForms.push(field.name.lowerCamelName) -%>
+  <%_ } -%>
+<%_ }) -%>
+import {<%_ if (struct.screenType !== 'struct') { -%><%= struct.name.pascalName %>Api, <% } -%>Model<%= struct.name.pascalName %>} from '@/apis'
+<%_ let importDateTime = false -%>
+<%_ if (struct.fields) { -%>
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if ((field.listType === 'time' || field.listType === 'array-time') && !importDateTime) { -%>
+import DateTimeForm from '@/components/form/DateTimeForm.vue'
+      <%_ importDateTime = true -%>
+  <%_ } -%>
+<%_ }) -%>
+<%_ } -%>
+<%_ if (struct.exists.edit.image) { -%>
+import ImageForm from '@/components/form/ImageForm.vue'
+<%_ } -%>
+<%_ if (struct.exists.edit.arrayImage) { -%>
+import ImageArrayForm from '@/components/form/ImageArrayForm.vue'
+<%_ } -%>
+<%_ const importArrayStructSet = new Set() -%>
+<%_ const importStructSet = new Set() -%>
+<%_ let importExpansion = false -%>
+<%_ let importStructArrayForm = false -%>
+<%_ let importArrayForm = false -%>
+<%_ importDateTime = false -%>
+<%_ if (struct.fields) { -%>
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if (field.editType === 'array-struct') { -%>
+    <%_ if (!importStructTableSet.has(field.structName.pascalName)) { -%>
+import <%= field.structName.pascalName %>DataTable from '@/components/<%= field.structName.lowerCamelName %>/<%= field.structName.pascalName %>DataTable.vue'
+      <%_ importStructTableSet.add(field.structName.pascalName) -%>
+    <%_ } -%>
+    <%_ if (!importStructFormSet.has(field.structName.pascalName)) { -%>
+import <%= field.structName.pascalName %>EntryForm, {INITIAL_<%= field.structName.upperSnakeName %>} from '@/components/<%= field.structName.lowerCamelName %>/<%= field.structName.pascalName %>EntryForm.vue'
+      <%_ importStructFormSet.add(field.structName.pascalName) -%>
+    <%_ } -%>
+  <%_ } -%>
+  <%_ if (field.editType === 'struct') { -%>
+    <%_ if (!importStructFormSet.has(field.structName.pascalName)) { -%>
+import <%= field.structName.pascalName %>EntryForm, {INITIAL_<%= field.structName.upperSnakeName %>} from '@/components/<%= field.structName.lowerCamelName %>/<%= field.structName.pascalName %>EntryForm.vue'
+      <%_ importStructFormSet.add(field.structName.pascalName) -%>
+    <%_ } -%>
+  <%_ } -%>
+  <%_ } -%>
+<%_ }) -%>
+<%_ } -%>
+<%_ if (struct.fields) { -%>
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if (field.editType === 'struct') { -%>
+    <%_ if (!importExpansion) { -%>
+import Expansion from '@/components/form/Expansion.vue'
+      <%_ importExpansion = true -%>
+    <%_ } -%>
+    <%_ if (!importArrayStructSet.has(field.structType) && !importStructSet.has(field.structType)) { -%>
+import <%= field.structName.pascalName %>EntryForm, {INITIAL_<%= field.structName.upperSnakeName %>} from '@/components/<%= field.structName.lowerCamelName %>/<%= field.structName.pascalNam %>EntryForm.vue'
+      <%_ importStructSet.add(field.structType) -%>
+    <%_ } -%>
+  <%_ } -%>
+  <%_ if (field.editType === 'array-string' || field.editType === 'array-textarea' || field.editType === 'array-number' || field.editType === 'array-time' || field.editType === 'array-bool') { -%>
+    <%_ if (!importExpansion) { -%>
+import Expansion from '@/components/form/Expansion.vue'
+      <%_ importExpansion = true -%>
+    <%_ } -%>
+    <%_ if (!importArrayForm) { -%>
+import ArrayForm from '@/components/form/ArrayForm.vue'
+      <%_ importArrayForm = true -%>
+    <%_ } -%>
+  <%_ } -%>
+<%_ }) -%>
+<%_ } -%>
+
 export const INITIAL_<%= struct.name.upperSnakeName %>: Model<%= struct.name.pascalName %> = {
 <%_ if (struct.fields) { -%>
 <%_ struct.fields.forEach(function(field, index){ -%>
