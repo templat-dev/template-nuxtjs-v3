@@ -59,7 +59,7 @@ import Expansion from '@/components/form/Expansion.vue'
       <%_ importExpansion = true -%>
     <%_ } -%>
     <%_ if (!importArrayStructSet.has(property.structType) && !importStructSet.has(property.structType)) { -%>
-import <%= h.changeCase.pascal(property.structType) %>EntryForm, {INITIAL_<%= h.changeCase.constant(property.structType) %>} from '@/components/<%= h.changeCase.camel(property.structType) %>/<%= h.changeCase.pascal(property.structType) %>EntryForm.vue'
+import <%= property.structName.pascalName %>EntryForm, {INITIAL_<%= property.structName.upperSnakeName %>} from '@/components/<%= property.structName.lowerCamelName %>/<%= property.structName.pascalNam %>EntryForm.vue'
       <%_ importStructSet.add(property.structType) -%>
     <%_ } -%>
   <%_ } -%>
@@ -76,11 +76,11 @@ import ArrayForm from '@/components/form/ArrayForm.vue'
 <%_ }) -%>
 <%_ } -%>
 
-export const INITIAL_<%= struct.name.upperSnakeName %>: Model<%= struct.pascalName %> = {
+export const INITIAL_<%= struct.name.upperSnakeName %>: Model<%= struct.name.pascalName %> = {
 <%_ if (struct.fields) { -%>
 <%_ struct.fields.forEach(function(property, index){ -%>
   <%_ if (property.editType === 'struct') { -%>
-  <%= property.name.lowerCamelName %>: INITIAL_<%= h.changeCase.constant(property.structType) %>,
+  <%= property.name.lowerCamelName %>: INITIAL_<%= property.structName.upperSnakeName %>,
   <%_ } -%>
   <%_ if (property.editType.startsWith('array')) { -%>
   <%= property.name.lowerCamelName %>: [],
@@ -102,7 +102,7 @@ interface Props {
   /** 表示状態 (true: 表示, false: 非表示) */
   open!: boolean
   /** 編集対象 */
-  target!: Model<%= struct.pascalName %>
+  target!: Model<%= struct.name.pascalName %>
   /** 表示方式 (true: 埋め込み, false: ダイアログ) */
   isEmbedded!: boolean
   /** 表示方式 (true: 子要素として表示, false: 親要素として表示) */
@@ -131,7 +131,7 @@ const dialog = useAppDialog()
   <%_ if (property.editType === 'array-struct') { -%>
 
 /** <%= property.structName.pascalName %>の初期値 */
-const initial<%= property.structName.pascalName %> = ref<Model<%= struct.pascalName %>>(INITIAL_<%= property.structName.upperSnakeName %>)
+const initial<%= property.structName.pascalName %> = ref<Model<%= struct.name.pascalName %>>(INITIAL_<%= property.structName.upperSnakeName %>)
   <%_ } -%>
 <%_ }) -%>
 

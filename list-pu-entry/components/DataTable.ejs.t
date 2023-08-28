@@ -3,7 +3,7 @@ to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct
 ---
 <script setup lang="ts">
 import {cloneDeep} from 'lodash-es'
-import {Model<%= struct.pascalName %>} from '@/apis'
+import {Model<%= struct.name.pascalName %>} from '@/apis'
 import AppDataTable, {DataTablePageInfo, INITIAL_DATA_TABLE_PAGE_INFO} from '@/components/common/AppDataTable.vue'
 <%_ if (struct.screenType !== 'struct') { -%>
 import <%= struct.name.pascalName %>SearchForm, {
@@ -23,7 +23,7 @@ const headers = [
     value: '<%= field.name.lowerCamelName %>'
   },
     <%_ } -%>
-  <%_ }); -%>
+  <%_ }) -%>
   <%_ } -%>
   {
     text: '',
@@ -35,7 +35,7 @@ const headers = [
 
 interface Props {
   /** 一覧表示用の配列 */
-  items!: Model<%= struct.pascalName %>[]
+  items!: Model<%= struct.name.pascalName %>[]
   /** 一覧の表示ページ情報 */
   pageInfo!: DataTablePageInfo
   /** 一覧の合計件数 */
@@ -59,8 +59,8 @@ const props = withDefaults(defineProps<Props>(), {
 interface Emits {
   (e: "update:pageInfo", pageInfo: DataTablePageInfo): void;
   (e: "update:searchCondition", searchCondition: <%= struct.name.pascalName %>SearchCondition): void;
-  (e: "openEntryForm", item: Model<%= struct.pascalName %>): void;
-  (e: "remove", item: Model<%= struct.pascalName %>): void;
+  (e: "openEntryForm", item: Model<%= struct.name.pascalName %>): void;
+  (e: "remove", item: Model<%= struct.name.pascalName %>): void;
 }
 const emit = defineEmits<Emits>()
 
@@ -91,11 +91,11 @@ const search = (searchCondition: <%= struct.name.pascalName %>SearchCondition) =
 }
 <%_ } -%>
 
-const openEntryForm = (item: Model<%= struct.pascalName %>) => {
+const openEntryForm = (item: Model<%= struct.name.pascalName %>) => {
   emit('openEntryForm', item)
 }
 
-const remove = (item: Model<%= struct.pascalName %>) => {
+const remove = (item: Model<%= struct.name.pascalName %>) => {
   emit('remove', item)
 }
 </script>

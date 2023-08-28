@@ -1,11 +1,11 @@
 ---
-to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct.name.pascalNam %>SearchForm.vue
+to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct.name.pascalName %>SearchForm.vue
 ---
 <script lang="ts">
 <%_ const searchConditions = [] -%>
 <%_ let importDateTime = false -%>
-<%_ if (struct.listProperties.listExtraProperties && struct.listProperties.listExtraProperties.length > 0) { -%>
-<%_ struct.listProperties.listExtraProperties.forEach(function (property, key) { -%>
+<%_ if (struct.fields) { -%>
+<%_ struct.fields.forEach(function(property, index){ -%>
   <%_ if ((property.listType === 'string' || property.listType === 'array-string' || property.listType === 'time' || property.listType === 'array-time') && property.searchType === 1) { -%>
     <%_ searchConditions.push({name: property.name.lowerCamelName, type: 'string', range: false}) -%>
   <%_ } -%>
@@ -38,7 +38,7 @@ import DateTimeForm from '@/components/form/DateTimeForm.vue'
 <%_ } -%>
 
 <%_ if (searchConditions.length > 0) { -%>
-export interface <%= struct.name.pascalNam %>SearchCondition extends BaseSearchCondition {
+export interface <%= struct.name.pascalName %>SearchCondition extends BaseSearchCondition {
   <%_ searchConditions.forEach(function(property) { -%>
     <%_ if (property.listType === 'string' && !property.range) { -%>
   <%= property.name.lowerCamelName %>: SingleSearchCondition<<%= property.listType %>>
@@ -62,7 +62,7 @@ export interface <%= struct.name.pascalNam %>SearchCondition extends BaseSearchC
   <%_ }) -%>
 }
 
-export const INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION: <%= struct.name.pascalNam %>SearchCondition = {
+export const INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION: <%= struct.name.pascalName %>SearchCondition = {
   <%_ searchConditions.forEach(function(property) { -%>
     <%_ if (property.listType === 'string' && !property.range) { -%>
   <%= property.name.lowerCamelName %>: {enabled: false, value: ''},
@@ -86,17 +86,17 @@ export const INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION: <%= str
   <%_ }) -%>
 }
 <%_ } else { -%>
-export interface <%= struct.name.pascalNam %>SearchCondition {
+export interface <%= struct.name.pascalName %>SearchCondition {
 }
 
-export const INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION: <%= struct.name.pascalNam %>SearchCondition = {}
+export const INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION: <%= struct.name.pascalName %>SearchCondition = {}
 <%_ } -%>
 
 interface Props {
   /** 表示状態 (true: 表示, false: 非表示) */
   open!: boolean
   /** 検索条件 */
-  currentSearchCondition!: <%= struct.name.pascalNam %>SearchCondition
+  currentSearchCondition!: <%= struct.name.pascalName %>SearchCondition
 }
 const props = withDefaults(defineProps<Props>(), {
   open: true,
@@ -104,12 +104,12 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 interface Emits {
-  (e: "search", searchCondition: <%= struct.name.pascalNam %>SearchConditionT): void;
+  (e: "search", searchCondition: <%= struct.name.pascalName %>SearchConditionT): void;
 }
 const emit = defineEmits<Emits>()
 
 /** 変更対象の検索条件 */
-const searchCondition = ref<<%= struct.name.pascalNam %>SearchCondition>(cloneDeep(INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION))
+const searchCondition = ref<<%= struct.name.pascalName %>SearchCondition>(cloneDeep(INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION))
 
 watch(open, (open) => {
   if (props.open) {
@@ -135,7 +135,7 @@ const search = () => {
 <template>
   <v-dialog v-model="open" max-width="800px">
     <v-card :elevation="0">
-      <v-card-title><%= struct.name.pascalNam %>検索</v-card-title>
+      <v-card-title><%= struct.name.pascalName %>検索</v-card-title>
       <v-card-text>
       <%_ struct.fields.forEach(function(property, index){ -%>
         <%_ if ((property.listType === 'string' || property.listType === 'array-string' || property.listType === 'textarea' || property.listType === 'array-textarea') && property.searchType === 1) { -%>
