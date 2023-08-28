@@ -65,7 +65,7 @@ export default defineNuxtConfig({
     //   },
     // },
   },
-  css: ['@/assets/common.scss'],
+  css: ['@/assets/style/common.scss'],
   plugins: [
     '@/plugins/apiPlugin.ts',
 <%_ if (project.plugins.find(p => p.name === 'auth')?.enable) { -%>
