@@ -1,5 +1,5 @@
 ---
-to: ${rootDirectory}/plugins/vuetify.ts
+to: <%= rootDirectory %>/plugins/vuetify.ts
 force: true
 ---
 import '@mdi/font/css/materialdesignicons.css'

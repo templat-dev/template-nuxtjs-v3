@@ -1,5 +1,5 @@
 ---
-to: ${rootDirectory}/plugins/apiPlugin.ts
+to: <%= rootDirectory %>/plugins/apiPlugin.ts
 force: true
 ---
 import {
