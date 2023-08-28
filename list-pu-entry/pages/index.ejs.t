@@ -3,21 +3,21 @@ to: "<%= struct.generateEnable ? `${rootDirectory}/pages/${struct.name.lowerCame
 ---
 <script setup lang="ts">
 <%_ const searchConditions = [] -%>
-<%_ struct.fields.forEach(function(property, index){ -%>
-  <%_ if ((property.listType === 'string' || property.listType === 'array-string' || property.listType === 'time' || property.listType === 'array-time') && property.searchType === 1) { -%>
-    <%_ searchConditions.push({name: property.name.lowerCamelNam, type: 'string', range: false}) -%>
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if ((field.listType === 'string' || field.listType === 'array-string' || field.listType === 'time' || field.listType === 'array-time') && field.searchType === 1) { -%>
+    <%_ searchConditions.push({name: field.name.lowerCamelNam, type: 'string', range: false}) -%>
   <%_ } -%>
-  <%_ if ((property.listType === 'bool' || property.listType === 'array-bool') && property.searchType === 1) { -%>
-    <%_ searchConditions.push({name: property.name.lowerCamelNam, type: 'boolean', range: false}) -%>
+  <%_ if ((field.listType === 'bool' || field.listType === 'array-bool') && field.searchType === 1) { -%>
+    <%_ searchConditions.push({name: field.name.lowerCamelNam, type: 'boolean', range: false}) -%>
   <%_ } -%>
-  <%_ if ((property.listType === 'number' || property.listType === 'array-number') && property.searchType === 1) { -%>
-    <%_ searchConditions.push({name: property.name.lowerCamelNam, type: 'number', range: false}) -%>
+  <%_ if ((field.listType === 'number' || field.listType === 'array-number') && field.searchType === 1) { -%>
+    <%_ searchConditions.push({name: field.name.lowerCamelNam, type: 'number', range: false}) -%>
   <%_ } -%>
-  <%_ if ((property.listType === 'number' || property.listType === 'array-number') && 2 <= property.searchType &&  property.searchType <= 5) { -%>
-    <%_ searchConditions.push({name: property.name.lowerCamelNam, type: 'number', range: true}) -%>
+  <%_ if ((field.listType === 'number' || field.listType === 'array-number') && 2 <= field.searchType &&  field.searchType <= 5) { -%>
+    <%_ searchConditions.push({name: field.name.lowerCamelNam, type: 'number', range: true}) -%>
   <%_ } -%>
-  <%_ if ((property.listType === 'time' || property.listType === 'array-time') && 2 <= property.searchType &&  property.searchType <= 5) { -%>
-    <%_ searchConditions.push({name: property.name.lowerCamelNam, type: 'string', range: true}) -%>
+  <%_ if ((field.listType === 'time' || field.listType === 'array-time') && 2 <= field.searchType &&  field.searchType <= 5) { -%>
+    <%_ searchConditions.push({name: field.name.lowerCamelNam, type: 'string', range: true}) -%>
   <%_ } -%>
 <%_ }) -%>
 import {cloneDeep} from 'lodash-es'
@@ -64,23 +64,23 @@ const fetch = async (
     = {searchCondition: INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION, pageInfo: INITIAL_DATA_TABLE_PAGE_INFO}
 ): Promise<Model<%= struct.name.pascalPluralName %>> => {
   return await new <%= struct.name.pascalName %>Api().search<%= struct.name.pascalName %>({
-  <%_ struct.fields.forEach(function(property, index){ -%>
+  <%_ struct.fields.forEach(function(field, index){ -%>
 <%#_ 通常の検索 -%>
-    <%_ if ((property.listType === 'string' || property.listType === 'time' || property.listType === 'bool' || property.listType === 'number')  && property.searchType === 1) { -%>
-    <%= property.name.lowerCamelName %>: searchCondition.<%= property.name.lowerCamelName %>.enabled ? searchCondition.<%= property.name.lowerCamelName %>.value : undefined,
+    <%_ if ((field.listType === 'string' || field.listType === 'time' || field.listType === 'bool' || field.listType === 'number')  && field.searchType === 1) { -%>
+    <%= field.name.lowerCamelName %>: searchCondition.<%= field.name.lowerCamelName %>.enabled ? searchCondition.<%= field.name.lowerCamelName %>.value : undefined,
 <%#_ 配列の検索 -%>
-    <%_ } else if ((property.listType === 'array-string' || property.listType === 'array-time' || property.listType === 'array-bool' || property.listType === 'array-number')  && property.searchType === 1) { -%>
-    <%= property.name.lowerCamelName %>: searchCondition.<%= property.name.lowerCamelName %>.enabled ? [searchCondition.<%= property.name.lowerCamelName %>.value] : undefined,
+    <%_ } else if ((field.listType === 'array-string' || field.listType === 'array-time' || field.listType === 'array-bool' || field.listType === 'array-number')  && field.searchType === 1) { -%>
+    <%= field.name.lowerCamelName %>: searchCondition.<%= field.name.lowerCamelName %>.enabled ? [searchCondition.<%= field.name.lowerCamelName %>.value] : undefined,
 <%#_ 範囲検索 -%>
-    <%_ } else if ((property.listType === 'time' || property.listType === 'number') && 2 <= property.searchType &&  property.searchType <= 5) { -%>
-    <%= property.name.lowerCamelName %>: searchCondition.<%= property.name.lowerCamelName %>.enabled ? searchCondition.<%= property.name.lowerCamelName %>.value : undefined,
-    <%= property.name.lowerCamelName %>From: searchCondition.<%= property.name.lowerCamelName %>From.enabled ? searchCondition.<%= property.name.lowerCamelName %>From.value : undefined,
-    <%= property.name.lowerCamelName %>To: searchCondition.<%= property.name.lowerCamelName %>To.enabled ? searchCondition.<%= property.name.lowerCamelName %>To.value : undefined,
+    <%_ } else if ((field.listType === 'time' || field.listType === 'number') && 2 <= field.searchType &&  field.searchType <= 5) { -%>
+    <%= field.name.lowerCamelName %>: searchCondition.<%= field.name.lowerCamelName %>.enabled ? searchCondition.<%= field.name.lowerCamelName %>.value : undefined,
+    <%= field.name.lowerCamelName %>From: searchCondition.<%= field.name.lowerCamelName %>From.enabled ? searchCondition.<%= field.name.lowerCamelName %>From.value : undefined,
+    <%= field.name.lowerCamelName %>To: searchCondition.<%= field.name.lowerCamelName %>To.enabled ? searchCondition.<%= field.name.lowerCamelName %>To.value : undefined,
 <%#_ 配列の範囲検索 -%>
-    <%_ } else if ((property.listType === 'array-time' || property.listType === 'array-number') && 2 <= property.searchType &&  property.searchType <= 5) { -%>
-    <%= property.name.lowerCamelName %>: searchCondition.<%= property.name.lowerCamelName %>.enabled ? [searchCondition.<%= property.name.lowerCamelName %>.value] : undefined,
-    <%= property.name.lowerCamelName %>From: searchCondition.<%= property.name.lowerCamelName %>From.enabled ? searchCondition.<%= property.name.lowerCamelName %>From.value : undefined,
-    <%= property.name.lowerCamelName %>To: searchCondition.<%= property.name.lowerCamelName %>To.enabled ? searchCondition.<%= property.name.lowerCamelName %>To.value : undefined,
+    <%_ } else if ((field.listType === 'array-time' || field.listType === 'array-number') && 2 <= field.searchType &&  field.searchType <= 5) { -%>
+    <%= field.name.lowerCamelName %>: searchCondition.<%= field.name.lowerCamelName %>.enabled ? [searchCondition.<%= field.name.lowerCamelName %>.value] : undefined,
+    <%= field.name.lowerCamelName %>From: searchCondition.<%= field.name.lowerCamelName %>From.enabled ? searchCondition.<%= field.name.lowerCamelName %>From.value : undefined,
+    <%= field.name.lowerCamelName %>To: searchCondition.<%= field.name.lowerCamelName %>To.enabled ? searchCondition.<%= field.name.lowerCamelName %>To.value : undefined,
     <%_ } -%>
   <%_ }) -%>
     limit: pageInfo.itemsPerPage !== -1 ? pageInfo.itemsPerPage : undefined,
