@@ -98,7 +98,120 @@ export const INITIAL_<%= struct.name.upperSnakeName %>: Model<%= struct.name.pas
 <%_ } -%>
 }
 
+interface Props {
+  /** 表示状態 (true: 表示, false: 非表示) */
+  open!: boolean
+  /** 編集対象 */
+  target!: Model<%= struct.name.pascalName %>
+  /** 表示方式 (true: 埋め込み, false: ダイアログ) */
+  isEmbedded!: boolean
+  /** 表示方式 (true: 子要素として表示, false: 親要素として表示) */
+  hasParent!: boolean
+  /** 編集状態 (true: 新規, false: 更新) */
+  isNew!: boolean
+}
+const props = withDefaults(defineProps<Props>(), {
+  open: true,
+  target: {},
+  isEmbedded: false,
+  hasParent: false,
+  isNew: true,
+})
 
+interface Emits {
+  (e: "updated", item: T): void;
+  (e: "remove", item: T): void;
+  (e: "update:open", open: boolean): void;
+}
+const emit = defineEmits<Emits>()
+
+const dialog = useAppDialog()
+
+<%_ struct.fields.forEach(function (field, key) { -%>
+  <%_ if (field.editType === 'array-struct') { -%>
+
+/** <%= field.structName.pascalName %>の初期値 */
+const initial<%= field.structName.pascalName %> = ref<Model<%= struct.name.pascalName %>>(INITIAL_<%= field.structName.upperSnakeName %>)
+  <%_ } -%>
+<%_ }) -%>
+
+const validationRules = ref<any>({
+<%_ struct.fields.forEach(function (field, key) { -%>
+  <%_ if (field.editType !== 'array-struct' && field.editType !== 'struct') { -%>
+    <%= field.name.lowerCamelName %>: [],
+  <%_ } -%>
+<%_ }) -%>
+})
+
+watch(open, (open) => {
+  if (props.open) {
+    entryForm.value.resetValidation()<% if (structForms.length > 0) { %>;<% } %>
+<%_ structForms.forEach(function (name, index) { -%>
+    (<%= name %>Form.value?.$refs.entryForm as VForm)?.resetValidation()<% if (structForms.length - 1 !== index) { %>;<% } %>
+<%_ }) -%>
+  }
+})
+
+const initializeTarget = () => {
+  this.target = INITIAL_<%= struct.name.upperSnakeName %>
+}
+
+const validateForm = () => {
+<%_ if (structForms.length === 0) { -%>
+  if (!(this.$refs.entryForm as VForm).validate()) {
+<%_ } else { -%>
+  if (!(this.$refs.entryForm as VForm).validate()
+<%_ structForms.forEach(function (name, index) { -%>
+    || ((this.$refs.<%= name %>Form as Vue)?.$refs.entryForm as VForm)?.validate() === false<% if (structForms.length - 1 === index) { %>) {<% } %>
+<%_ }) -%>
+<%_ } -%>
+    dialog.showDialog({
+      title: 'エラー',
+      message: '入力項目を確認して下さい。'
+    })
+    return
+  }
+  this.save()
+}
+
+const save = async () => {
+<%_ if (struct.screenType !== 'struct') { -%><%#_ Structでない場合 -%>
+  if (hasParent) {
+    // 親要素側で保存
+    return
+  }
+  loading.showLoading()
+  try {
+    if (props.isNew) {
+      // 新規の場合
+      await new <%= struct.name.pascalName %>Api().create<%= struct.name.pascalName %>({
+        body: this.target
+      })
+    } else {
+      // 更新の場合
+      await new <%= struct.name.pascalName %>Api().update<%= struct.name.pascalName %>({
+        id: target.id!,
+        body: target
+      })
+    }
+    close()
+  } finally {
+    loading.hideLoading()
+  }
+<%_ } else { -%>
+  close()
+<%_ } -%>
+}
+
+const remove = async () => {
+  emit('remove', target)
+}
+
+const close = () => {
+  if (!props.isEmbedded) {
+    emit('update:open', false)
+  }
+}
 </script>
 
 <template>
