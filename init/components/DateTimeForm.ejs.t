@@ -16,8 +16,8 @@ interface Props {
 }
 const props = withDefaults(defineProps<Props>(), {
   label: '',
-  dateTime?: '',
-  disabled?: false,
+  dateTime: '',
+  disabled: false,
 })
 
 interface Emits {

@@ -8,7 +8,7 @@ to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct
     <%_ structForms.push(field.name.lowerCamelName) -%>
   <%_ } -%>
 <%_ }) -%>
-import {<%_ if (struct.screenType !== 'struct') { -%><%= struct.name.pascalName %>Api, <% } -%>Model<%= struct.name.pascalName %>} from '@/apis'
+import {<%_ if (struct.structType !== 'struct') { -%><%= struct.name.pascalName %>Api, <% } -%>Model<%= struct.name.pascalName %>} from '@/apis'
 <%_ let importDateTime = false -%>
 <%_ if (struct.fields) { -%>
 <%_ struct.fields.forEach(function(field, index){ -%>
@@ -76,6 +76,8 @@ import ArrayForm from '@/components/form/ArrayForm.vue'
   <%_ } -%>
 <%_ }) -%>
 <%_ } -%>
+import {NEW_INDEX} from '@/constants/appConstants'
+import {useAppLoading} from '@/composables/useLoading'
 
 export const INITIAL_<%= struct.name.upperSnakeName %>: Model<%= struct.name.pascalName %> = {
 <%_ if (struct.fields) { -%>
@@ -101,40 +103,44 @@ export const INITIAL_<%= struct.name.upperSnakeName %>: Model<%= struct.name.pas
 
 interface Props {
   /** 表示状態 (true: 表示, false: 非表示) */
-  open!: boolean
+  open: boolean
   /** 編集対象 */
-  target!: Model<%= struct.name.pascalName %>
+  target: Model<%= struct.name.pascalName %>
   /** 表示方式 (true: 埋め込み, false: ダイアログ) */
-  isEmbedded!: boolean
+  isEmbedded: boolean
   /** 表示方式 (true: 子要素として表示, false: 親要素として表示) */
-  hasParent!: boolean
+  hasParent: boolean
   /** 編集状態 (true: 新規, false: 更新) */
-  isNew!: boolean
+  isNew: boolean
 }
 const props = withDefaults(defineProps<Props>(), {
   open: true,
-  target: {},
+  target: (props: Props) => INITIAL_<%= struct.name.upperSnakeName %>,
   isEmbedded: false,
   hasParent: false,
   isNew: true,
 })
 
 interface Emits {
-  (e: "updated", item: T): void;
-  (e: "remove", item: T): void;
+  (e: "updated", item: Model<%= struct.name.pascalName %>): void;
+  (e: "remove", item: Model<%= struct.name.pascalName %>): void;
   (e: "update:open", open: boolean): void;
 }
 const emit = defineEmits<Emits>()
 
 const dialog = useAppDialog()
+const loading = useAppLoading()
 
 <%_ struct.fields.forEach(function (field, key) { -%>
   <%_ if (field.editType === 'array-struct') { -%>
 
 /** <%= field.structName.pascalName %>の初期値 */
-const initial<%= field.structName.pascalName %> = ref<Model<%= struct.name.pascalName %>>(INITIAL_<%= field.structName.upperSnakeName %>)
+const initial<%= field.structName.pascalName %> = ref<Model<%= struct.structName.pascalName %>>(INITIAL_<%= field.structName.upperSnakeName %>)
   <%_ } -%>
 <%_ }) -%>
+
+const <%= struct.name.lowerCamelName %>Form = ref<any>(null)
+const valid<%= struct.name.pascalName %>Form = ref<boolean>(false)
 
 const validationRules = ref<any>({
 <%_ struct.fields.forEach(function (field, key) { -%>
@@ -146,7 +152,7 @@ const validationRules = ref<any>({
 
 watch(open, (open) => {
   if (props.open) {
-    entryForm.value.resetValidation()<% if (structForms.length > 0) { %>;<% } %>
+    <%= struct.name.lowerCamelName %>Form.value.resetValidation()<% if (structForms.length > 0) { %>;<% } %>
 <%_ structForms.forEach(function (name, index) { -%>
     (<%= name %>Form.value?.$refs.entryForm as VForm)?.resetValidation()<% if (structForms.length - 1 !== index) { %>;<% } %>
 <%_ }) -%>
@@ -154,12 +160,12 @@ watch(open, (open) => {
 })
 
 const initializeTarget = () => {
-  this.target = INITIAL_<%= struct.name.upperSnakeName %>
+  emit('update:target', INITIAL_<%= struct.name.upperSnakeName %>)
 }
 
 const validateForm = () => {
 <%_ if (structForms.length === 0) { -%>
-  if (!(this.$refs.entryForm as VForm).validate()) {
+  if (!<%= struct.name.lowerCamelName %>Form.value.validate()) {
 <%_ } else { -%>
   if (!(this.$refs.entryForm as VForm).validate()
 <%_ structForms.forEach(function (name, index) { -%>
@@ -176,7 +182,7 @@ const validateForm = () => {
 }
 
 const save = async () => {
-<%_ if (struct.screenType !== 'struct') { -%><%#_ Structでない場合 -%>
+<%_ if (struct.structType !== 'struct') { -%><%#_ Structでない場合 -%>
   if (hasParent) {
     // 親要素側で保存
     return
@@ -186,13 +192,13 @@ const save = async () => {
     if (props.isNew) {
       // 新規の場合
       await new <%= struct.name.pascalName %>Api().create<%= struct.name.pascalName %>({
-        body: this.target
+        body: props.target
       })
     } else {
       // 更新の場合
       await new <%= struct.name.pascalName %>Api().update<%= struct.name.pascalName %>({
-        id: target.id!,
-        body: target
+        id: props.target.id!,
+        body: props.target
       })
     }
     close()
@@ -205,7 +211,7 @@ const save = async () => {
 }
 
 const remove = async () => {
-  emit('remove', target)
+  emit('remove', props.target)
 }
 
 const close = () => {
@@ -220,7 +226,7 @@ const close = () => {
     <v-card-title v-if="!isEmbedded"><%= struct.label || struct.name.pascalName %>{{ isNew ? '追加' : '編集' }}</v-card-title>
     <v-card-text>
       <v-layout v-if="target" wrap>
-        <v-form ref="entryForm" class="full-width" lazy-validation>
+        <v-form ref="<%= struct.name.lowerCamelName %>Form"  v-model="valid<%= struct.name.pascalName %>Form" class="full-width" lazy-validation>
         <%_ struct.fields.forEach(function (field, key) { -%>
           <%_ if (field.editType === 'string' && field.name.lowerCamelName === 'id') { -%>
           <v-flex md12 sm12 xs12>
@@ -387,9 +393,9 @@ const close = () => {
           <v-flex xs12>
             <expansion label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>一覧">
               <struct-array-form
-                :initial="initial<%= field.structName.pascalNam %>"
+                :initial="initial<%= field.structName.pascalName %>"
                 :items.sync="target.<%= field.name.lowerCamelName %>">
-                <template v-slot:table="{items, openEntryForm, removeRow}">
+                <template #table="{items, openEntryForm, removeRow}">
                   <<%= field.structName.lowerCamelName %>-data-table
                     :has-parent="true"
                     :items="items"
@@ -397,7 +403,7 @@ const close = () => {
                     @remove="removeRow"
                   ></<%= field.structName.lowerCamelName %>-data-table>
                 </template>
-                <template v-slot:form="{editIndex, isEntryFormOpen, editTarget, closeForm, removeForm, updatedForm}">
+                <template #form="{editIndex, isEntryFormOpen, editTarget, closeForm, removeForm, updatedForm}">
                   <<%= field.structName.lowerCamelName %>-entry-form
                     :has-parent="true"
                     :is-new="editIndex === NEW_INDEX"

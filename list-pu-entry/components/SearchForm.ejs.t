@@ -1,84 +1,78 @@
 ---
 to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct.name.pascalName %>SearchForm.vue
 ---
-<script lang="ts">
+<script setup lang="ts">
 <%_ const searchConditions = [] -%>
 <%_ let importDateTime = false -%>
 <%_ if (struct.fields) { -%>
 <%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if ((field.listType === 'string' || field.listType === 'array-string' || field.listType === 'time' || field.listType === 'array-time') && field.searchType === 1) { -%>
+  <%_ if ((field.type === 'string' || field.type === 'array-string' || field.type === 'time' || field.type === 'array-time') && field.searchType === 1) { -%>
     <%_ searchConditions.push({name: field.name.lowerCamelName, type: 'string', range: false}) -%>
   <%_ } -%>
-  <%_ if ((field.listType === 'bool' || field.listType === 'array-bool') && field.searchType === 1) { -%>
+  <%_ if ((field.type === 'bool' || field.type === 'array-bool') && field.searchType === 1) { -%>
     <%_ searchConditions.push({name: field.name.lowerCamelName, type: 'boolean', range: false}) -%>
   <%_ } -%>
-  <%_ if ((field.listType === 'number' || field.listType === 'array-number') && field.searchType === 1) { -%>
+  <%_ if ((field.type === 'number' || field.type === 'array-number') && field.searchType === 1) { -%>
     <%_ searchConditions.push({name: field.name.lowerCamelName, type: 'number', range: false}) -%>
   <%_ } -%>
-  <%_ if ((field.listType === 'number' || field.listType === 'array-number') && 2 <= field.searchType &&  field.searchType <= 5) { -%>
+  <%_ if ((field.type === 'number' || field.type === 'array-number') && 2 <= field.searchType &&  field.searchType <= 5) { -%>
     <%_ searchConditions.push({name: field.name.lowerCamelName, type: 'number', range: true}) -%>
   <%_ } -%>
-  <%_ if ((field.listType === 'time' || field.listType === 'array-time') && 2 <= field.searchType &&  field.searchType <= 5) { -%>
+  <%_ if ((field.type === 'time' || field.type === 'array-time') && 2 <= field.searchType &&  field.searchType <= 5) { -%>
     <%_ searchConditions.push({name: field.name.lowerCamelName, type: 'string', range: true}) -%>
   <%_ } -%>
-  <%_ if ((field.listType === 'time' || field.listType === 'array-time')) { -%>
+  <%_ if ((field.type === 'time' || field.type === 'array-time')) { -%>
   <%_ importDateTime = true -%>
   <%_ } -%>
 <%_ }) -%>
 <%_ } -%>
-import {Component, Emit, mixins, Prop, PropSync, Watch} from 'nuxt-field-decorator'
 import {cloneDeep} from 'lodash-es'
-<%_ if (searchConditions.length > 0) { -%>
-import Base, {BaseSearchCondition, SingleSearchCondition} from '@/mixins/base'
-<%_ } else { -%>
-import Base from '@/mixins/base'
-<%_ } -%>
 <%_ if (importDateTime) { -%>
 import DateTimeForm from '@/components/form/DateTimeForm.vue'
 <%_ } -%>
 
 <%_ if (searchConditions.length > 0) { -%>
-export interface <%= struct.name.pascalName %>SearchCondition extends BaseSearchCondition {
+export interface <%= struct.name.pascalName %>SearchCondition {
   <%_ searchConditions.forEach(function(field) { -%>
-    <%_ if (field.listType === 'string' && !field.range) { -%>
-  <%= field.name.lowerCamelName %>: SingleSearchCondition<<%= field.listType %>>
+    <%_ if (field.type === 'string' && !field.range) { -%>
+  <%= field.name.lowerCamelName %>: SingleSearchCondition<<%= field.type %>>
     <%_ } -%>
-    <%_ if (field.listType === 'boolean' && !field.range) { -%>
-  <%= field.name.lowerCamelName %>: SingleSearchCondition<<%= field.listType %>>
+    <%_ if (field.type === 'boolean' && !field.range) { -%>
+  <%= field.name.lowerCamelName %>: SingleSearchCondition<<%= field.type %>>
     <%_ } -%>
-    <%_ if (field.listType === 'number' && !field.range) { -%>
-  <%= field.name.lowerCamelName %>: SingleSearchCondition<<%= field.listType %>>
+    <%_ if (field.type === 'number' && !field.range) { -%>
+  <%= field.name.lowerCamelName %>: SingleSearchCondition<<%= field.type %>>
     <%_ } -%>
-    <%_ if (field.listType === 'number' && field.range) { -%>
-  <%= field.name.lowerCamelName %>: SingleSearchCondition<<%= field.listType %>>
-  <%= field.name.lowerCamelName %>From: SingleSearchCondition<<%= field.listType %>>
-  <%= field.name.lowerCamelName %>To: SingleSearchCondition<<%= field.listType %>>
+    <%_ if (field.type === 'number' && field.range) { -%>
+  <%= field.name.lowerCamelName %>: SingleSearchCondition<<%= field.type %>>
+  <%= field.name.lowerCamelName %>From: SingleSearchCondition<<%= field.type %>>
+  <%= field.name.lowerCamelName %>To: SingleSearchCondition<<%= field.type %>>
     <%_ } -%>
-    <%_ if (field.listType === 'string' && field.range) { -%>
-  <%= field.name.lowerCamelName %>: SingleSearchCondition<<%= field.listType %>>
-  <%= field.name.lowerCamelName %>From: SingleSearchCondition<<%= field.listType %>>
-  <%= field.name.lowerCamelName %>To: SingleSearchCondition<<%= field.listType %>>
+    <%_ if (field.type === 'string' && field.range) { -%>
+  <%= field.name.lowerCamelName %>: SingleSearchCondition<<%= field.type %>>
+  <%= field.name.lowerCamelName %>From: SingleSearchCondition<<%= field.type %>>
+  <%= field.name.lowerCamelName %>To: SingleSearchCondition<<%= field.type %>>
     <%_ } -%>
   <%_ }) -%>
 }
 
 export const INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION: <%= struct.name.pascalName %>SearchCondition = {
   <%_ searchConditions.forEach(function(field) { -%>
-    <%_ if (field.listType === 'string' && !field.range) { -%>
+    <%_ if (field.type === 'string' && !field.range) { -%>
   <%= field.name.lowerCamelName %>: {enabled: false, value: ''},
     <%_ } -%>
-    <%_ if (field.listType === 'boolean' && !field.range) { -%>
+    <%_ if (field.type === 'boolean' && !field.range) { -%>
   <%= field.name.lowerCamelName %>: {enabled: false, value: false},
     <%_ } -%>
-    <%_ if (field.listType === 'number' && !field.range) { -%>
+    <%_ if (field.type === 'number' && !field.range) { -%>
   <%= field.name.lowerCamelName %>: {enabled: false, value: 0},
     <%_ } -%>
-    <%_ if (field.listType === 'number' && field.range) { -%>
+    <%_ if (field.type === 'number' && field.range) { -%>
   <%= field.name.lowerCamelName %>: {enabled: false, value: 0},
   <%= field.name.lowerCamelName %>From: {enabled: false, value: 0},
   <%= field.name.lowerCamelName %>To: {enabled: false, value: 0},
     <%_ } -%>
-    <%_ if (field.listType === 'string' && field.range) { -%>
+    <%_ if (field.type === 'string' && field.range) { -%>
   <%= field.name.lowerCamelName %>: {enabled: false, value: ''},
   <%= field.name.lowerCamelName %>From: {enabled: false, value: ''},
   <%= field.name.lowerCamelName %>To: {enabled: false, value: ''},
@@ -86,7 +80,7 @@ export const INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION: <%= str
   <%_ }) -%>
 }
 <%_ } else { -%>
-export interface <%= struct.name.pascalName %>SearchCondition {
+export interface <%= struct.name.pascalName %>SearchCondition extends BaseSearchCondition {
 }
 
 export const INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION: <%= struct.name.pascalName %>SearchCondition = {}
@@ -94,17 +88,17 @@ export const INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION: <%= str
 
 interface Props {
   /** 表示状態 (true: 表示, false: 非表示) */
-  open!: boolean
+  open: boolean
   /** 検索条件 */
-  currentSearchCondition!: <%= struct.name.pascalName %>SearchCondition
+  currentSearchCondition: <%= struct.name.pascalName %>SearchCondition
 }
 const props = withDefaults(defineProps<Props>(), {
   open: true,
-  currentSearchCondition: {},
+  currentSearchCondition: (props: Props) => INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION,
 })
 
 interface Emits {
-  (e: "search", searchCondition: <%= struct.name.pascalName %>SearchConditionT): void;
+  (e: "search", searchCondition: <%= struct.name.pascalName %>SearchCondition): void;
 }
 const emit = defineEmits<Emits>()
 
@@ -115,7 +109,7 @@ watch(open, (open) => {
   if (props.open) {
     searchCondition.value = cloneDeep(props.currentSearchCondition)
   }
-}
+})
 
 const clear = () => {
   searchCondition.value = cloneDeep(INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION)
@@ -179,7 +173,7 @@ const search = () => {
               :value="searchCondition.<%= field.name.lowerCamelName %>From.value"
               label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>開始"
               type="number"
-              @input="v => searchCondition.<%= field.name.lowerCamelName %>From.value = v === '' ? undefined : Number(v)"
+              @input="(v) => searchCondition.<%= field.name.lowerCamelName %>From.value = (v === '' ? -1 : Number(v))"
             ></v-text-field>
           </v-flex>
         </v-layout>

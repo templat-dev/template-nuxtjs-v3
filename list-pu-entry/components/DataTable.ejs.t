@@ -13,7 +13,7 @@ import <%= struct.name.pascalName %>SearchForm, {
 <%_ } -%>
 
 /** ヘッダー定義 */
-const headers = [
+const headers = ref<any[]>([
   <%_ if (struct.fields) { -%>
   <%_ struct.fields.forEach(function(field, index){ -%>
     <%_ if (field.listType !== 'none' && field.dataType !== 'struct' && field.dataType !== 'array-struct') { -%>
@@ -31,35 +31,35 @@ const headers = [
     value: 'action',
     sortable: false
   }
-]
+])
 
 interface Props {
   /** 一覧表示用の配列 */
-  items!: Model<%= struct.name.pascalName %>[]
+  items: Model<%= struct.name.pascalName %>[]
   /** 一覧の表示ページ情報 */
-  pageInfo!: DataTablePageInfo
+  pageInfo: DataTablePageInfo
   /** 一覧の合計件数 */
-  totalCount!: number | undefined
+  totalCount: number | undefined
   /** 一覧の読み込み状態 */
-  isLoading!: boolean
+  isLoading: boolean
   /** 検索条件 */
-  searchCondition!: <%= struct.name.pascalName %>SearchCondition
+  searchCondition: <%= struct.name.pascalName %>SearchCondition
   /** 表示方式 (true: 子要素として表示, false: 親要素として表示) */
-  hasParent!: boolean
+  hasParent: boolean
 }
 const props = withDefaults(defineProps<Props>(), {
-  items: [],
+  items: (props: Props) => [],
   pageInfo: cloneDeep(INITIAL_DATA_TABLE_PAGE_INFO),
-  totalCount: undefined
-  isLoading: false
-  syncedSearchCondition: cloneDeep(INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION)
-  hasParent: false
+  totalCount: undefined,
+  isLoading: false,
+  searchCondition: cloneDeep(INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION),
+  hasParent: false,
 })
 
 interface Emits {
   (e: "update:pageInfo", pageInfo: DataTablePageInfo): void;
   (e: "update:searchCondition", searchCondition: <%= struct.name.pascalName %>SearchCondition): void;
-  (e: "openEntryForm", item: Model<%= struct.name.pascalName %>): void;
+  (e: "openEntryForm", item?: Model<%= struct.name.pascalName %>): void;
   (e: "remove", item: Model<%= struct.name.pascalName %>): void;
 }
 const emit = defineEmits<Emits>()
@@ -69,9 +69,9 @@ const emit = defineEmits<Emits>()
 /** 検索フォームの表示表示状態 (true: 表示, false: 非表示) */
 const isSearchFormOpen = ref<boolean>(false)
 
-const previewSearchCondition = computed(() {
+const previewSearchCondition = computed(() => {
   const previewSearchConditions = []
-  for (const [key, value] of Object.entries(this.syncedSearchCondition)) {
+  for (const [key, value] of Object.entries(props.searchCondition)) {
     if (!value.enabled) {
       continue
     }
@@ -91,7 +91,7 @@ const search = (searchCondition: <%= struct.name.pascalName %>SearchCondition) =
 }
 <%_ } -%>
 
-const openEntryForm = (item: Model<%= struct.name.pascalName %>) => {
+const openEntryForm = (item?: Model<%= struct.name.pascalName %>) => {
   emit('openEntryForm', item)
 }
 

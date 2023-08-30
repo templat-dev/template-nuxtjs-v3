@@ -3,41 +3,32 @@ to: <%= rootDirectory %>/components/modal/AppDialog.vue
 force: true
 ---
 <script setup lang="ts">
-import {useAppDialog} from "~/composables/states"
+import {useAppDialog} from "@/composables/useDialog"
 
 const appDialog = useAppDialog()
 
 const close = () => {
-  appDialog.open = false
-  if (appDialog.close) {
-    appDialog.close()
-  }
+  appDialog.close()
 }
 
 const positive = () => {
-  if (appDialog.positive) {
-    appDialog.positive()
-  }
+  appDialog.positive()
   close()
 }
 
 const neutral = () => {
-  if (appDialog.neutral) {
-    appDialog.neutral()
-  }
+  appDialog.neutral()
   close()
 }
 
 const negative = () => {
-  if (appDialog.negative) {
-    appDialog.negative()
-  }
+  appDialog.negative()
   close()
 }
 </script>
 
 <template>
-  <v-dialog v-model="appDialog.open" :persistent="appDialog.persistent" width="400">
+  <v-dialog v-model="appDialog.isOpen" :persistent="appDialog.isPersistent" width="400">
     <v-card>
       <v-card-title class="dialog-title">{{ appDialog.title }}</v-card-title>
 

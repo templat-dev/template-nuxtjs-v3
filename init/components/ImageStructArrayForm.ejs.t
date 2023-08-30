@@ -2,10 +2,13 @@
 to: "<%= project.plugins.find(p => p.name === 'image')?.enable ? `${rootDirectory}/components/form/ImageStructArrayForm.vue` : null %>"
 force: true
 ---
-<script setup lang="ts" generic="T">
+<script setup lang="ts" generic="T extends ImageStruct">
 import {ImageApi} from '@/apis'
 import appUtils from '@/utils/appUtils'
 import {cloneDeep} from 'lodash-es'
+import {useAppLoading} from "~/composables/useLoading";
+
+const loading = useAppLoading()
 
 interface ImageStruct {
   url?: string
@@ -28,14 +31,21 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   label: '',
   dir: '',
-  initial: {}
-  imageStructs: [],
+  imageStructs: (props: Props) => [],
   thumbnail: false,
   thumbnailSize: 200,
 })
 
+interface Emits {
+  (e: "add-image-struct", struct: T): void;
+  (e: "remove-image", index: number): void;
+}
+const emit = defineEmits<Emits>()
+
 /** 画像ドロップエリアの表示 (true: 表示, false: 非表示) */
 const dragOvered = ref<boolean>(false)
+
+const fileInput = ref<HTMLInputElement | null>(null)
 
 const selectFile = () => {
   (fileInput.value as HTMLInputElement).click()
@@ -88,9 +98,6 @@ const selectImages = async (e: InputEvent) => {
 }
 
 const removeImage = (index: number) => {
-  if (!imageURLs) {
-    return
-  }
   emit('remove-image', index)
 }
 
@@ -111,7 +118,7 @@ const addImageStruct = (imageStruct: T) => {
     </v-layout>
     <v-layout wrap>
       <div v-for="(imageStruct, index) in imageStructs" :key="index" class="relative mb-4 mr-4">
-        <v-img :src="imageStruct.url" aspect-ratio="1" class="grey lighten-2" height="100px" width="100px">
+        <v-img :src="imageStruct.url!" aspect-ratio="1" class="grey lighten-2" height="100px" width="100px">
           <template #placeholder>
             <v-row align="center" class="fill-height ma-0" justify="center">
               <v-progress-circular color="grey lighten-5" indeterminate></v-progress-circular>

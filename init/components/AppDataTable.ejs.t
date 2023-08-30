@@ -6,6 +6,15 @@ force: true
 import appUtils from '@/utils/appUtils'
 import {DataTableHeader} from 'vuetify'
 
+export interface SingleSearchCondition<T> {
+  enabled: boolean
+  value: T
+}
+
+export interface BaseSearchCondition {
+  [key: string]: SingleSearchCondition<string | number | boolean>
+}
+
 export interface DataTablePageInfo {
   /** ページ番号 (初期ページは1) */
   page: number

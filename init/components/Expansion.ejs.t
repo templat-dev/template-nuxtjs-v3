@@ -5,15 +5,15 @@ force: true
 <script setup lang="ts">
 interface Props {
   /** ラベル */
-  label!: string,
+  label: string,
   /** 開閉状態（true: 開、false:閉） */
-  expanded!: boolean
+  expanded: boolean
 }
 const props = withDefaults(defineProps<Props>(), {
-  items?: [],
-  initial!: {},
+  label: "",
+  initial: {},
 })
-const panel = ref<number | null>(this.expanded ? 0 : null)
+const panel = ref<number | null>(props.expanded ? 0 : null)
 </script>
 
 <template>

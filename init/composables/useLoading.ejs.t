@@ -5,10 +5,14 @@ force: true
 export const useAppLoading = () => {
   const state = useState<boolean>('appLoading', () => false)
   return {
-    state: readonly(state),
+    isLoading: isLoading(state),
     showLoading: showLoading(state),
     hideLoading: hideLoading(state),
   }
+}
+
+const isLoading = (state: Ref<boolean>): boolean => {
+  return state.value
 }
 
 const showLoading = (state: Ref<boolean>) => {

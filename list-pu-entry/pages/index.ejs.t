@@ -22,7 +22,7 @@ to: "<%= struct.generateEnable ? `${rootDirectory}/pages/${struct.name.lowerCame
 <%_ }) -%>
 import {cloneDeep} from 'lodash-es'
 import {Context} from '@nuxt/types'
-import {<%= struct.name.pascalName %>Api, Model<%= struct.name.pascalName %>} from '@/apis'
+import {<%= struct.name.pascalName %>Api, Model<%= struct.name.pascalName %>, Model<%= struct.name.pascalPluralName %>} from '@/apis'
 import {DataTablePageInfo, INITIAL_DATA_TABLE_PAGE_INFO} from '@/components/common/AppDataTable.vue'
 import <%= struct.name.pascalName %>DataTable from '@/components/<%= struct.name.pascalName %>/<%= struct.name.pascalName %>DataTable.vue'
 import {
@@ -30,9 +30,14 @@ import {
   INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION
 } from '@/components/<%= struct.name.pascalName %>/<%= struct.name.pascalName %>SearchForm.vue'
 import <%= struct.name.pascalName %>EntryForm, {INITIAL_<%= struct.name.upperSnakeName %>} from '@/components/<%= struct.name.pascalName %>/<%= struct.name.pascalName %>EntryForm.vue'
+import {useAppLoading} from "~/composables/useLoading"
+import {useAppSnackbar} from "~/composables/useSnackbar"
+import {useAppDialog} from "~/composables/useDialog";
+import {NEW_INDEX} from '@/constants/appConstants'
 
-const loading = useLoading()
-const snackbar = useSnackbar()
+const loading = useAppLoading()
+const snackbar = useAppSnackbar()
+const dialog = useAppDialog()
 
 /** 一覧表示用の配列 */
 const <%= struct.name.lowerCamelPluralName %> = ref<Model<%= struct.name.pascalName %>[]>([])
@@ -86,16 +91,16 @@ const fetch = async (
     limit: pageInfo.itemsPerPage !== -1 ? pageInfo.itemsPerPage : undefined,
 <%_ if (project.dbType === 'datastore') { -%>
     cursor: pageInfo.page !== 1 ? pageInfo.cursors[pageInfo.page - 2] : undefined,
-    orderBy: pageInfo.sortBy.map((sb, i) => `${(pageInfo.sortDesc)[i] ? '-' : ''}${sb}`).join(',') || undefined
+    orderBy: pageInfo.sortBy.map((sb: string, i: number) => `${(pageInfo.sortDesc)[i] ? '-' : ''}${sb}`).join(',') || undefined
 <%_ } else { -%>
     offset: (pageInfo.page - 1) * pageInfo.itemsPerPage,
-    orderBy: pageInfo.sortBy.map((sb, i) => `${sb} ${(pageInfo.sortDesc)[i] ? 'desc' : 'asc'}`).join(',') || undefined
+    orderBy: pageInfo.sortBy.map((sb: string, i: number) => `${sb} ${(pageInfo.sortDesc)[i] ? 'desc' : 'asc'}`).join(',') || undefined
 <%_ } -%>
   }).then(res => res.data)
 }
 
 onMounted(async () => {
-  const data = await <%= struct.name.pascalPluralName %>.fetch()
+  const data = await fetch()
   const pageInfo = cloneDeep(INITIAL_DATA_TABLE_PAGE_INFO)
 <%_ if (project.dbType === 'datastore') { -%>
   if (data.cursor) {
@@ -103,14 +108,14 @@ onMounted(async () => {
   }
 <%_ } -%>
   <%= struct.name.lowerCamelPluralName %>.value = data.<%= struct.name.lowerCamelPluralName %>
-  totalCount.value = data.count
-  pageInfo.value = pageInfo
+  totalCount.value = data.count || []
+  pageInfo.value = pageInfo || 0
 })
 
 const reFetch = async () => {
   loading.isLoading = true
   try {
-    const data = await <%= struct.name.pascalPluralName %>.fetch({
+    const data = await fetch({
       searchCondition: searchCondition.value,
       pageInfo: pageInfo.value
     })
@@ -126,10 +131,10 @@ const reFetch = async () => {
   }
 }
 
-const openEntryForm = (<%= struct.name.lowerCamelPluralName %>?: Model<%= struct.name.pascalName %>) => {
-  if (!!<%= struct.name.lowerCamelPluralName %>) {
-    editTarget.value = cloneDeep(<%= struct.name.lowerCamelPluralName %>)
-    editIndex.value = <%= struct.name.lowerCamelPluralName %>.value.indexOf(<%= struct.name.lowerCamelPluralName %>)
+const openEntryForm = (target?: Model<%= struct.name.pascalName %>) => {
+  if (!!target) {
+    editTarget.value = cloneDeep(target)
+    editIndex.value = <%= struct.name.lowerCamelPluralName %>.value.indexOf(target)
   } else {
     editTarget.value = cloneDeep(INITIAL_<%= struct.name.upperSnakeName %>)
     editIndex.value = NEW_INDEX

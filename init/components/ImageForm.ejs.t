@@ -7,11 +7,12 @@ force: true
 import {useNuxtApp} from "#app";
 import {ref} from "vue";
 import appUtils from '~/utils/appUtils'
+import {useAppLoading} from "~/composables/useLoading";
 
 const {$api} = useNuxtApp()
 const imageApi = $api.imageApi()
 
-const loading = useLoading()
+const loading = useAppLoading()
 
 const fileInput = ref<HTMLInputElement | null>(null)
 
@@ -48,7 +49,7 @@ const uploadImage = async (file: File) => {
     image: file,
     thumbnail: props.thumbnail,
     thumbnailSize: props.thumbnailSize
-  }).then(res => res.data)
+  }).then((res: any) => res.data)
   if (responseImage && responseImage.url) {
     updateImageURL(responseImage.url)
   }

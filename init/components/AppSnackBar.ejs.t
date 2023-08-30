@@ -2,29 +2,26 @@
 to: <%= rootDirectory %>/components/modal/AppSnackBar.vue
 force: true
 ---
-<script setup lang="ts">
-import {useAppDialog} from "~/composables/states"
+import {useAppSnackbar} from "~/composables/useSnackbar"
 
-const appDialog = useAppDialog()
+const appSnackbar = useAppSnackbar()
 
 const close = () => {
-  appDialog.open = false
+  appSnackbar.close()
 }
 
 const action = () => {
-  if (appDialog.action) {
-    appDialog.action()
-  }
+  appSnackbar.action()
   close()
 }
 </script>
 
 <template>
-  <v-snackbar v-model="appDialog.open" :timeout="appDialog.timeout">
-    {{ state.text }}
-    <template v-if="appDialog.actionText" v-slot:action="{ attrs }">
+  <v-snackbar v-model="appSnackbar.isOpen" :timeout="appSnackbar.timeout">
+    {{ appSnackbar.text }}
+    <template v-if="appSnackbar.actionText" v-slot:action="{ attrs }">
       <v-btn v-bind="attrs" color="primary" text @click="action">
-        {{ appDialog.actionText }}
+        {{ appSnackbar.actionText }}
       </v-btn>
     </template>
   </v-snackbar>

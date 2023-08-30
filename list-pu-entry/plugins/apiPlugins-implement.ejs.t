@@ -1,8 +1,8 @@
 ---
 to: "<%= struct.enable ? `${rootDirectory}/plugins/apiPlugin.ts` : null %>"
 inject: true
-skip_if: /** Call API <%= struct.name.lowerCamelName %>Api */
-after: // include implements here
+skip_if: "/** Call API <%= struct.name.lowerCamelName %>Api */"
+after: "// include implements here"
 ---
   /** Call API <%= struct.name.lowerCamelName %>Api */
   <%= struct.name.lowerCamelName %>Api () {

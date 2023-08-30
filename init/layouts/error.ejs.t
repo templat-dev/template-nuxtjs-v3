@@ -4,13 +4,17 @@ force: true
 ---
 <script lang="ts" setup>
 
+interface Error {
+  statusCode: number
+  message: string
+}
 interface Props {
-  error?: Object
+  error: Error
 }
 const props = defineProps<Props>()
 
 const pageNotFound = '404 Not Found'
-const otherError = this.error.message || 'An error occurred'
+const otherError = props.error.message || 'An error occurred'
 const to = computed(() => {
   return '/'
 })

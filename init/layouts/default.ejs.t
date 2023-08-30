@@ -1,5 +1,5 @@
 ---
-to: <%= rootDirectory %>>/layouts/default.vue
+to: <%= rootDirectory %>/layouts/default.vue
 force: true
 ---
 <script lang="ts" setup>

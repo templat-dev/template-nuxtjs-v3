@@ -3,9 +3,9 @@ to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct
 ---
 <script setup lang="ts">
 import {cloneDeep} from 'lodash-es'
-import {Model<%= struct.pascalName %>} from '@/apis'
+import {Model<%= struct.name.pascalName %>} from '@/apis'
 import AppDataTable, {DataTablePageInfo, INITIAL_DATA_TABLE_PAGE_INFO} from '@/components/common/AppDataTable.vue'
-<%_ if (struct.screenType !== 'struct') { -%>
+<%_ if (struct.structType !== 'struct') { -%>
 import <%= struct.name.pascalName %>SearchForm, {
   <%= struct.name.pascalName %>SearchCondition,
   INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION
@@ -33,26 +33,25 @@ const headers = [
 
 interface Props {
   /** 一覧表示用の配列 */
-  items!: Model<%= struct.pascalName %>[]
+  items: Model<%= struct.name.pascalName %>[]
   /** 一覧の表示ページ情報 */
-  pageInfo!: DataTablePageInfo
+  pageInfo: DataTablePageInfo
   /** 一覧の合計件数 */
-  totalCount!: number | undefined
+  totalCount: number | undefined
   /** 一覧の読み込み状態 */
-  isLoading!: boolean
+  isLoading: boolean
 }
 const props = withDefaults(defineProps<Props>(), {
-  items: [],
+  items: (props: Props) => [],,
   pageInfo: cloneDeep(INITIAL_DATA_TABLE_PAGE_INFO),
-  totalCount: undefined
-  isLoading: false
-
+  totalCount: undefined,
+  isLoading: false,
 })
 
-<%_ if (struct.screenType !== 'struct') { -%>
+<%_ if (struct.structType !== 'struct') { -%>
 
-  /** 検索フォームの表示表示状態 (true: 表示, false: 非表示) */
-  isSearchFormOpen: boolean = false
+/** 検索フォームの表示表示状態 (true: 表示, false: 非表示) */
+const isSearchFormOpen = ref<boolean>(false)
 
   /** 検索条件 */
   @PropSync('searchCondition', {type: Object, default: () => cloneDeep(INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION)})
@@ -77,7 +76,7 @@ const props = withDefaults(defineProps<Props>(), {
   @Emit('onChangePageInfo')
   onChangePageInfo() {
   }
-<%_ if (struct.screenType !== 'struct') { -%>
+<%_ if (struct.structType !== 'struct') { -%>
 
   @Emit('onChangeSearch')
   onChangeSearch() {
@@ -90,12 +89,12 @@ const props = withDefaults(defineProps<Props>(), {
 <%_ } -%>
 
   @Emit('openEntryForm')
-  openEntryForm(item?: Model<%= struct.pascalName %>) {
+  openEntryForm(item?: Model<%= struct.name.pascalName %>) {
     return item
   }
 
   @Emit('remove')
-  remove(item: Model<%= struct.pascalName %>) {
+  remove(item: Model<%= struct.name.pascalName %>) {
     return item
   }
 }
@@ -118,7 +117,7 @@ const props = withDefaults(defineProps<Props>(), {
       <template #top>
         <v-toolbar color="white" flat>
           <v-toolbar-title><%= struct.listLabel %></v-toolbar-title>
-<%_ if (struct.screenType !== 'struct') { -%>
+<%_ if (struct.structType !== 'struct') { -%>
           <template v-if="!hasParent">
             <v-divider class="mx-4" inset vertical></v-divider>
             <v-btn icon @click="isSearchFormOpen = true">
@@ -192,7 +191,7 @@ const props = withDefaults(defineProps<Props>(), {
         </v-btn>
       </template>
     </app-data-table>
-<%_ if (struct.screenType !== 'struct') { -%>
+<%_ if (struct.structType !== 'struct') { -%>
     <<%= struct.name.lowerCamelName %>-search-form
       :current-search-condition="syncedSearchCondition"
       :open.sync="isSearchFormOpen"

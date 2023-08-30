@@ -5,6 +5,9 @@ force: true
 <script setup lang="ts">
 import {ImageApi} from '@/apis'
 import appUtils from '@/utils/appUtils'
+import {useAppLoading} from "@/composables/useLoading";
+
+const loading = useAppLoading()
 
 interface Props {
   /** 画面表示ラベル */
@@ -21,7 +24,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   label: '',
   dir: '',
-  imageURLs: [],
+  imageURLs: (props: Props) => [],
   thumbnail: false,
   thumbnailSize: 200,
 })
@@ -34,6 +37,8 @@ const emit = defineEmits<Emits>()
 
 /** 画像ドロップエリアの表示 (true: 表示, false: 非表示) */
 const dragOvered = ref<boolean>(false)
+
+const fileInput = ref<HTMLInputElement | null>(null)
 
 const selectFile = () => {
   (fileInput.value as HTMLInputElement).click()
@@ -60,7 +65,7 @@ const dropImages = async (e: DragEvent) => {
   try {
     loading.showLoading()
     for (const file of Array.from(e.dataTransfer.files)) {
-      await updateImage(file)
+      await uploadImage(file)
     }
   } finally {
     loading.hideLoading()
@@ -83,7 +88,7 @@ const selectImages = async (e: InputEvent) => {
 }
 
 const removeImage = (index: number) => {
-  if (!imageURLs) {
+  if (!props.imageURLs) {
     return
   }
   emit('remove-image', index)

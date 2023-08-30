@@ -3,34 +3,35 @@ to: <%= rootDirectory %>/components/form/ArrayForm.vue
 force: true
 ---
 <script setup lang="ts" generic="T">
-import {useAppDialog} from '@/composables/dialog'
+import {useAppDialog} from '~/composables/useDialog'
+import {useAppLoading} from '~/composables/useLoading'
 
-const loading = useLoading()
+const loading = useAppLoading()
 const dialog = useAppDialog()
 
 interface Props {
   /** 編集対象 */
   items?: T[],
   /** 単一の編集対象の初期値 */
-  initial!: T,
+  initial: T,
 }
 const props = withDefaults(defineProps<Props>(), {
-  items?: [],
-  initial!: {},
+  items: (props: Props) => [],
 })
 
 interface Emits {
   (e: "add-item", item: T): void;
+  (e: "update-item", index: number, item: T): void;
+  (e: 'remove-item', index: number): void;
 }
 const emit = defineEmits<Emits>()
 
 const addItem = () => {
-  emit('add-item', item: T)
-  emit('remove-item', index: number)
+  emit('add-item', props.initial)
 }
 
 const updatedForm = (index: number, item: T) => {
-  this.$set(this.syncedItems, index, item)
+  emit('update-item', index, item)
 }
 
 const remove = (index: number) => {

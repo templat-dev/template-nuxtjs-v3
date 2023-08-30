@@ -5,10 +5,10 @@ to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct
 <%_ let structForms = [] -%>
 <%_ struct.fields.forEach(function (field, key) { -%>
   <%_ if (field.editType === 'struct') { -%>
-    <%_ structForms.push(field.name) -%>
+    <%_ structForms.push(field.name.lowerCamelName) -%>
   <%_ } -%>
 <%_ }) -%>
-import {<%_ if (struct.screenType !== 'struct') { -%><%= h.changeCase.upperCaseFirst(struct.name) %>Api, <% } -%>Model<%= struct.pascalName %>} from '@/apis'
+import {<%_ if (struct.structType !== 'struct') { -%><%= struct.name.pascalName %>Api, <% } -%>Model<%= struct.name.pascalName %>} from '@/apis'
 <%_ let importDateTime = false -%>
 <%_ struct.fields.forEach(function (field, key) { -%>
   <%_ if ((field.editType === 'time' || field.editType === 'array-time') && !importDateTime) { -%>
@@ -70,46 +70,46 @@ import ArrayForm from '@/components/form/ArrayForm.vue'
 export const INITIAL_<%= struct.name.upperSnakeName %>: Model<%= struct.pascalName %> = {
 <%_ struct.fields.forEach(function (field, key) { -%>
   <%_ if (field.editType === 'struct') { -%>
-  <%= field.name %>: INITIAL_<%= h.changeCase.constant(field.structType) %>,
+  <%= field.name.lowerCamelName %>: INITIAL_<%= h.changeCase.constant(field.structType) %>,
   <%_ } -%>
   <%_ if (field.editType.startsWith('array')) { -%>
-  <%= field.name %>: [],
+  <%= field.name.lowerCamelName %>: [],
   <%_ } -%>
   <%_ if (field.editType === 'string' || field.editType === 'textarea' || field.editType === 'time') { -%>
-  <%= field.name %>: undefined,
+  <%= field.name.lowerCamelName %>: undefined,
   <%_ } -%>
   <%_ if (field.editType === 'bool') { -%>
-  <%= field.name %>: undefined,
+  <%= field.name.lowerCamelName %>: undefined,
   <%_ } -%>
   <%_ if (field.editType === 'number') { -%>
-  <%= field.name %>: undefined,
+  <%= field.name.lowerCamelName %>: undefined,
   <%_ } -%>
 <%_ }) -%>
 }
 
 interface Props {
   /** 表示状態 (true: 表示, false: 非表示) */
-  open!: boolean
+  open: boolean
   /** 編集対象 */
-  target!: Model<%= struct.pascalName %>
+  target: Model<%= struct.name.pascalName %>
   /** 表示方式 (true: 埋め込み, false: ダイアログ) */
-  isEmbedded!: boolean
+  isEmbedded: boolean
   /** 表示方式 (true: 子要素として表示, false: 親要素として表示) */
-  hasParent!: boolean
+  hasParent: boolean
   /** 編集状態 (true: 新規, false: 更新) */
-  isNew!: boolean
+  isNew: boolean
 }
 const props = withDefaults(defineProps<Props>(), {
   open: true,
-  target: {},
+  target: (props: Props) => ({} as Model<%= struct.name.pascalName %>),
   isEmbedded: false,
   hasParent: false,
   isNew: true,
 })
 
 interface Emits {
-  (e: "updated", item: T): void;
-  (e: "remove", item: T): void;
+  (e: "updated", item: Model<%= struct.name.pascalName %>): void;
+  (e: "remove", item: Model<%= struct.name.pascalName %>): void;
   (e: "update:open", open: boolean): void;
 }
 const emit = defineEmits<Emits>()
@@ -164,7 +164,7 @@ const validateForm = () => {
 }
 
 const save = async () => {
-  <%_ if (struct.screenType !== 'struct') { -%><%# Structでない場合 -%>
+  <%_ if (struct.structType !== 'struct') { -%><%# Structでない場合 -%>
   if (props.hasParent) {
     // 親要素側で保存
     return
@@ -213,107 +213,107 @@ const remove async () => {
       <v-layout v-if="syncedTarget" wrap>
         <v-form ref="entryForm" class="full-width" lazy-validation>
         <%_ struct.fields.forEach(function (field, key) { -%>
-          <%_ if (field.editType === 'string' && field.name === 'id') { -%>
+          <%_ if (field.editType === 'string' && field.name.lowerCamelName === 'id') { -%>
           <v-flex md12 sm12 xs12>
             <v-text-field
-              v-model="syncedTarget.<%= field.name %>"
+              v-model="syncedTarget.<%= field.name.lowerCamelName %>"
               :disabled="!isNew"
-              :rules="validationRules.<%= field.name %>"
-              label="<%= field.screenLabel ? field.screenLabel : field.name %>"
+              :rules="validationRules.<%= field.name.lowerCamelName %>"
+              label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
               required
             ></v-text-field>
           </v-flex>
           <%_ } -%>
-          <%_ if (field.editType === 'string' && field.name !== 'id') { -%>
+          <%_ if (field.editType === 'string' && field.name.lowerCamelName !== 'id') { -%>
           <v-flex md12 sm12 xs12>
             <v-text-field
-              v-model="syncedTarget.<%= field.name %>"
-              :rules="validationRules.<%= field.name %>"
-              label="<%= field.screenLabel ? field.screenLabel : field.name %>"
+              v-model="syncedTarget.<%= field.name.lowerCamelName %>"
+              :rules="validationRules.<%= field.name.lowerCamelName %>"
+              label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
             ></v-text-field>
           </v-flex>
           <%_ } -%>
-          <%_ if (field.editType === 'number' && field.name === 'id') { -%>
+          <%_ if (field.editType === 'number' && field.name.lowerCamelName === 'id') { -%>
           <v-flex md12 sm12 xs12>
             <v-text-field
               :disabled="!isNew"
-              :rules="validationRules.<%= field.name %>"
-              :value="syncedTarget.<%= field.name %>"
-              label="<%= field.screenLabel ? field.screenLabel : field.name %>"
+              :rules="validationRules.<%= field.name.lowerCamelName %>"
+              :value="syncedTarget.<%= field.name.lowerCamelName %>"
+              label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
               required
               type="number"
-              @input="v => syncedTarget.<%= field.name %> = v === '' ? undefined : Number(v)"
+              @input="v => syncedTarget.<%= field.name.lowerCamelName %> = v === '' ? undefined : Number(v)"
             ></v-text-field>
           </v-flex>
           <%_ } -%>
-          <%_ if (field.editType === 'number' && field.name !== 'id') { -%>
+          <%_ if (field.editType === 'number' && field.name.lowerCamelName !== 'id') { -%>
           <v-flex md12 sm12 xs12>
             <v-text-field
-              :rules="validationRules.<%= field.name %>"
-              :value="syncedTarget.<%= field.name %>"
-              label="<%= field.screenLabel ? field.screenLabel : field.name %>"
+              :rules="validationRules.<%= field.name.lowerCamelName %>"
+              :value="syncedTarget.<%= field.name.lowerCamelName %>"
+              label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
               type="number"
-              @input="v => syncedTarget.<%= field.name %> = v === '' ? undefined : Number(v)"
+              @input="v => syncedTarget.<%= field.name.lowerCamelName %> = v === '' ? undefined : Number(v)"
             ></v-text-field>
           </v-flex>
           <%_ } -%>
           <%_ if (field.editType === 'time') { -%>
           <date-time-form
-            :date-time.sync="syncedTarget.<%= field.name %>"
-            :rules="validationRules.<%= field.name %>"
-            label="<%= field.screenLabel ? field.screenLabel : field.name %>"
+            :date-time.sync="syncedTarget.<%= field.name.lowerCamelName %>"
+            :rules="validationRules.<%= field.name.lowerCamelName %>"
+            label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
           ></date-time-form>
           <%_ } -%>
           <%_ if (field.editType === 'textarea') { -%>
           <v-flex md12 sm12 xs12>
             <v-textarea
-              v-model="syncedTarget.<%= field.name %>"
-              :rules="validationRules.<%= field.name %>"
-              label="<%= field.screenLabel ? field.screenLabel : field.name %>"
+              v-model="syncedTarget.<%= field.name.lowerCamelName %>"
+              :rules="validationRules.<%= field.name.lowerCamelName %>"
+              label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
             ></v-textarea>
           </v-flex>
           <%_ } -%>
           <%_ if (field.editType === 'bool') { -%>
           <v-flex md12 sm12 xs12>
             <v-checkbox
-              v-model="syncedTarget.<%= field.name %>"
-              :rules="validationRules.<%= field.name %>"
-              label="<%= field.screenLabel ? field.screenLabel : field.name %>"
+              v-model="syncedTarget.<%= field.name.lowerCamelName %>"
+              :rules="validationRules.<%= field.name.lowerCamelName %>"
+              label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
             ></v-checkbox>
           </v-flex>
           <%_ } -%>
           <%_ if (field.editType === 'image' && field.dataType === 'string') { -%>
           <v-flex xs12>
             <image-form
-              :image-url.sync="syncedTarget.<%= field.name %>"
-              :rules="validationRules.<%= field.name %>"
-              dir="<%= struct.name.lowerCamelName %>/<%= field.name %>"
-              label="<%= field.screenLabel ? field.screenLabel : field.name %>"
+              :image-url.sync="syncedTarget.<%= field.name.lowerCamelName %>"
+              :rules="validationRules.<%= field.name.lowerCamelName %>"
+              dir="<%= struct.name.lowerCamelName %>/<%= field.name.lowerCamelName %>"
+              label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
             ></image-form>
           </v-flex>
           <%_ } -%>
           <%_ if (field.editType === 'array-image') { -%>
           <v-flex xs12>
             <image-array-form
-              :image-urls.sync="syncedTarget.<%= field.name %>"
-              :rules="validationRules.<%= field.name %>"
-              dir="<%= struct.name.lowerCamelName %>/<%= field.name %>"
-              label="<%= field.screenLabel ? field.screenLabel : field.name %>"
+              :image-urls.sync="syncedTarget.<%= field.name.lowerCamelName %>"
+              :rules="validationRules.<%= field.name.lowerCamelName %>"
+              dir="<%= struct.name.lowerCamelName %>/<%= field.name.lowerCamelName %>"
+              label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
             ></image-array-form>
           </v-flex>
           <%_ } -%>
           <%_ if (field.editType === 'array-string' || field.editType === 'array-textarea' || field.editType === 'array-number' || field.editType === 'array-time' || field.editType === 'array-bool') { -%>
           <v-flex xs12>
-            <expansion label="<%= field.screenLabel ? field.screenLabel : field.name %>一覧">
+            <expansion label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>一覧">
               <%_ if (field.childType === 'string') { -%>
               <array-form
                 v-slot="{editTarget, updatedForm}"
-                :items.sync="syncedTarget.<%= field.name %>"
+                :items.sync="syncedTarget.<%= field.name.lowerCamelName %>"
                 initial="">
                 <v-text-field
-                  :rules="validationRules.<%= field.name %>"
+                  :rules="validationRules.<%= field.name.lowerCamelName %>"
                   :value="editTarget"
-                  label="<%= field.screenLabel ? field.screenLabel : field.name %>"
+                  label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
                   @input="updatedForm"
                 ></v-text-field>
               </array-form>
@@ -321,12 +321,12 @@ const remove async () => {
               <%_ if (field.childType === 'textarea') { -%>
               <array-form
                 v-slot="{editTarget, updatedForm}"
-                :items.sync="syncedTarget.<%= field.name %>"
+                :items.sync="syncedTarget.<%= field.name.lowerCamelName %>"
                 initial="">
                 <v-textarea
-                  :rules="validationRules.<%= field.name %>"
+                  :rules="validationRules.<%= field.name.lowerCamelName %>"
                   :value="editTarget"
-                  label="<%= field.screenLabel ? field.screenLabel : field.name %>"
+                  label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
                   @input="updatedForm"
                 ></v-textarea>
               </array-form>
@@ -335,11 +335,11 @@ const remove async () => {
               <array-form
                 v-slot="{editTarget, updatedForm}"
                 :initial="0"
-                :items.sync="syncedTarget.<%= field.name %>">
+                :items.sync="syncedTarget.<%= field.name.lowerCamelName %>">
                 <v-text-field
-                  :rules="validationRules.<%= field.name %>"
+                  :rules="validationRules.<%= field.name.lowerCamelName %>"
                   :value="editTarget"
-                  label="<%= field.screenLabel ? field.screenLabel : field.name %>"
+                  label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
                   type="number"
                   @input="v => updatedForm(v === '' ? undefined : Number(v))"
                 ></v-text-field>
@@ -349,11 +349,11 @@ const remove async () => {
               <array-form
                 v-slot="{editTarget, updatedForm}"
                 :initial="false"
-                :items.sync="syncedTarget.<%= field.name %>">
+                :items.sync="syncedTarget.<%= field.name.lowerCamelName %>">
                 <v-checkbox
-                  :rules="validationRules.<%= field.name %>"
+                  :rules="validationRules.<%= field.name.lowerCamelName %>"
                   :value="editTarget"
-                  label="<%= field.screenLabel ? field.screenLabel : field.name %>"
+                  label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
                   @change="updatedForm"
                 ></v-checkbox>
               </array-form>
@@ -362,11 +362,11 @@ const remove async () => {
               <array-form
                 v-slot="{editTarget, updatedForm}"
                 :initial="formatISO(new Date())"
-                :items.sync="syncedTarget.<%= field.name %>">
+                :items.sync="syncedTarget.<%= field.name.lowerCamelName %>">
                 <date-time-form
                   :date-time.sync="editTarget"
-                  :rules="validationRules.<%= field.name %>"
-                  label="<%= field.screenLabel ? field.screenLabel : field.name %>"
+                  :rules="validationRules.<%= field.name.lowerCamelName %>"
+                  label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
                   @update:dateTime="updatedForm"
                 ></date-time-form>
               </array-form>
@@ -376,10 +376,10 @@ const remove async () => {
           <%_ } -%>
           <%_ if (field.editType === 'array-struct') { -%>
           <v-flex xs12>
-            <expansion label="<%= field.screenLabel ? field.screenLabel : field.name %>一覧">
+            <expansion label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>一覧">
               <struct-array-form
                 :initial="initial<%= h.changeCase.pascal(field.structType) %>"
-                :items.sync="syncedTarget.<%= field.name %>">
+                :items.sync="syncedTarget.<%= field.name.lowerCamelName %>">
                 <template v-slot:table="{items, openEntryForm, removeRow}">
                   <<%= h.changeCase.param(field.structType) %>-data-table
                     :has-parent="true"
@@ -405,12 +405,12 @@ const remove async () => {
           <%_ } -%>
           <%_ if (field.editType === 'struct') { -%>
           <v-flex xs12>
-            <expansion expanded label="<%= field.screenLabel ? field.screenLabel : field.name %>">
+            <expansion expanded label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>">
               <<%= h.changeCase.param(field.structType) %>-entry-form
-                ref="<%= field.name %>Form"
+                ref="<%= field.name.lowerCamelName %>Form"
                 :has-parent="true"
                 :is-embedded="true"
-                :target.sync="syncedTarget.<%= field.name %>"
+                :target.sync="syncedTarget.<%= field.name.lowerCamelName %>"
               ></<%= h.changeCase.param(field.structType) %>-entry-form>
             </expansion>
           </v-flex>

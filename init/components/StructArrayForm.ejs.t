@@ -4,24 +4,24 @@ force: true
 ---
 <script setup lang="ts" generic="T">
 import {cloneDeep} from 'lodash-es'
-import {useAppDialog} from '@/composables/dialog'
+import {useAppDialog} from '@/composables/useDialog'
 import {NEW_INDEX} from '@/constants/appConstants'
+
 const dialog = useAppDialog()
 
 interface Props {
   /** 編集対象 */
   items?: T[],
   /** 単一の編集対象の初期値 */
-  initial!: T
+  initial: T
   /** 編集対象Model */
   editTarget: T | null
   /** 編集対象のインデックス番号 */
   editIndex: number
 }
 const props = withDefaults(defineProps<Props>(), {
-  items?: [],
-  initial!: {}
-  editTarget: null
+  items: (props: Props) => [],
+  editTarget: null,
   editIndex: 0
 })
 
@@ -55,7 +55,7 @@ const updatedForm = () => {
   }
   if (!props.items) {
     emit('add-item', props.editTarget)
-  } else if (this.editIndex === this.NEW_INDEX) {
+  } else if (props.editIndex === NEW_INDEX) {
     emit('add-item', props.editTarget)
   } else {
     emit('update-item', props.editTarget, props.editIndex)
@@ -63,7 +63,7 @@ const updatedForm = () => {
   closeEntryForm()
 }
 
-const removeRow = (item: T) =>
+const removeRow = (item: T) => {
   const index = props.items.indexOf(item)
   remove(index)
 }
