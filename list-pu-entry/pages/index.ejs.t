@@ -107,7 +107,7 @@ onMounted(async () => {
     pageInfo.cursors[0] = data.cursor
   }
 <%_ } -%>
-  <%= struct.name.lowerCamelPluralName %>.value = data.<%= struct.name.lowerCamelPluralName %a || []
+  <%= struct.name.lowerCamelPluralName %>.value = data.<%= struct.name.lowerCamelPluralName %> || []
   totalCount.value = data.count || 0
   pageInfo.value = pageInfo || 0
 })
