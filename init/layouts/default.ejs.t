@@ -57,8 +57,8 @@ const signOut = computed(async () =>
     <v-navigation-drawer v-model="drawer" :clipped="true" app fixed>
       <v-list>
         <v-list-item v-for="(menu, i) in menus" v-if="!menu.divider"
-                     :key="i" :href="menu.href ? menu.href : null"
-                     :target="menu.href ? '_blank' : '_self'" :to="menu.to ? menu.to : null"
+                     :key="i" :href="menu.href ? menu.href : ''"
+                     :target="menu.href ? '_blank' : '_self'" :to="menu.to ? menu.to : ''"
                      exact router @click="drawer = false">
           <v-list-item-content v-if="!!menu.title">
             <v-list-item-title v-text="menu.title"/>
