@@ -1,7 +1,7 @@
 ---
 to: "<%= struct.generateEnable ? `${rootDirectory}/pages/index.vue` : null %>"
 inject: true
-skip_if: <!-- メニュー <%= struct.name.lowerCamelName %> -->
+skip_if: <!-- メニュー <%= struct.screenLabel || struct.name.pascalName %> -->
 after: <!-- メニュー -->
 ---
       <!-- メニュー <%= struct.screenLabel || struct.name.pascalName %> -->

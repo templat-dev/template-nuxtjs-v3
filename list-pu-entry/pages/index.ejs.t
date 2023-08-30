@@ -107,8 +107,8 @@ onMounted(async () => {
     pageInfo.cursors[0] = data.cursor
   }
 <%_ } -%>
-  <%= struct.name.lowerCamelPluralName %>.value = data.<%= struct.name.lowerCamelPluralName %>
-  totalCount.value = data.count || []
+  <%= struct.name.lowerCamelPluralName %>.value = data.<%= struct.name.lowerCamelPluralName %a || []
+  totalCount.value = data.count || 0
   pageInfo.value = pageInfo || 0
 })
 
@@ -190,7 +190,7 @@ const remove = async(index: number) => {
         :dialog="true"
         :is-new="editIndex === NEW_INDEX"
         v-model:open="isEntryFormOpen"
-        v-model:target="editTarget"
+        v-model:target="editTarget!"
         @remove="removeForm"
         @updated="reFetch"
       ></<%= struct.name.lowerCamelName %>-entry-form>

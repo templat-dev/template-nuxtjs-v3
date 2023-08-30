@@ -2,21 +2,9 @@
 to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct.name.pascalName %>EntryForm.vue
 ---
 <script setup lang="ts">
-<%_ let structForms = [] -%>
-<%_ struct.fields.forEach(function (field, key) { -%>
-  <%_ if (field.editType === 'struct') { -%>
-    <%_ structForms.push(field.name.lowerCamelName) -%>
-  <%_ } -%>
-<%_ }) -%>
 import {<%_ if (struct.structType !== 'struct') { -%><%= struct.name.pascalName %>Api, <% } -%>Model<%= struct.name.pascalName %>} from '@/apis'
-<%_ let importDateTime = false -%>
-<%_ if (struct.fields) { -%>
-<%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if ((field.listType === 'time' || field.listType === 'array-time') && !importDateTime) { -%>
+<%_ if (struct.exists.edit.time || struct.exists.edit.arrayTime) { -%>
 import DateTimeForm from '@/components/form/DateTimeForm.vue'
-      <%_ importDateTime = true -%>
-  <%_ } -%>
-<%_ }) -%>
 <%_ } -%>
 <%_ if (struct.exists.edit.image) { -%>
 import ImageForm from '@/components/form/ImageForm.vue'
@@ -24,60 +12,36 @@ import ImageForm from '@/components/form/ImageForm.vue'
 <%_ if (struct.exists.edit.arrayImage) { -%>
 import ImageArrayForm from '@/components/form/ImageArrayForm.vue'
 <%_ } -%>
-<%_ const importArrayStructSet = new Set() -%>
-<%_ const importStructSet = new Set() -%>
-<%_ let importExpansion = false -%>
-<%_ let importStructArrayForm = false -%>
-<%_ let importArrayForm = false -%>
-<%_ importDateTime = false -%>
+<%_ if (struct.exists.edit.struct || struct.exists.edit.arrayNumber || struct.exists.edit.arrayText || struct.exists.edit.arrayTextArea || struct.exists.edit.arrayBool || struct.exists.edit.arrayTime || struct.exists.edit.arrayStruct) { -%>
+import Expansion from '@/components/form/Expansion.vue'
+<%_ } -%>
+<%_ if (struct.exists.edit.arrayNumber || struct.exists.edit.arrayText || struct.exists.edit.arrayTextArea || struct.exists.edit.arrayBool || struct.exists.edit.arrayTime) { -%>
+import ArrayForm from '@/components/form/ArrayForm.vue'
+<%_ } -%>
+<%_ if (struct.exists.edit.arrayStruct) { -%>
+import StructArrayForm from '@/components/form/StructArrayForm.vue'
+<%_ } -%>
 <%_ const importStructTableSet = new Set() -%>
 <%_ const importStructFormSet = new Set() -%>
-<%_ if (struct.fields) { -%>
-<%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if (field.editType === 'array-struct') { -%>
-    <%_ if (!importStructTableSet.has(field.structName.pascalName)) { -%>
+<%_ struct.fields.forEach(function (field, key) { -%>
+<%_ if (field.editType === 'array-struct') { -%>
+<%_ if (!importStructTableSet.has(field.structName.pascalName)) { -%>
 import <%= field.structName.pascalName %>DataTable from '@/components/<%= field.structName.lowerCamelName %>/<%= field.structName.pascalName %>DataTable.vue'
-      <%_ importStructTableSet.add(field.structName.pascalName) -%>
-    <%_ } -%>
-    <%_ if (!importStructFormSet.has(field.structName.pascalName)) { -%>
-import <%= field.structName.pascalName %>EntryForm, {INITIAL_<%= field.structName.upperSnakeName %>} from '@/components/<%= field.structName.lowerCamelName %>/<%= field.structName.pascalName %>EntryForm.vue'
-      <%_ importStructFormSet.add(field.structName.pascalName) -%>
-    <%_ } -%>
-  <%_ } -%>
-  <%_ if (field.editType === 'struct') { -%>
-    <%_ if (!importStructFormSet.has(field.structName.pascalName)) { -%>
-import <%= field.structName.pascalName %>EntryForm, {INITIAL_<%= field.structName.upperSnakeName %>} from '@/components/<%= field.structName.lowerCamelName %>/<%= field.structName.pascalName %>EntryForm.vue'
-      <%_ importStructFormSet.add(field.structName.pascalName) -%>
-    <%_ } -%>
-  <%_ } -%>
-<%_ }) -%>
+<%_ importStructTableSet.add(field.structName.pascalName) -%>
 <%_ } -%>
-<%_ if (struct.fields) { -%>
-<%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if (field.editType === 'struct') { -%>
-    <%_ if (!importExpansion) { -%>
-import Expansion from '@/components/form/Expansion.vue'
-      <%_ importExpansion = true -%>
-    <%_ } -%>
-    <%_ if (!importArrayStructSet.has(field.structType) && !importStructSet.has(field.structType)) { -%>
-import <%= field.structName.pascalName %>EntryForm, {INITIAL_<%= field.structName.upperSnakeName %>} from '@/components/<%= field.structName.lowerCamelName %>/<%= field.structName.pascalNam %>EntryForm.vue'
-      <%_ importStructSet.add(field.structType) -%>
-    <%_ } -%>
-  <%_ } -%>
-  <%_ if (field.editType === 'array-string' || field.editType === 'array-textarea' || field.editType === 'array-number' || field.editType === 'array-time' || field.editType === 'array-bool') { -%>
-    <%_ if (!importExpansion) { -%>
-import Expansion from '@/components/form/Expansion.vue'
-      <%_ importExpansion = true -%>
-    <%_ } -%>
-    <%_ if (!importArrayForm) { -%>
-import ArrayForm from '@/components/form/ArrayForm.vue'
-      <%_ importArrayForm = true -%>
-    <%_ } -%>
-  <%_ } -%>
-<%_ }) -%>
+<%_ if (!importStructFormSet.has(field.structName.pascalName)) { -%>
+import <%= field.structName.pascalName %>EntryForm, {INITIAL_<%= field.structName.upperSnakeName %>} from '@/components/<%= field.structName.lowerCamelName %>/<%= field.structName.pascalName %>EntryForm.vue'
+<%_ importStructFormSet.add(field.structName.pascalName) -%>
 <%_ } -%>
+<%_ } -%>
+<%_ if (field.editType === 'struct') { -%>
+<%_ if (!importStructFormSet.has(field.structName.pascalName)) { -%>
+import <%= field.structName.pascalName %>EntryForm, {INITIAL_<%= field.structName.upperSnakeName %>} from '@/components/<%= field.structName.lowerCamelName %>/<%= field.structName.pascalName %>EntryForm.vue'
+<%_ importStructFormSet.add(field.structName.pascalName) -%>
+<%_ } -%>
+<%_ } -%>
+<%_ }) -%>
 import {NEW_INDEX} from '@/constants/appConstants'
-import {useAppLoading} from '@/composables/useLoading'
 
 export const INITIAL_<%= struct.name.upperSnakeName %>: Model<%= struct.name.pascalName %> = {
 <%_ if (struct.fields) { -%>
@@ -139,8 +103,19 @@ const initial<%= field.structName.pascalName %> = ref<Model<%= field.structName.
   <%_ } -%>
 <%_ }) -%>
 
+// フォームとバリデーション状況
 const <%= struct.name.lowerCamelName %>Form = ref<any>(null)
 const valid<%= struct.name.pascalName %>Form = ref<boolean>(false)
+
+// 子フォームとバリデーション状況
+<%_ struct.fields.forEach(function (field, key) { -%>
+  <%_ if (field.editType === 'struct') { -%>
+/** <%= field.structName.pascalName %>のフォームとバリデーション状況 */
+const <%= field.structName.lowerCamelName %>Form = ref<any>(null)
+const valid<%= field.structName.pascalName %>Form = ref<boolean>(false)
+
+<%_ } -%>
+<%_ }) -%>
 
 const validationRules = ref<any>({
 <%_ struct.fields.forEach(function (field, key) { -%>
@@ -152,9 +127,11 @@ const validationRules = ref<any>({
 
 watch(open, (open) => {
   if (props.open) {
-    <%= struct.name.lowerCamelName %>Form.value.resetValidation()<% if (structForms.length > 0) { %>;<% } %>
-<%_ structForms.forEach(function (name, index) { -%>
-    (<%= name %>Form.value?.$refs.entryForm as VForm)?.resetValidation()<% if (structForms.length - 1 !== index) { %>;<% } %>
+    <%= struct.name.lowerCamelName %>Form.value.resetValidation()
+<%_ struct.fields.forEach(function (field, key) { -%>
+  <%_ if (field.editType === 'struct') { -%>
+    ;<%= field.name.lowerCamelName %>Form.value.resetValidation()
+  <%_ } -%>
 <%_ }) -%>
   }
 })
@@ -163,48 +140,48 @@ const initializeTarget = () => {
   emit('update:target', INITIAL_<%= struct.name.upperSnakeName %>)
 }
 
-const validateForm = () => {
-<%_ if (structForms.length === 0) { -%>
+const save = async () => {
+<%_ if (!struct.exists.edit.struct) { -%>
   if (!<%= struct.name.lowerCamelName %>Form.value.validate()) {
 <%_ } else { -%>
-  if (!(this.$refs.entryForm as VForm).validate()
-<%_ structForms.forEach(function (name, index) { -%>
-    || ((this.$refs.<%= name %>Form as Vue)?.$refs.entryForm as VForm)?.validate() === false<% if (structForms.length - 1 === index) { %>) {<% } %>
+    if (!<%= struct.name.lowerCamelName %>Form.value.validate())
+<%_ struct.fields.forEach(function (field, key) { -%>
+  <%_ if (field.editType === 'struct') { -%>
+    || valid<%= field.name.pascalName %>Form.validate() === false
+  <%_ } -%>
 <%_ }) -%>
+  ) {
 <%_ } -%>
-    dialog.showDialog({
-      title: 'エラー',
-      message: '入力項目を確認して下さい。'
-    })
-    return
-  }
-  this.save()
-}
-
-const save = async () => {
-<%_ if (struct.structType !== 'struct') { -%><%#_ Structでない場合 -%>
-  if (hasParent) {
-    // 親要素側で保存
-    return
-  }
-  loading.showLoading()
-  try {
-    if (props.isNew) {
-      // 新規の場合
-      await new <%= struct.name.pascalName %>Api().create<%= struct.name.pascalName %>({
-        body: props.target
+      dialog.showDialog({
+        title: 'エラー',
+        message: '入力項目を確認して下さい。'
       })
-    } else {
-      // 更新の場合
-      await new <%= struct.name.pascalName %>Api().update<%= struct.name.pascalName %>({
-        id: props.target.id!,
-        body: props.target
-      })
+      return
     }
-    close()
-  } finally {
-    loading.hideLoading()
-  }
+<%_ if (struct.structType !== 'struct') { -%><%#_ Structでない場合 -%>
+    if (hasParent) {
+      // 親要素側で保存
+      return
+    }
+    loading.showLoading()
+    try {
+      if (props.isNew) {
+        // 新規の場合
+        await new <%= struct.name.pascalName %>Api().create<%= struct.name.pascalName %>({
+          body: props.target
+        })
+      } else {
+        // 更新の場合
+        await new <%= struct.name.pascalName %>Api().update<%= struct.name.pascalName %>({
+          id: props.target.id!,
+          body: props.target
+        })
+      }
+      close()
+      emit('updated', props.target)
+    } finally {
+      loading.hideLoading()
+    }
 <%_ } else { -%>
   close()
 <%_ } -%>
@@ -408,7 +385,7 @@ const close = () => {
                     :has-parent="true"
                     :is-new="editIndex === NEW_INDEX"
                     :open="isEntryFormOpen"
-                    :target="editTarget"
+                    :target="editTarget as <%= field.structName.pascalName %>"
                     @close="closeForm"
                     @remove="removeForm"
                     @updated="updatedForm"
@@ -445,7 +422,7 @@ const close = () => {
       <v-spacer></v-spacer>
       <v-btn v-if="!isNew" color="red darken-1" text @click="remove">削除</v-btn>
       <v-spacer></v-spacer>
-      <v-btn color="blue darken-1" text @click="validateForm">保存</v-btn>
+      <v-btn color="blue darken-1" text @click="save">保存</v-btn>
     </v-card-actions>
   </v-card>
 </template>
