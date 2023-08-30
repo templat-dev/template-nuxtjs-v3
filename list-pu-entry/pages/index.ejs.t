@@ -185,7 +185,7 @@ const remove = async(index: number) => {
       @openEntryForm="openEntryForm"
       @remove="removeRow"
     ></<%= struct.name.lowerCamelName %>-data-table>
-    <v-dialog v-model="isEntryFormOpen" max-width="800px" persistent>
+    <v-dialog v-if="editTarget" v-model="isEntryFormOpen" max-width="800px" persistent>
       <<%= struct.name.lowerCamelName %>-entry-form
         :dialog="true"
         :is-new="editIndex === NEW_INDEX"
