@@ -135,7 +135,7 @@ const loading = useAppLoading()
   <%_ if (field.editType === 'array-struct') { -%>
 
 /** <%= field.structName.pascalName %>の初期値 */
-const initial<%= field.structName.pascalName %> = ref<Model<%= struct.structName.pascalName %>>(INITIAL_<%= field.structName.upperSnakeName %>)
+const initial<%= field.structName.structName.pascalName %> = ref<Model<%= struct.structName.pascalName %>>(INITIAL_<%= field.structName.upperSnakeName %>)
   <%_ } -%>
 <%_ }) -%>
 
