@@ -2,7 +2,14 @@
 to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct.name.pascalName %>EntryForm.vue
 ---
 <script setup lang="ts">
-import {<%_ if (struct.structType !== 'struct') { -%><%= struct.name.pascalName %>Api, <% } -%>Model<%= struct.name.pascalName %>} from '@/apis'
+import {
+  <%_ if (struct.structType !== 'struct') { -%><%= struct.name.pascalName %>Api, <% } -%>Model<%= struct.name.pascalName %>
+<%_ struct.fields.forEach(function (field, key) { -%>
+  <%_ if (field.editType === 'array-struct' || field.editType === 'struct') { -%>
+  Model<%= field.structName.pascalName %>,
+  <%_ } -%>
+<%_ }) -%>
+} from '@/apis'
 <%_ if (struct.exists.edit.time || struct.exists.edit.arrayTime) { -%>
 import DateTimeForm from '@/components/form/DateTimeForm.vue'
 <%_ } -%>
@@ -87,6 +94,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 interface Emits {
   (e: "updated", item: Model<%= struct.name.pascalName %>): void;
+  (e: "update:target", item: Model<%= struct.name.pascalName %>): void;
   (e: "remove", item: Model<%= struct.name.pascalName %>): void;
   (e: "update:open", open: boolean): void;
 }
@@ -159,7 +167,7 @@ const save = async () => {
       return
     }
 <%_ if (struct.structType !== 'struct') { -%><%#_ Structでない場合 -%>
-    if (hasParent) {
+    if (props.hasParent) {
       // 親要素側で保存
       return
     }
@@ -385,7 +393,7 @@ const close = () => {
                     :has-parent="true"
                     :is-new="editIndex === NEW_INDEX"
                     :open="isEntryFormOpen"
-                    :target="editTarget"
+                    :target="editTarget as Model<%= field.structName.pascalName %>"
                     @close="closeForm"
                     @remove="removeForm"
                     @updated="updatedForm"
