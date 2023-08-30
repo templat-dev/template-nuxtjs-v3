@@ -38,7 +38,7 @@ const menus = computed((): MenuItem[] => {
     },
     // メニュー
   ]
-}
+})
 
 <%_ if (project.plugins.find(p => p.name === 'auth')?.enable) { -%>
 const isLoginPage = computed(() => {
