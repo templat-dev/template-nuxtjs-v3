@@ -7,23 +7,30 @@ import AppLoading from '@/components/modal/AppLoading.vue'
 import AppDialog from '@/components/modal/AppDialog.vue'
 import AppSnackBar from '@/components/modal/AppSnackBar.vue'
 
+interface MenuItem {
+  title: string
+  to: string
+  href?: string
+  divider?: boolean
+}
+
 const route = useRoute()
 
 /** ドロワー表示状態 (true: 表示, false: 非表示) */
 const drawer = ref<boolean>(false)
 
-const activeMenu = computed(() => {
-  return menus.find(menu => route.path === menu.to)
+const activeMenu = computed((): MenuItem | undefined => {
+  return menus.value.find((menu: MenuItem) => route.path === menu.to)
 })
 
-const currentPageTitle = computed(() {
-  if (route.path === '/' || !activeMenu) {
+const currentPageTitle = computed(() => {
+  if (route.path === '/' || !activeMenu.value) {
     return null
   }
-  return activeMenu.title
+  return activeMenu.value.title
 })
 
-const menus = computed(() => {
+const menus = computed((): MenuItem[] => {
   return [
     {
       title: 'Top',
@@ -31,7 +38,7 @@ const menus = computed(() => {
     },
     // メニュー
   ]
-})
+}
 
 <%_ if (project.plugins.find(p => p.name === 'auth')?.enable) { -%>
 const isLoginPage = computed(() => {
