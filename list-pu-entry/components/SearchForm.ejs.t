@@ -123,124 +123,64 @@ const search = () => {
 <template>
   <v-dialog v-model="open" max-width="800px">
     <v-card :elevation="0">
-      <v-card-title><%= struct.name.pascalName %>検索</v-card-title>
+      <v-card-title><%= struct.screenLabel || struct.name.pascalName %>検索</v-card-title>
       <v-card-text>
-      <%_ struct.fields.forEach(function(field, index){ -%>
+        <v-layout column>
+      <%_ if (struct.fields) { -%>
+      <%_ struct.fields.forEach(function (field, key) { -%>
         <%_ if ((field.listType === 'string' || field.listType === 'array-string' || field.listType === 'textarea' || field.listType === 'array-textarea') && field.searchType === 1) { -%>
-        <v-layout>
-          <v-flex sm1 xs2>
-            <v-switch v-model="searchCondition.<%= field.name.lowerCamelName %>.enabled"/>
-          </v-flex>
-          <v-flex sm11 xs10>
-            <v-text-field
-              v-model="searchCondition.<%= field.name.lowerCamelName %>.value"
-              :disabled="!searchCondition.<%= field.name.lowerCamelName %>.enabled"
-              label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
-            ></v-text-field>
-          </v-flex>
-        </v-layout>
+          <v-text-field
+            v-model="searchCondition.<%= field.name.lowerCamelName %>"
+            label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
+          ></v-text-field>
         <%_ } -%>
         <%_ if ((field.listType === 'number' || field.listType === 'array-number') && field.searchType !== 0) { -%>
-        <v-layout>
-          <v-flex sm1 xs2>
-            <v-switch v-model="searchCondition.<%= field.name.lowerCamelName %>.enabled"/>
-          </v-flex>
-          <v-flex sm11 xs10>
-            <v-text-field
-              :disabled="!searchCondition.<%= field.name.lowerCamelName %>.enabled"
-              :value="searchCondition.<%= field.name.lowerCamelName %>.value"
-              label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
-              type="number"
-              @input="v => searchCondition.<%= field.name.lowerCamelName %>.value = v === '' ? undefined : Number(v)"
-            ></v-text-field>
-          </v-flex>
-        </v-layout>
+          <v-text-field
+            :value="searchCondition.<%= field.name.lowerCamelName %>"
+            label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
+            type="number"
+            @input="v => searchCondition.<%= field.name.lowerCamelName %> = v === '' ? undefined : Number(v)"
+          ></v-text-field>
         <%_ } -%>
         <%_ if ((field.listType === 'number' || field.listType === 'array-number') && 2 <= field.searchType && field.searchType <= 5) { -%>
-        <v-layout>
-          <v-flex sm1 xs2>
-            <v-switch v-model="searchCondition.<%= field.name.lowerCamelName %>From.enabled"/>
-          </v-flex>
-          <v-flex sm11 xs10>
-            <v-text-field
-              :disabled="!searchCondition.<%= field.name.lowerCamelName %>From.enabled"
-              :value="searchCondition.<%= field.name.lowerCamelName %>From.value"
-              label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>開始"
-              type="number"
-              @input="(v) => searchCondition.<%= field.name.lowerCamelName %>From.value = (v === '' ? -1 : Number(v))"
-            ></v-text-field>
-          </v-flex>
-        </v-layout>
-        <v-layout>
-          <v-flex sm1 xs2>
-            <v-switch v-model="searchCondition.<%= field.name.lowerCamelName %>To.enabled"/>
-          </v-flex>
-          <v-flex sm11 xs10>
-            <v-text-field
-              :disabled="!searchCondition.<%= field.name.lowerCamelName %>To.enabled"
-              :value="searchCondition.<%= field.name.lowerCamelName %>To.value"
-              label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>終了"
-              type="number"
-              @input="v => searchCondition.<%= field.name.lowerCamelName %>To.value = v === '' ? undefined : Number(v)"
-            ></v-text-field>
-          </v-flex>
-        </v-layout>
+          <v-text-field
+            :value="searchCondition.<%= field.name.lowerCamelName %>From"
+            label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>開始"
+            type="number"
+            @input="v => searchCondition.<%= field.name.lowerCamelName %>From = v === '' ? undefined : Number(v)"
+          ></v-text-field>
+          <v-text-field
+            :value="searchCondition.<%= field.name.lowerCamelName %>To"
+            label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>終了"
+            type="number"
+            @input="v => searchCondition.<%= field.name.lowerCamelName %>To = v === '' ? undefined : Number(v)"
+          ></v-text-field>
         <%_ } -%>
         <%_ if ((field.listType === 'time' || field.listType === 'array-time') && field.searchType !== 0) { -%>
-        <v-layout>
-          <v-flex sm1 xs2>
-            <v-switch v-model="searchCondition.<%= field.name.lowerCamelName %>.enabled"/>
-          </v-flex>
-          <v-flex sm11 xs10>
-            <date-time-form
-              :date-time.sync="searchCondition.<%= field.name.lowerCamelName %>.value"
-              :disabled="!searchCondition.<%= field.name.lowerCamelName %>.enabled"
-              label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
-            ></date-time-form>
-          </v-flex>
-        </v-layout>
+          <date-time-form
+            :date-time.sync="searchCondition.<%= field.name.lowerCamelName %>"
+            label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
+          ></date-time-form>
         <%_ } -%>
         <%_ if ((field.listType === 'time' || field.listType === 'array-time') && 2 <= field.searchType &&  field.searchType <= 5) { -%>
-        <v-layout>
-          <v-flex sm1 xs2>
-            <v-switch v-model="searchCondition.<%= field.name.lowerCamelName %>From.enabled"/>
-          </v-flex>
-          <v-flex sm11 xs10>
-            <date-time-form
-              :date-time.sync="searchCondition.<%= field.name.lowerCamelName %>From.value"
-              :disabled="!searchCondition.<%= field.name.lowerCamelName %>From.enabled"
-              label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>開始"
-            ></date-time-form>
-          </v-flex>
-        </v-layout>
-        <v-layout>
-          <v-flex sm1 xs2>
-            <v-switch v-model="searchCondition.<%= field.name.lowerCamelName %>To.enabled"/>
-          </v-flex>
-          <v-flex sm11 xs10>
-            <date-time-form
-              :date-time.sync="searchCondition.<%= field.name.lowerCamelName %>To.value"
-              :disabled="!searchCondition.<%= field.name.lowerCamelName %>To.enabled"
-              label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>終了"
-            ></date-time-form>
-          </v-flex>
-        </v-layout>
+          <date-time-form
+            :date-time.sync="searchCondition.<%= field.name.lowerCamelName %>From"
+            label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>開始"
+          ></date-time-form>
+          <date-time-form
+            :date-time.sync="searchCondition.<%= field.name.lowerCamelName %>To"
+            label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>終了"
+          ></date-time-form>
         <%_ } -%>
         <%_ if ((field.listType === 'bool' || field.listType === 'array-bool') && field.searchType === 1) { -%>
-        <v-layout>
-          <v-flex sm1 xs2>
-            <v-switch v-model="searchCondition.<%= field.name.lowerCamelName %>.enabled"/>
-          </v-flex>
-          <v-flex sm11 xs10>
-            <v-checkbox
-              v-model="searchCondition.<%= field.name.lowerCamelName %>.value"
-              :disabled="!searchCondition.<%= field.name.lowerCamelName %>.enabled"
-              label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
-            ></v-checkbox>
-          </v-flex>
-        </v-layout>
+          <v-checkbox
+            v-model="searchCondition.<%= field.name.lowerCamelName %>"
+            label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
+          ></v-checkbox>
         <%_ } -%>
       <%_ }) -%>
+      <%_ } -%>
+        </v-layout>
       </v-card-text>
       <v-card-actions>
         <v-btn color="grey darken-1" text @click="close">キャンセル</v-btn>
