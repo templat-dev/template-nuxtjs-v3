@@ -395,7 +395,7 @@ const close = () => {
                   <<%= field.structName.lowerCamelName %>-entry-form
                     :has-parent="true"
                     :is-new="editIndex === NEW_INDEX"
-                    :open="isEntryFormOpen as boolean
+                    :open="isEntryFormOpen as boolean"
                     :target="editTarget as Model<%= field.structName.pascalName %>"
                     @close="closeForm"
                     @remove="removeForm"
