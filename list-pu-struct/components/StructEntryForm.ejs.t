@@ -3,7 +3,10 @@ to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct
 ---
 <script setup lang="ts">
 import {
-  <%_ if (struct.structType !== 'struct') { -%><%= struct.name.pascalName %>Api, <% } -%>Model<%= struct.name.pascalName %>
+<%_ if (struct.structType !== 'struct') { -%>
+  <%= struct.name.pascalName %>Api,
+<%_ } -%>
+  Model<%= struct.name.pascalName %>,
 <%_ struct.fields.forEach(function (field, key) { -%>
   <%_ if (field.editType === 'array-struct' || field.editType === 'struct') { -%>
   Model<%= field.structName.pascalName %>,
@@ -392,7 +395,7 @@ const close = () => {
                   <<%= field.structName.lowerCamelName %>-entry-form
                     :has-parent="true"
                     :is-new="editIndex === NEW_INDEX"
-                    :open="isEntryFormOpen"
+                    :open="isEntryFormOpen as boolean
                     :target="editTarget as Model<%= field.structName.pascalName %>"
                     @close="closeForm"
                     @remove="removeForm"

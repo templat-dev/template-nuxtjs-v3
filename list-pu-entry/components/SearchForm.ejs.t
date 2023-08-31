@@ -35,47 +35,47 @@ import DateTimeForm from '@/components/form/DateTimeForm.vue'
 export interface <%= struct.name.pascalName %>SearchCondition {
   <%_ searchConditions.forEach(function(searchCondition) { -%>
     <%_ if (searchCondition.type === 'string' && !searchCondition.range) { -%>
-  <%= searchCondition.name.lowerCamelName %>: SingleSearchCondition<<%= searchCondition.type %>>
+  <%= searchCondition.name %>: SingleSearchCondition<<%= searchCondition.type %>>
     <%_ } -%>
     <%_ if (searchCondition.type === 'boolean' && !searchCondition.range) { -%>
-  <%= searchCondition.name.lowerCamelName %>: SingleSearchCondition<<%= searchCondition.type %>>
+  <%= searchCondition.name %>: SingleSearchCondition<<%= searchCondition.type %>>
     <%_ } -%>
     <%_ if (searchCondition.type === 'number' && !searchCondition.range) { -%>
-  <%= searchCondition.name.lowerCamelName %>: SingleSearchCondition<<%= searchCondition.type %>>
+  <%= searchCondition.name %>: SingleSearchCondition<<%= searchCondition.type %>>
     <%_ } -%>
     <%_ if (searchCondition.type === 'number' && searchCondition.range) { -%>
-  <%= searchCondition.name.lowerCamelName %>: SingleSearchCondition<<%= searchCondition.type %>>
-  <%= searchCondition.name.lowerCamelName %>From: SingleSearchCondition<<%= searchCondition.type %>>
-  <%= searchCondition.name.lowerCamelName %>To: SingleSearchCondition<<%= searchCondition.type %>>
+  <%= searchCondition.name %>: SingleSearchCondition<<%= searchCondition.type %>>
+  <%= searchCondition.name %>From: SingleSearchCondition<<%= searchCondition.type %>>
+  <%= searchCondition.name %>To: SingleSearchCondition<<%= searchCondition.type %>>
     <%_ } -%>
     <%_ if (searchCondition.type === 'string' && searchCondition.range) { -%>
-  <%= searchCondition.name.lowerCamelName %>: SingleSearchCondition<<%= searchCondition.type %>>
-  <%= searchCondition.name.lowerCamelName %>From: SingleSearchCondition<<%= searchCondition.type %>>
-  <%= searchCondition.name.lowerCamelName %>To: SingleSearchCondition<<%= searchCondition.type %>>
+  <%= searchCondition.name %>: SingleSearchCondition<<%= searchCondition.type %>>
+  <%= searchCondition.name %>From: SingleSearchCondition<<%= searchCondition.type %>>
+  <%= searchCondition.name %>To: SingleSearchCondition<<%= searchCondition.type %>>
     <%_ } -%>
   <%_ }) -%>
 }
 
 export const INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION: <%= struct.name.pascalName %>SearchCondition = {
-  <%_ searchConditions.forEach(function(field) { -%>
+  <%_ searchConditions.forEach(function(searchCondition) { -%>
     <%_ if (field.type === 'string' && !field.range) { -%>
-  <%= field.name.lowerCamelName %>: {enabled: false, value: ''},
+  <%= searchCondition.name %>: {enabled: false, value: ''},
     <%_ } -%>
     <%_ if (field.type === 'boolean' && !field.range) { -%>
-  <%= field.name.lowerCamelName %>: {enabled: false, value: false},
+  <%= searchCondition.name %>: {enabled: false, value: false},
     <%_ } -%>
     <%_ if (field.type === 'number' && !field.range) { -%>
-  <%= field.name.lowerCamelName %>: {enabled: false, value: 0},
+  <%= searchCondition.name %>: {enabled: false, value: 0},
     <%_ } -%>
     <%_ if (field.type === 'number' && field.range) { -%>
-  <%= field.name.lowerCamelName %>: {enabled: false, value: 0},
-  <%= field.name.lowerCamelName %>From: {enabled: false, value: 0},
-  <%= field.name.lowerCamelName %>To: {enabled: false, value: 0},
+  <%= searchCondition.name %>: {enabled: false, value: 0},
+  <%= searchCondition.name %>From: {enabled: false, value: 0},
+  <%= searchCondition.name %>To: {enabled: false, value: 0},
     <%_ } -%>
     <%_ if (field.type === 'string' && field.range) { -%>
-  <%= field.name.lowerCamelName %>: {enabled: false, value: ''},
-  <%= field.name.lowerCamelName %>From: {enabled: false, value: ''},
-  <%= field.name.lowerCamelName %>To: {enabled: false, value: ''},
+  <%= searchCondition.name %>: {enabled: false, value: ''},
+  <%= searchCondition.name %>From: {enabled: false, value: ''},
+  <%= searchCondition.name %>To: {enabled: false, value: ''},
     <%_ } -%>
   <%_ }) -%>
 }
@@ -99,6 +99,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 interface Emits {
   (e: "search", searchCondition: <%= struct.name.pascalName %>SearchCondition): void;
+  (e: "update:open", open: boolean): void;
 }
 const emit = defineEmits<Emits>()
 

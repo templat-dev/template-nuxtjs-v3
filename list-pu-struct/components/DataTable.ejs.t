@@ -57,7 +57,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 interface Emits {
-  (e: "update:pageInfo", pageInfo: DataTablePageInfo): void;
+  (e: "update:pageInfo"): void;
   (e: "update:searchCondition", searchCondition: <%= struct.name.pascalName %>SearchCondition): void;
   (e: "openEntryForm", item?: Model<%= struct.name.pascalName %>): void;
   (e: "remove", item: Model<%= struct.name.pascalName %>): void;

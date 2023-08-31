@@ -3,7 +3,10 @@ to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct
 ---
 <script setup lang="ts">
 import {
-  <%_ if (struct.structType !== 'struct') { -%><%= struct.name.pascalName %>Api, <% } -%>Model<%= struct.name.pascalName %>
+<%_ if (struct.structType !== 'struct') { -%>
+  <%= struct.name.pascalName %>Api,
+<%_ } -%>
+  Model<%= struct.name.pascalName %>,
 <%_ struct.fields.forEach(function (field, key) { -%>
   <%_ if (field.editType === 'array-struct' || field.editType === 'struct') { -%>
   Model<%= field.structName.pascalName %>,
