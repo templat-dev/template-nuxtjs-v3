@@ -21,10 +21,8 @@ to: "<%= struct.generateEnable ? `${rootDirectory}/pages/${struct.name.lowerCame
   <%_ } -%>
 <%_ }) -%>
 import {cloneDeep} from 'lodash-es'
-import {Context} from '@nuxt/types'
 import {<%= struct.name.pascalName %>Api, Model<%= struct.name.pascalName %>, Model<%= struct.name.pascalPluralName %>} from '@/apis'
-import {DataTablePageInfo, INITIAL_DATA_TABLE_PAGE_INFO} from '@/components/common/AppDataTable.vue'
-import <%= struct.name.pascalName %>DataTable from '@/components/<%= struct.name.pascalName %>/<%= struct.name.pascalName %>DataTable.vue'
+import {DataTablePageInfo, INITIAL_DATA_TABLE_PAGE_INFO} from "~/types/dataTable";
 import {
   <%= struct.name.pascalName %>SearchCondition,
   INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION

@@ -4,8 +4,8 @@ to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct
 <script setup lang="ts">
 import {cloneDeep} from 'lodash-es'
 import {Model<%= struct.name.pascalName %>} from '@/apis'
-import AppDataTable, {DataTablePageInfo, INITIAL_DATA_TABLE_PAGE_INFO} from '@/components/common/AppDataTable.vue'
-<%_ if (struct.screenType !== 'struct') { -%>
+import {DataTablePageInfo, INITIAL_DATA_TABLE_PAGE_INFO} from "~/types/dataTable";
+<%_ if (struct.structType !== 'struct') { -%>
 import <%= struct.name.pascalName %>SearchForm, {
   <%= struct.name.pascalName %>SearchCondition,
   INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION
@@ -42,29 +42,35 @@ interface Props {
   totalCount: number | undefined
   /** 一覧の読み込み状態 */
   isLoading: boolean
+<%_ if (struct.structType !== 'struct') { -%>
   /** 検索条件 */
   searchCondition: <%= struct.name.pascalName %>SearchCondition
   /** 表示方式 (true: 子要素として表示, false: 親要素として表示) */
   hasParent: boolean
+<%_ } -%>
 }
 const props = withDefaults(defineProps<Props>(), {
   items: (props: Props) => [],
-  pageInfo: cloneDeep(INITIAL_DATA_TABLE_PAGE_INFO),
+  pageInfo: (props: Props) => cloneDeep(INITIAL_DATA_TABLE_PAGE_INFO),
   totalCount: undefined,
   isLoading: false,
+<%_ if (struct.structType !== 'struct') { -%>
   searchCondition: cloneDeep(INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION),
   hasParent: false,
+<%_ } -%>
 })
 
 interface Emits {
   (e: "update:pageInfo"): void;
+<%_ if (struct.structType !== 'struct') { -%>
   (e: "update:searchCondition", searchCondition: <%= struct.name.pascalName %>SearchCondition): void;
+<%_ } -%>
   (e: "openEntryForm", item?: Model<%= struct.name.pascalName %>): void;
   (e: "remove", item: Model<%= struct.name.pascalName %>): void;
 }
 const emit = defineEmits<Emits>()
 
-<%_ if (struct.screenType !== 'struct') { -%>
+<%_ if (struct.structType !== 'struct') { -%>
 
 /** 検索フォームの表示表示状態 (true: 表示, false: 非表示) */
 const isSearchFormOpen = ref<boolean>(false)
@@ -84,7 +90,7 @@ const previewSearchCondition = computed(() => {
 const onChangePageInfo = () => {
   emit('update:pageInfo')
 }
-<%_ if (struct.screenType !== 'struct') { -%>
+<%_ if (struct.structType !== 'struct') { -%>
 
 const search = (searchCondition: <%= struct.name.pascalName %>SearchCondition) => {
   emit('update:searchCondition', searchCondition)
@@ -117,7 +123,7 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
       <template #top>
         <v-toolbar color="white" flat>
           <v-toolbar-title><%= struct.listLabel %></v-toolbar-title>
-<%_ if (struct.screenType !== 'struct') { -%>
+<%_ if (struct.structType !== 'struct') { -%>
           <template v-if="!hasParent">
             <v-divider class="mx-4" inset vertical></v-divider>
             <v-btn icon @click="isSearchFormOpen = true">
@@ -191,7 +197,7 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
         </v-btn>
       </template>
     </app-data-table>
-<%_ if (struct.screenType !== 'struct') { -%>
+<%_ if (struct.structType !== 'struct') { -%>
     <<%= struct.name.lowerCamelName %>-search-form
       :current-search-condition="searchCondition"
       :open.sync="isSearchFormOpen"
