@@ -2,7 +2,7 @@
 to: <%= rootDirectory %>/layouts/default.vue
 force: true
 ---
-<script lang="ts" setup>
+<script setup lang="ts">
 import AppLoading from '@/components/modal/AppLoading.vue'
 import AppDialog from '@/components/modal/AppDialog.vue'
 import AppSnackBar from '@/components/modal/AppSnackBar.vue'
@@ -56,15 +56,25 @@ const signOut = computed(async () =>
   <v-app>
     <v-navigation-drawer v-model="drawer" :clipped="true" app fixed>
       <v-list>
-        <v-list-item v-for="(menu, i) in menus" v-if="!menu.divider"
-                     :key="i" :href="menu.href ? menu.href : ''"
-                     :target="menu.href ? '_blank' : '_self'" :to="menu.to ? menu.to : ''"
-                     exact router @click="drawer = false">
-          <v-list-item-content v-if="!!menu.title">
-            <v-list-item-title v-text="menu.title"/>
-          </v-list-item-content>
-        </v-list-item>
-        <v-divider v-else></v-divider>
+        <template
+          v-for="(menu, i) in menus"
+        >
+          <v-list-item
+            v-if="menu && !menu.divider"
+            :key="i"
+            :href="menu.href ? menu.href : ''"
+            :target="menu.href ? '_blank' : '_self'"
+            :to="menu.to ? menu.to : ''"
+            :exact="false"
+            router
+            @click="drawer = false"
+          >
+            <template v-if="!!menu.title">
+              <v-list-item-title v-text="menu.title"/>
+            </template>
+          </v-list-item>
+          <v-divider v-else></v-divider>
+        </template>
       </v-list>
     </v-navigation-drawer>
 
@@ -86,7 +96,7 @@ const signOut = computed(async () =>
 
     <v-main>
       <v-container>
-        <nuxt/>
+        <slot/>
       </v-container>
     </v-main>
 
