@@ -63,11 +63,11 @@ const editTarget = ref<Model<%= struct.name.pascalName %> | null>(null)
 /** 編集対象のインデックス */
 const editIndex = ref<number>(0)
 
-static async fetch(
+const fetch = async (
   {searchCondition = INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION, pageInfo = INITIAL_DATA_TABLE_PAGE_INFO}
     : { searchCondition: <%= struct.name.pascalName %>SearchCondition, pageInfo: DataTablePageInfo }
     = {searchCondition: INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION, pageInfo: INITIAL_DATA_TABLE_PAGE_INFO}
-): Promise<Model<%= struct.name.pascalPluralName %>> {
+): Promise<Model<%= struct.name.pascalPluralName %>> => {
   return await new <%= struct.name.pascalName %>Api().search<%= struct.name.pascalName %>({
   <%_ struct.fields.forEach(function(field, index){ -%>
 <%#_ 通常の検索 -%>
@@ -91,10 +91,10 @@ static async fetch(
     limit: pageInfo.itemsPerPage !== -1 ? pageInfo.itemsPerPage : undefined,
 <%_ if (project.dbType === 'datastore') { -%>
     cursor: pageInfo.page !== 1 ? pageInfo.cursors[pageInfo.page - 2] : undefined,
-    orderBy: pageInfo.sortBy.map((sb, i) => `${(pageInfo.sortDesc)[i] ? '-' : ''}${sb}`).join(',') || undefined
+    orderBy: pageInfo.sortBy.map((sb: string, i: number) => `${(pageInfo.sortDesc)[i] ? '-' : ''}${sb}`).join(',') || undefined
 <%_ } else { -%>
     offset: (pageInfo.page - 1) * pageInfo.itemsPerPage,
-    orderBy: pageInfo.sortBy.map((sb, i) => `${sb} ${(pageInfo.sortDesc)[i] ? 'desc' : 'asc'}`).join(',') || undefined
+    orderBy: pageInfo.sortBy.map((sb: string, i: number) => `${sb} ${(pageInfo.sortDesc)[i] ? 'desc' : 'asc'}`).join(',') || undefined
 <%_ } -%>
   }).then(res => res.data)
 }

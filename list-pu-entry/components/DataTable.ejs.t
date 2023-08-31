@@ -71,7 +71,7 @@ const isSearchFormOpen = ref<boolean>(false)
 
 const previewSearchCondition = computed(() => {
   const previewSearchConditions = []
-  for (const [key, value] of Object.entries(this.syncedSearchCondition)) {
+  for (const [key, value] of Object.entries(props.searchCondition)) {
     if (!value) {
       continue
     }

@@ -79,9 +79,6 @@ export const INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION: <%= str
   <%_ }) -%>
 }
 
-export const INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION: <%= struct.name.pascalName %>SearchCondition = {}
-<%_ } -%>
-
 interface Props {
   /** 表示状態 (true: 表示, false: 非表示) */
   open: boolean
