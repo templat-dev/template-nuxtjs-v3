@@ -190,7 +190,7 @@ const remove = async(index: number) => {
         :dialog="true"
         :is-new="editIndex === NEW_INDEX"
         v-model:open="isEntryFormOpen"
-        v-model:target="editTarget!"
+        v-model:target="editTarget"
         @remove="removeForm"
         @updated="reFetch"
       ></<%= struct.name.lowerCamelName %>-entry-form>
