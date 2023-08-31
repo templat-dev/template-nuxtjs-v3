@@ -58,21 +58,21 @@ export interface <%= struct.name.pascalName %>SearchCondition {
 
 export const INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION: <%= struct.name.pascalName %>SearchCondition = {
   <%_ searchConditions.forEach(function(searchCondition) { -%>
-    <%_ if (field.type === 'string' && !field.range) { -%>
+    <%_ if (searchCondition.type === 'string' && !searchCondition.range) { -%>
   <%= searchCondition.name %>: {enabled: false, value: ''},
     <%_ } -%>
-    <%_ if (field.type === 'boolean' && !field.range) { -%>
+    <%_ if (searchCondition.type === 'boolean' && !searchCondition.range) { -%>
   <%= searchCondition.name %>: {enabled: false, value: false},
     <%_ } -%>
-    <%_ if (field.type === 'number' && !field.range) { -%>
+    <%_ if (searchCondition.type === 'number' && !searchCondition.range) { -%>
   <%= searchCondition.name %>: {enabled: false, value: 0},
     <%_ } -%>
-    <%_ if (field.type === 'number' && field.range) { -%>
+    <%_ if (searchCondition.type === 'number' && searchCondition.range) { -%>
   <%= searchCondition.name %>: {enabled: false, value: 0},
   <%= searchCondition.name %>From: {enabled: false, value: 0},
   <%= searchCondition.name %>To: {enabled: false, value: 0},
     <%_ } -%>
-    <%_ if (field.type === 'string' && field.range) { -%>
+    <%_ if (searchCondition.type === 'string' && searchCondition.range) { -%>
   <%= searchCondition.name %>: {enabled: false, value: ''},
   <%= searchCondition.name %>From: {enabled: false, value: ''},
   <%= searchCondition.name %>To: {enabled: false, value: ''},
