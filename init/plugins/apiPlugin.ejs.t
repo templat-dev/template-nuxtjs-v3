@@ -3,6 +3,7 @@ to: <%= rootDirectory %>/plugins/apiPlugin.ts
 force: true
 ---
 import {
+  Configuration,
   // include apis here
 } from "~/apis";
 import {defineNuxtPlugin, useRuntimeConfig} from "#app";
