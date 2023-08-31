@@ -3,16 +3,16 @@ to: <%= rootDirectory %>/plugins/apiPlugin.ts
 force: true
 ---
 import {
-    // include apis here
+// include apis here
 } from "~/apis";
 import {defineNuxtPlugin, useRuntimeConfig} from "#app";
 
 export interface apiPluginInterface {
-    // include interfaces here
+// include interfaces here
 }
 
 class ApiPlugin implements apiPluginInterface {
-    // include implements here
+// include implements here
 }
 
 export default defineNuxtPlugin(nuxtApp => {
