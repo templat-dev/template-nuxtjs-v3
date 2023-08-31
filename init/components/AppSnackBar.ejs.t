@@ -2,6 +2,7 @@
 to: <%= rootDirectory %>/components/modal/AppSnackBar.vue
 force: true
 ---
+<script setup lang="ts">
 import {useAppSnackbar} from "~/composables/useSnackbar"
 
 const appSnackbar = useAppSnackbar()

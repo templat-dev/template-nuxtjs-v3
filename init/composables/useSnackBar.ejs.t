@@ -35,8 +35,8 @@ const actionText = (state: Ref<AppSnackbarState>): string => {
   return state.value.actionText || ''
 }
 
-const timeout = (state: Ref<AppSnackbarState>): number | undefined => {
-  return state.value.timeout
+const timeout = (state: Ref<AppSnackbarState>): number => {
+  return state.value.timeout || 2000
 }
 
 const showSnackbar = (state: Ref<AppSnackbarState>) => {

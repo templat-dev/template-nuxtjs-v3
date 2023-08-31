@@ -4,7 +4,6 @@ force: true
 ---
 <script setup lang="ts" generic="I, S">
 import appUtils from '@/utils/appUtils'
-import {DataTableHeader} from 'vuetify'
 
 export interface SingleSearchCondition<T> {
   enabled: boolean
@@ -48,29 +47,29 @@ export const DEFAULT_FOOTER_PROPS = {
 
 interface Props {
   /** ヘッダー定義 */
-  headers!: DataTableHeader[],
+  headers: any[],
   /** フッター定義 */
-  footerProps!: {},
+  footerProps: {},
   /** 一覧表示用の配列 */
-  items!: I[],
+  items: I[],
   /** ベージ表示情報 */
-  pageInfo!: DataTablePageInfo,
+  pageInfo: DataTablePageInfo,
   /** 全ての件数 */
-  totalCount!: number | undefined,
+  totalCount: number | undefined,
   /** 一覧の読み込み状態 */
-  isLoading!: boolean
+  isLoading: boolean
 }
 const props = withDefaults(defineProps<Props>(), {
-  headers: [],
-  footerProps: DEFAULT_FOOTER_PROPS,
-  items: [],
-  pageInfo: {},
-  totalCount: undefined
-  isLoading: true
+  headers: (props: Props) => [],
+  footerProps: (props: Props) => DEFAULT_FOOTER_PROPS,
+  items: (props: Props) => [],
+  pageInfo: (props: Props) => ({} as DataTablePageInfo),
+  totalCount: undefined,
+  isLoading: true,
 })
 
 interface Emits {
-  (e: "update:pageInfo"): void
+  (e: "reFetch"): void
   (e: "openEntryForm", item: I): void
 }
 const emit = defineEmits<Emits>()
@@ -91,11 +90,7 @@ const handleChangePageInfo = async (event?: string) => {
   if (event === 'sortDesc') {
     changeAccepted.value = false
   }
-  onChangePageInfo()
-}
-
-const onChangePageInfo = () => {
-  emit('onChangePageInfo')
+  emit('reFetch')
 }
 
 const openEntryForm = (item: I) => {
@@ -122,7 +117,7 @@ const openEntryForm = (item: I) => {
     @update:sort-by="handleChangePageInfo('sortBy')"
     @update:sort-desc="handleChangePageInfo('sortDesc')"
   >
-    <template v-for="(_, slotName) in $scopedSlots" v-slot:[slotName]="props">
+    <template v-for="(_, slotName) in $slots" v-slot:[slotName]="props">
       <slot v-bind="props" :name="slotName"/>
     </template>
   </v-data-table>

@@ -21,7 +21,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 interface Emits {
-  (e: "update-datetime", dateTime: string): void
+  (e: "update:datetime", dateTime: string): void
 }
 const emit = defineEmits<Emits>()
 
@@ -31,12 +31,12 @@ const dateMenu = ref<boolean>(false)
 /** 時刻選択表示状態 (true: 表示, false: 非表示) */
 const timeMenu = ref<boolean>(false)
 
-const dateValue = computed((): string => {
+const dateValue = computed({
   get: () => {
     if (!props.dateTime) {
       return ''
     }
-    return format(new Date(this.syncedDateTime), 'yyyy-MM-dd')
+    return format(new Date(props.dateTime), 'yyyy-MM-dd')
   },
   set: (dateValue: string) => {
     let timeValue = '00:00'
@@ -44,11 +44,11 @@ const dateValue = computed((): string => {
       timeValue = format(new Date(props.dateTime), 'HH:mm')
     }
     const newDateTime: string = formatISO(parse(`${dateValue} ${timeValue}`, 'yyyy-MM-dd HH:mm', new Date()))
-    emit('update-datetime', newDateTime)
+    emit('update:datetime', newDateTime)
   }
 })
 
-const timeValue = computed((): string => {
+const timeValue = computed({
   get: () => {
     if (!props.dateTime) {
       return ''
@@ -61,12 +61,15 @@ const timeValue = computed((): string => {
       dateValue = format(new Date(props.dateTime), 'yyyy-MM-dd')
     }
     const newDateTime: string = formatISO(parse(`${dateValue} ${timeValue}`, 'yyyy-MM-dd HH:mm', new Date()))
-    emit('update-date', newDateTime)
+    emit('update:datetime', newDateTime)
   }
 })
 
 const clearDate = () => {
-  this.syncedDateTime = undefined
+  if (!props.dateTime) {
+    return
+  }
+  emit('update:datetime', '')
 }
 
 const clearTime = () => {
@@ -74,7 +77,7 @@ const clearTime = () => {
     return
   }
   const newDateTime = formatISO(startOfDay(new Date(props.dateTime)))
-  emit('update-date', newDateTime)
+  emit('update:datetime', newDateTime)
 }
 </script>
 

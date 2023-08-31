@@ -106,8 +106,8 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
       :headers="headers"
       :is-loading="isLoading"
       :items="items || []"
-      :items-per-page="syncedPageInfo.itemsPerPage"
-      v-model:page-info="syncedPageInfo"
+      :items-per-page="pageInfo.itemsPerPage"
+      v-model:page-info="pageInfo"
       :total-count="totalCount"
       loading-text="読み込み中"
       no-data-text="該当データ無し"
@@ -193,7 +193,7 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
     </app-data-table>
 <%_ if (struct.screenType !== 'struct') { -%>
     <<%= struct.name.lowerCamelName %>-search-form
-      :current-search-condition="syncedSearchCondition"
+      :current-search-condition="searchCondition"
       :open.sync="isSearchFormOpen"
       @search="search"
     ></<%= struct.name.lowerCamelName %>-search-form>

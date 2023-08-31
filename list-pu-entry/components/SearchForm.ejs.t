@@ -6,22 +6,22 @@ to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct
 <%_ let importDateTime = false -%>
 <%_ if (struct.fields) { -%>
 <%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if ((field.type === 'string' || field.type === 'array-string' || field.type === 'time' || field.type === 'array-time') && field.searchType === 1) { -%>
+  <%_ if ((field.editType === 'string' || field.editType === 'array-string' || field.editType === 'time' || field.editType === 'array-time') && field.searchType === 1) { -%>
     <%_ searchConditions.push({name: field.name.lowerCamelName, type: 'string', range: false}) -%>
   <%_ } -%>
-  <%_ if ((field.type === 'bool' || field.type === 'array-bool') && field.searchType === 1) { -%>
+  <%_ if ((field.editType === 'bool' || field.editType === 'array-bool') && field.searchType === 1) { -%>
     <%_ searchConditions.push({name: field.name.lowerCamelName, type: 'boolean', range: false}) -%>
   <%_ } -%>
-  <%_ if ((field.type === 'number' || field.type === 'array-number') && field.searchType === 1) { -%>
+  <%_ if ((field.editType === 'number' || field.editType === 'array-number') && field.searchType === 1) { -%>
     <%_ searchConditions.push({name: field.name.lowerCamelName, type: 'number', range: false}) -%>
   <%_ } -%>
-  <%_ if ((field.type === 'number' || field.type === 'array-number') && 2 <= field.searchType &&  field.searchType <= 5) { -%>
+  <%_ if ((field.editType === 'number' || field.editType === 'array-number') && 2 <= field.searchType &&  field.searchType <= 5) { -%>
     <%_ searchConditions.push({name: field.name.lowerCamelName, type: 'number', range: true}) -%>
   <%_ } -%>
-  <%_ if ((field.type === 'time' || field.type === 'array-time') && 2 <= field.searchType &&  field.searchType <= 5) { -%>
+  <%_ if ((field.editType === 'time' || field.editType === 'array-time') && 2 <= field.searchType &&  field.searchType <= 5) { -%>
     <%_ searchConditions.push({name: field.name.lowerCamelName, type: 'string', range: true}) -%>
   <%_ } -%>
-  <%_ if ((field.type === 'time' || field.type === 'array-time')) { -%>
+  <%_ if ((field.editType === 'time' || field.editType === 'array-time')) { -%>
   <%_ importDateTime = true -%>
   <%_ } -%>
 <%_ }) -%>
@@ -33,25 +33,25 @@ import DateTimeForm from '@/components/form/DateTimeForm.vue'
 
 <%_ if (searchConditions.length > 0) { -%>
 export interface <%= struct.name.pascalName %>SearchCondition {
-  <%_ searchConditions.forEach(function(field) { -%>
-    <%_ if (field.type === 'string' && !field.range) { -%>
-  <%= field.name.lowerCamelName %>: SingleSearchCondition<<%= field.type %>>
+  <%_ searchConditions.forEach(function(searchCondition) { -%>
+    <%_ if (searchCondition.type === 'string' && !searchCondition.range) { -%>
+  <%= searchCondition.name.lowerCamelName %>: SingleSearchCondition<<%= searchCondition.type %>>
     <%_ } -%>
-    <%_ if (field.type === 'boolean' && !field.range) { -%>
-  <%= field.name.lowerCamelName %>: SingleSearchCondition<<%= field.type %>>
+    <%_ if (searchCondition.type === 'boolean' && !searchCondition.range) { -%>
+  <%= searchCondition.name.lowerCamelName %>: SingleSearchCondition<<%= searchCondition.type %>>
     <%_ } -%>
-    <%_ if (field.type === 'number' && !field.range) { -%>
-  <%= field.name.lowerCamelName %>: SingleSearchCondition<<%= field.type %>>
+    <%_ if (searchCondition.type === 'number' && !searchCondition.range) { -%>
+  <%= searchCondition.name.lowerCamelName %>: SingleSearchCondition<<%= searchCondition.type %>>
     <%_ } -%>
-    <%_ if (field.type === 'number' && field.range) { -%>
-  <%= field.name.lowerCamelName %>: SingleSearchCondition<<%= field.type %>>
-  <%= field.name.lowerCamelName %>From: SingleSearchCondition<<%= field.type %>>
-  <%= field.name.lowerCamelName %>To: SingleSearchCondition<<%= field.type %>>
+    <%_ if (searchCondition.type === 'number' && searchCondition.range) { -%>
+  <%= searchCondition.name.lowerCamelName %>: SingleSearchCondition<<%= searchCondition.type %>>
+  <%= searchCondition.name.lowerCamelName %>From: SingleSearchCondition<<%= searchCondition.type %>>
+  <%= searchCondition.name.lowerCamelName %>To: SingleSearchCondition<<%= searchCondition.type %>>
     <%_ } -%>
-    <%_ if (field.type === 'string' && field.range) { -%>
-  <%= field.name.lowerCamelName %>: SingleSearchCondition<<%= field.type %>>
-  <%= field.name.lowerCamelName %>From: SingleSearchCondition<<%= field.type %>>
-  <%= field.name.lowerCamelName %>To: SingleSearchCondition<<%= field.type %>>
+    <%_ if (searchCondition.type === 'string' && searchCondition.range) { -%>
+  <%= searchCondition.name.lowerCamelName %>: SingleSearchCondition<<%= searchCondition.type %>>
+  <%= searchCondition.name.lowerCamelName %>From: SingleSearchCondition<<%= searchCondition.type %>>
+  <%= searchCondition.name.lowerCamelName %>To: SingleSearchCondition<<%= searchCondition.type %>>
     <%_ } -%>
   <%_ }) -%>
 }
