@@ -63,38 +63,38 @@ const editTarget = ref<Model<%= struct.name.pascalName %> | null>(null)
 /** 編集対象のインデックス */
 const editIndex = ref<number>(0)
 
-const fetch = async (
+static async fetch(
   {searchCondition = INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION, pageInfo = INITIAL_DATA_TABLE_PAGE_INFO}
     : { searchCondition: <%= struct.name.pascalName %>SearchCondition, pageInfo: DataTablePageInfo }
     = {searchCondition: INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION, pageInfo: INITIAL_DATA_TABLE_PAGE_INFO}
-): Promise<Model<%= struct.name.pascalPluralName %>> => {
+): Promise<Model<%= struct.name.pascalPluralName %>> {
   return await new <%= struct.name.pascalName %>Api().search<%= struct.name.pascalName %>({
   <%_ struct.fields.forEach(function(field, index){ -%>
 <%#_ 通常の検索 -%>
     <%_ if ((field.listType === 'string' || field.listType === 'time' || field.listType === 'bool' || field.listType === 'number')  && field.searchType === 1) { -%>
-    <%= field.name.lowerCamelName %>: searchCondition.<%= field.name.lowerCamelName %>.enabled ? searchCondition.<%= field.name.lowerCamelName %>.value : undefined,
+    <%= field.name.lowerCamelName %>: searchCondition.<%= field.name.lowerCamelName %> || undefined,
 <%#_ 配列の検索 -%>
     <%_ } else if ((field.listType === 'array-string' || field.listType === 'array-time' || field.listType === 'array-bool' || field.listType === 'array-number')  && field.searchType === 1) { -%>
-    <%= field.name.lowerCamelName %>: searchCondition.<%= field.name.lowerCamelName %>.enabled ? [searchCondition.<%= field.name.lowerCamelName %>.value] : undefined,
+    <%= field.name.lowerCamelName %>: searchCondition.<%= field.name.lowerCamelName %> ? [searchCondition.<%= field.name.lowerCamelName %>] : undefined,
 <%#_ 範囲検索 -%>
     <%_ } else if ((field.listType === 'time' || field.listType === 'number') && 2 <= field.searchType &&  field.searchType <= 5) { -%>
-    <%= field.name.lowerCamelName %>: searchCondition.<%= field.name.lowerCamelName %>.enabled ? searchCondition.<%= field.name.lowerCamelName %>.value : undefined,
-    <%= field.name.lowerCamelName %>From: searchCondition.<%= field.name.lowerCamelName %>From.enabled ? searchCondition.<%= field.name.lowerCamelName %>From.value : undefined,
-    <%= field.name.lowerCamelName %>To: searchCondition.<%= field.name.lowerCamelName %>To.enabled ? searchCondition.<%= field.name.lowerCamelName %>To.value : undefined,
+    <%= field.name.lowerCamelName %>: searchCondition.<%= field.name.lowerCamelName %> || undefined,
+    <%= field.name.lowerCamelName %>From: searchCondition.<%= field.name.lowerCamelName %>From || undefined,
+    <%= field.name.lowerCamelName %>To: searchCondition.<%= field.name.lowerCamelName %>To || undefined,
 <%#_ 配列の範囲検索 -%>
     <%_ } else if ((field.listType === 'array-time' || field.listType === 'array-number') && 2 <= field.searchType &&  field.searchType <= 5) { -%>
-    <%= field.name.lowerCamelName %>: searchCondition.<%= field.name.lowerCamelName %>.enabled ? [searchCondition.<%= field.name.lowerCamelName %>.value] : undefined,
-    <%= field.name.lowerCamelName %>From: searchCondition.<%= field.name.lowerCamelName %>From.enabled ? searchCondition.<%= field.name.lowerCamelName %>From.value : undefined,
-    <%= field.name.lowerCamelName %>To: searchCondition.<%= field.name.lowerCamelName %>To.enabled ? searchCondition.<%= field.name.lowerCamelName %>To.value : undefined,
+    <%= field.name.lowerCamelName %>: searchCondition.<%= field.name.lowerCamelName %> ? [searchCondition.<%= field.name.lowerCamelName %>] : undefined,
+    <%= field.name.lowerCamelName %>From: searchCondition.<%= field.name.lowerCamelName %>From || undefined,
+    <%= field.name.lowerCamelName %>To: searchCondition.<%= field.name.lowerCamelName %>To || undefined,
     <%_ } -%>
   <%_ }) -%>
     limit: pageInfo.itemsPerPage !== -1 ? pageInfo.itemsPerPage : undefined,
 <%_ if (project.dbType === 'datastore') { -%>
     cursor: pageInfo.page !== 1 ? pageInfo.cursors[pageInfo.page - 2] : undefined,
-    orderBy: pageInfo.sortBy.map((sb: string, i: number) => `${(pageInfo.sortDesc)[i] ? '-' : ''}${sb}`).join(',') || undefined
+    orderBy: pageInfo.sortBy.map((sb, i) => `${(pageInfo.sortDesc)[i] ? '-' : ''}${sb}`).join(',') || undefined
 <%_ } else { -%>
     offset: (pageInfo.page - 1) * pageInfo.itemsPerPage,
-    orderBy: pageInfo.sortBy.map((sb: string, i: number) => `${sb} ${(pageInfo.sortDesc)[i] ? 'desc' : 'asc'}`).join(',') || undefined
+    orderBy: pageInfo.sortBy.map((sb, i) => `${sb} ${(pageInfo.sortDesc)[i] ? 'desc' : 'asc'}`).join(',') || undefined
 <%_ } -%>
   }).then(res => res.data)
 }

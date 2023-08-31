@@ -71,11 +71,11 @@ const isSearchFormOpen = ref<boolean>(false)
 
 const previewSearchCondition = computed(() => {
   const previewSearchConditions = []
-  for (const [key, value] of Object.entries(props.searchCondition)) {
-    if (!value.enabled) {
+  for (const [key, value] of Object.entries(this.syncedSearchCondition)) {
+    if (!value) {
       continue
     }
-    previewSearchConditions.push(`${key}=${value.value}`)
+    previewSearchConditions.push(`${key}=${value}`)
   }
   return previewSearchConditions.join(', ')
 })

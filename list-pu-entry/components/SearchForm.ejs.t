@@ -31,27 +31,26 @@ import {cloneDeep} from 'lodash-es'
 import DateTimeForm from '@/components/form/DateTimeForm.vue'
 <%_ } -%>
 
-<%_ if (searchConditions.length > 0) { -%>
 export interface <%= struct.name.pascalName %>SearchCondition {
   <%_ searchConditions.forEach(function(searchCondition) { -%>
     <%_ if (searchCondition.type === 'string' && !searchCondition.range) { -%>
-  <%= searchCondition.name %>: SingleSearchCondition<<%= searchCondition.type %>>
+  <%= searchCondition.name %>?: <%= searchCondition.type %>
     <%_ } -%>
     <%_ if (searchCondition.type === 'boolean' && !searchCondition.range) { -%>
-  <%= searchCondition.name %>: SingleSearchCondition<<%= searchCondition.type %>>
+  <%= searchCondition.name %>?: <%= searchCondition.type %>
     <%_ } -%>
     <%_ if (searchCondition.type === 'number' && !searchCondition.range) { -%>
-  <%= searchCondition.name %>: SingleSearchCondition<<%= searchCondition.type %>>
+  <%= searchCondition.name %>?: <%= searchCondition.type %>
     <%_ } -%>
     <%_ if (searchCondition.type === 'number' && searchCondition.range) { -%>
-  <%= searchCondition.name %>: SingleSearchCondition<<%= searchCondition.type %>>
-  <%= searchCondition.name %>From: SingleSearchCondition<<%= searchCondition.type %>>
-  <%= searchCondition.name %>To: SingleSearchCondition<<%= searchCondition.type %>>
+  <%= searchCondition.name %>?: <%= searchCondition.type %>
+  <%= searchCondition.name %>From?: <%= searchCondition.type %>
+  <%= searchCondition.name %>To?: <%= searchCondition.type %>
     <%_ } -%>
     <%_ if (searchCondition.type === 'string' && searchCondition.range) { -%>
-  <%= searchCondition.name %>: SingleSearchCondition<<%= searchCondition.type %>>
-  <%= searchCondition.name %>From: SingleSearchCondition<<%= searchCondition.type %>>
-  <%= searchCondition.name %>To: SingleSearchCondition<<%= searchCondition.type %>>
+  <%= searchCondition.name %>?: <%= searchCondition.type %>
+  <%= searchCondition.name %>From?: <%= searchCondition.type %>
+  <%= searchCondition.name %>To?: <%= searchCondition.type %>
     <%_ } -%>
   <%_ }) -%>
 }
@@ -59,28 +58,25 @@ export interface <%= struct.name.pascalName %>SearchCondition {
 export const INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION: <%= struct.name.pascalName %>SearchCondition = {
   <%_ searchConditions.forEach(function(searchCondition) { -%>
     <%_ if (searchCondition.type === 'string' && !searchCondition.range) { -%>
-  <%= searchCondition.name %>: {enabled: false, value: ''},
+  <%= searchCondition.name %>: undefined,
     <%_ } -%>
     <%_ if (searchCondition.type === 'boolean' && !searchCondition.range) { -%>
-  <%= searchCondition.name %>: {enabled: false, value: false},
+  <%= searchCondition.name %>: undefined,
     <%_ } -%>
     <%_ if (searchCondition.type === 'number' && !searchCondition.range) { -%>
-  <%= searchCondition.name %>: {enabled: false, value: 0},
+  <%= searchCondition.name %>: undefined,
     <%_ } -%>
     <%_ if (searchCondition.type === 'number' && searchCondition.range) { -%>
-  <%= searchCondition.name %>: {enabled: false, value: 0},
-  <%= searchCondition.name %>From: {enabled: false, value: 0},
-  <%= searchCondition.name %>To: {enabled: false, value: 0},
+  <%= searchCondition.name %>: undefined,
+  <%= searchCondition.name %>From: undefined,
+  <%= searchCondition.name %>To: undefined,
     <%_ } -%>
     <%_ if (searchCondition.type === 'string' && searchCondition.range) { -%>
-  <%= searchCondition.name %>: {enabled: false, value: ''},
-  <%= searchCondition.name %>From: {enabled: false, value: ''},
-  <%= searchCondition.name %>To: {enabled: false, value: ''},
+  <%= searchCondition.name %>: undefined,
+  <%= searchCondition.name %>From: undefined,
+  <%= searchCondition.name %>To: undefined,
     <%_ } -%>
   <%_ }) -%>
-}
-<%_ } else { -%>
-export interface <%= struct.name.pascalName %>SearchCondition extends BaseSearchCondition {
 }
 
 export const INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION: <%= struct.name.pascalName %>SearchCondition = {}
