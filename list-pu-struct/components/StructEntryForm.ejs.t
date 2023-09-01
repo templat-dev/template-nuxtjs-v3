@@ -40,13 +40,13 @@ import <%= field.structName.pascalName %>DataTable from '@/components/<%= field.
 <%_ importStructTableSet.add(field.structName.pascalName) -%>
 <%_ } -%>
 <%_ if (!importStructFormSet.has(field.structName.pascalName)) { -%>
-import <%= field.structName.pascalName %>EntryForm, {INITIAL_<%= field.structName.upperSnakeName %>} from '@/components/<%= field.structName.lowerCamelName %>/<%= field.structName.pascalName %>EntryForm.vue'
+import {INITIAL_<%= field.structName.upperSnakeName %>} from '@/types/<%= field.structName.pascalName %>Type'
 <%_ importStructFormSet.add(field.structName.pascalName) -%>
 <%_ } -%>
 <%_ } -%>
 <%_ if (field.editType === 'struct') { -%>
 <%_ if (!importStructFormSet.has(field.structName.pascalName)) { -%>
-import <%= field.structName.pascalName %>EntryForm, {INITIAL_<%= field.structName.upperSnakeName %>} from '@/components/<%= field.structName.lowerCamelName %>/<%= field.structName.pascalName %>EntryForm.vue'
+import {INITIAL_<%= field.structName.upperSnakeName %>} from '@/types/<%= field.structName.pascalName %>Type'
 <%_ importStructFormSet.add(field.structName.pascalName) -%>
 <%_ } -%>
 <%_ } -%>
@@ -133,7 +133,7 @@ const save = async () => {
 <%_ if (!struct.exists.edit.struct) { -%>
   if (!<%= struct.name.lowerCamelName %>Form.value.validate()) {
 <%_ } else { -%>
-    if (!<%= struct.name.lowerCamelName %>Form.value.validate())
+    if (!<%= struct.name.lowerCamelName %>Form.value.validate()
 <%_ struct.fields.forEach(function (field, key) { -%>
   <%_ if (field.editType === 'struct') { -%>
     || valid<%= field.name.pascalName %>Form.validate() === false
