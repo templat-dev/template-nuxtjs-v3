@@ -6,7 +6,7 @@ import {cloneDeep} from 'lodash-es'
 import {Model<%= struct.name.pascalName %>} from '@/apis'
 import {DataTablePageInfo, INITIAL_DATA_TABLE_PAGE_INFO} from '@/types/DataTableType'
 <%_ if (struct.screenType !== 'struct') { -%>
-import <%= struct.name.pascalName %>SearchForm, {
+import {
   <%= struct.name.pascalName %>SearchCondition,
   INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION
 } from '@/types/<%= struct.name.pascalName %>Type'
