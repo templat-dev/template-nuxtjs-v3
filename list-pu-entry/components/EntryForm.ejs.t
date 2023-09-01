@@ -133,7 +133,7 @@ const save = async () => {
 <%_ if (!struct.exists.edit.struct) { -%>
   if (!<%= struct.name.lowerCamelName %>Form.value.validate()) {
 <%_ } else { -%>
-    if (!<%= struct.name.lowerCamelName %>Form.value.validate())
+    if (!<%= struct.name.lowerCamelName %>Form.value.validate()
 <%_ struct.fields.forEach(function (field, key) { -%>
   <%_ if (field.editType === 'struct') { -%>
     || valid<%= field.name.pascalName %>Form.validate() === false
