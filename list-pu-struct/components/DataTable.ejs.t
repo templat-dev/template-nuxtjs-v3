@@ -4,12 +4,12 @@ to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct
 <script setup lang="ts">
 import {cloneDeep} from 'lodash-es'
 import {Model<%= struct.name.pascalName %>} from '@/apis'
-import {DataTablePageInfo, INITIAL_DATA_TABLE_PAGE_INFO} from "~/types/dataTable";
-<%_ if (struct.structType !== 'struct') { -%>
+import {DataTablePageInfo, INITIAL_DATA_TABLE_PAGE_INFO} from '@/types/DataTableType'
+<%_ if (struct.screenType !== 'struct') { -%>
 import <%= struct.name.pascalName %>SearchForm, {
   <%= struct.name.pascalName %>SearchCondition,
   INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION
-} from '@/components/<%= struct.name.lowerCamelName %>/<%= struct.name.pascalName %>SearchForm.vue'
+} from '@/types/<%= struct.name.pascalName %>Type'
 <%_ } -%>
 
 /** ヘッダー定義 */

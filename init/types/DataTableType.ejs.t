@@ -1,5 +1,5 @@
 ---
-to: <%= rootDirectory %>/types/dataTable.ts
+to: <%= rootDirectory %>/types/DataTableType.ts
 force: true
 ---
 export interface DataTablePageInfo {
@@ -7,6 +7,10 @@ export interface DataTablePageInfo {
   page: number
   /** ページサイズ (全件指定時は-1) */
   itemsPerPage: number
+<%_ if (project.dbType === 'datastore') { -%>
+  /** ページング用のcursor配列 */
+  cursors: string[]
+<%_ } -%>
   /** ソートカラム配列 */
   sortBy: string[]
   /** ソート順序配列 */
@@ -16,6 +20,9 @@ export interface DataTablePageInfo {
 export const INITIAL_DATA_TABLE_PAGE_INFO: DataTablePageInfo = {
   page: 1,
   itemsPerPage: 30,
+<%_ if (project.dbType === 'datastore') { -%>
+  cursors: [],
+<%_ } -%>
   sortBy: [],
   sortDesc: [],
 }

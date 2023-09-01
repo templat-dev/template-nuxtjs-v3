@@ -29,55 +29,11 @@ to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct
 import {cloneDeep} from 'lodash-es'
 <%_ if (importDateTime) { -%>
 import DateTimeForm from '@/components/form/DateTimeForm.vue'
+import {
+  <%= struct.name.pascalName %>SearchCondition,
+  INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION
+} from '@/types/<%= struct.name.pascalName %>Type'
 <%_ } -%>
-
-export interface <%= struct.name.pascalName %>SearchCondition {
-  <%_ searchConditions.forEach(function(searchCondition) { -%>
-    <%_ if (searchCondition.type === 'string' && !searchCondition.range) { -%>
-  <%= searchCondition.name %>?: <%= searchCondition.type %>
-    <%_ } -%>
-    <%_ if (searchCondition.type === 'boolean' && !searchCondition.range) { -%>
-  <%= searchCondition.name %>?: <%= searchCondition.type %>
-    <%_ } -%>
-    <%_ if (searchCondition.type === 'number' && !searchCondition.range) { -%>
-  <%= searchCondition.name %>?: <%= searchCondition.type %>
-    <%_ } -%>
-    <%_ if (searchCondition.type === 'number' && searchCondition.range) { -%>
-  <%= searchCondition.name %>?: <%= searchCondition.type %>
-  <%= searchCondition.name %>From?: <%= searchCondition.type %>
-  <%= searchCondition.name %>To?: <%= searchCondition.type %>
-    <%_ } -%>
-    <%_ if (searchCondition.type === 'string' && searchCondition.range) { -%>
-  <%= searchCondition.name %>?: <%= searchCondition.type %>
-  <%= searchCondition.name %>From?: <%= searchCondition.type %>
-  <%= searchCondition.name %>To?: <%= searchCondition.type %>
-    <%_ } -%>
-  <%_ }) -%>
-}
-
-export const INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION: <%= struct.name.pascalName %>SearchCondition = {
-  <%_ searchConditions.forEach(function(searchCondition) { -%>
-    <%_ if (searchCondition.type === 'string' && !searchCondition.range) { -%>
-  <%= searchCondition.name %>: undefined,
-    <%_ } -%>
-    <%_ if (searchCondition.type === 'boolean' && !searchCondition.range) { -%>
-  <%= searchCondition.name %>: undefined,
-    <%_ } -%>
-    <%_ if (searchCondition.type === 'number' && !searchCondition.range) { -%>
-  <%= searchCondition.name %>: undefined,
-    <%_ } -%>
-    <%_ if (searchCondition.type === 'number' && searchCondition.range) { -%>
-  <%= searchCondition.name %>: undefined,
-  <%= searchCondition.name %>From: undefined,
-  <%= searchCondition.name %>To: undefined,
-    <%_ } -%>
-    <%_ if (searchCondition.type === 'string' && searchCondition.range) { -%>
-  <%= searchCondition.name %>: undefined,
-  <%= searchCondition.name %>From: undefined,
-  <%= searchCondition.name %>To: undefined,
-    <%_ } -%>
-  <%_ }) -%>
-}
 
 interface Props {
   /** 表示状態 (true: 表示, false: 非表示) */

@@ -53,28 +53,6 @@ import <%= field.structName.pascalName %>EntryForm, {INITIAL_<%= field.structNam
 <%_ }) -%>
 import {NEW_INDEX} from '@/constants/appConstants'
 
-export const INITIAL_<%= struct.name.upperSnakeName %>: Model<%= struct.name.pascalName %> = {
-<%_ if (struct.fields) { -%>
-<%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if (field.editType === 'struct') { -%>
-  <%= field.name.lowerCamelName %>: INITIAL_<%= field.structName.upperSnakeName %>,
-  <%_ } -%>
-  <%_ if (field.editType.startsWith('array')) { -%>
-  <%= field.name.lowerCamelName %>: [],
-  <%_ } -%>
-  <%_ if (field.editType === 'string' || field.editType === 'textarea' || field.editType === 'time') { -%>
-  <%= field.name.lowerCamelName %>: undefined,
-  <%_ } -%>
-  <%_ if (field.editType === 'bool') { -%>
-  <%= field.name.lowerCamelName %>: undefined,
-  <%_ } -%>
-  <%_ if (field.editType === 'number') { -%>
-  <%= field.name.lowerCamelName %>: undefined,
-  <%_ } -%>
-<%_ }) -%>
-<%_ } -%>
-}
-
 interface Props {
   /** 表示状態 (true: 表示, false: 非表示) */
   open: boolean

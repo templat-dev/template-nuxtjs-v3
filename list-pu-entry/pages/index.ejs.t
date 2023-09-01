@@ -22,12 +22,12 @@ to: "<%= struct.generateEnable ? `${rootDirectory}/pages/${struct.name.lowerCame
 <%_ }) -%>
 import {cloneDeep} from 'lodash-es'
 import {<%= struct.name.pascalName %>Api, Model<%= struct.name.pascalName %>, Model<%= struct.name.pascalPluralName %>} from '@/apis'
-import {DataTablePageInfo, INITIAL_DATA_TABLE_PAGE_INFO} from "~/types/dataTable";
+import {DataTablePageInfo, INITIAL_DATA_TABLE_PAGE_INFO} from "~/types/DataTableType";
 import {
+  INITIAL_<%= struct.name.upperSnakeName %>,
   <%= struct.name.pascalName %>SearchCondition,
   INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION
-} from '@/components/<%= struct.name.pascalName %>/<%= struct.name.pascalName %>SearchForm.vue'
-import <%= struct.name.pascalName %>EntryForm, {INITIAL_<%= struct.name.upperSnakeName %>} from '@/components/<%= struct.name.pascalName %>/<%= struct.name.pascalName %>EntryForm.vue'
+} from '@/types/<%= struct.name.pascalName %>Type'
 import {useAppLoading} from "~/composables/useLoading"
 import {useAppSnackbar} from "~/composables/useSnackbar"
 import {useAppDialog} from "~/composables/useDialog";
