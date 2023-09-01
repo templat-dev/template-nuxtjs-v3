@@ -55,13 +55,14 @@ const props = withDefaults(defineProps<Props>(), {
   totalCount: undefined,
   isLoading: false,
 <%_ if (struct.structType !== 'struct') { -%>
-  searchCondition: cloneDeep(INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION),
+  searchCondition: (props: Props) => cloneDeep(INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION),
   hasParent: false,
 <%_ } -%>
 })
 
 interface Emits {
-  (e: "update:pageInfo"): void;
+  (e: "changed:pageInfo"): void;
+  (e: "update:pageInfo", pageInfo: DataTablePageInfo): void;
 <%_ if (struct.structType !== 'struct') { -%>
   (e: "update:searchCondition", searchCondition: <%= struct.name.pascalName %>SearchCondition): void;
 <%_ } -%>
@@ -69,6 +70,11 @@ interface Emits {
   (e: "remove", item: Model<%= struct.name.pascalName %>): void;
 }
 const emit = defineEmits<Emits>()
+
+const currentPageInfo = computed({
+  get: () => props.pageInfo,
+  set: (v) => emit('update:pageInfo', v)
+})
 
 <%_ if (struct.structType !== 'struct') { -%>
 
@@ -88,7 +94,7 @@ const previewSearchCondition = computed(() => {
 <%_ } -%>
 
 const onChangePageInfo = () => {
-  emit('update:pageInfo')
+  emit('changed:pageInfo')
 }
 <%_ if (struct.structType !== 'struct') { -%>
 
@@ -113,7 +119,7 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
       :is-loading="isLoading"
       :items="items || []"
       :items-per-page="pageInfo.itemsPerPage"
-      v-model:page-info="pageInfo"
+      v-model:page-info="currentPageInfo"
       :total-count="totalCount"
       loading-text="読み込み中"
       no-data-text="該当データ無し"
