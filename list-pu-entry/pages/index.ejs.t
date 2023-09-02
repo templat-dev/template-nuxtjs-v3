@@ -69,7 +69,7 @@ const fetch = async (
     : { searchCondition: <%= struct.name.pascalName %>SearchCondition, pageInfo: DataTablePageInfo }
     = {searchCondition: INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION, pageInfo: INITIAL_DATA_TABLE_PAGE_INFO}
 ): Promise<Model<%= struct.name.pascalPluralName %>> => {
-  return await <%= struct.name.lowerCamelName %>Api().search<%= struct.name.pascalName %>({
+  return await <%= struct.name.lowerCamelName %>Api.search<%= struct.name.pascalName %>({
   <%_ struct.fields.forEach(function(field, index){ -%>
 <%#_ 通常の検索 -%>
     <%_ if ((field.listType === 'string' || field.listType === 'time' || field.listType === 'bool' || field.listType === 'number')  && field.searchType === 1) { -%>
