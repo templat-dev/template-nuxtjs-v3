@@ -29,11 +29,11 @@ to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct
 import {cloneDeep} from 'lodash-es'
 <%_ if (importDateTime) { -%>
 import DateTimeForm from '@/components/form/DateTimeForm.vue'
+<%_ } -%>
 import {
   <%= struct.name.pascalName %>SearchCondition,
   INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION
 } from '@/types/<%= struct.name.pascalName %>Type'
-<%_ } -%>
 
 interface Props {
   /** 表示状態 (true: 表示, false: 非表示) */
@@ -61,6 +61,11 @@ watch(open, (open) => {
   }
 })
 
+const currentOpen = computed({
+  get: () => props.open,
+  set: (v) => emit('update:open', v)
+})
+
 const clear = () => {
   searchCondition.value = cloneDeep(INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION)
   search()
@@ -77,7 +82,7 @@ const search = () => {
 </script>
 
 <template>
-  <v-dialog v-model="open" max-width="800px">
+  <v-dialog v-model="currentOpen" max-width="800px">
     <v-card :elevation="0">
       <v-card-title><%= struct.screenLabel || struct.name.pascalName %>検索</v-card-title>
       <v-card-text>
