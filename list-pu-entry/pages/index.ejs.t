@@ -61,12 +61,15 @@ const editTarget = ref<Model<%= struct.name.pascalName %> | null>(null)
 /** 編集対象のインデックス */
 const editIndex = ref<number>(0)
 
+const { $api } = useNuxtApp()
+const <%= struct.name.lowerCamelNam %>Api = $api.<%= struct.name.lowerCamelNam %>Api()
+
 const fetch = async (
   {searchCondition = INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION, pageInfo = INITIAL_DATA_TABLE_PAGE_INFO}
     : { searchCondition: <%= struct.name.pascalName %>SearchCondition, pageInfo: DataTablePageInfo }
     = {searchCondition: INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION, pageInfo: INITIAL_DATA_TABLE_PAGE_INFO}
 ): Promise<Model<%= struct.name.pascalPluralName %>> => {
-  return await new <%= struct.name.pascalName %>Api().search<%= struct.name.pascalName %>({
+  return await <%= struct.name.lowerCamelNam %>Api().search<%= struct.name.pascalName %>({
   <%_ struct.fields.forEach(function(field, index){ -%>
 <%#_ 通常の検索 -%>
     <%_ if ((field.listType === 'string' || field.listType === 'time' || field.listType === 'bool' || field.listType === 'number')  && field.searchType === 1) { -%>
