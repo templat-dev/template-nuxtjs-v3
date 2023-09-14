@@ -8,7 +8,7 @@ import {useAppSnackbar} from "~/composables/useSnackbar"
 import {useAppDialog} from "~/composables/useDialog";
 import {NEW_INDEX} from '@/constants/appConstants'
 import {cloneDeep} from "lodash-es";
-import {INITIAL_<%= struct.name.upperSnakeName %>} from "~/types/CountryType";
+import {INITIAL_<%= struct.name.upperSnakeName %>} from "~/types/<%= struct.name.pascalName %>Type";
 
 const loading = useAppLoading()
 const snackbar = useAppSnackbar()
@@ -16,7 +16,7 @@ const dialog = useAppDialog()
 
 /** 編集対象 */
 const editTarget = ref<Model<%= struct.name.pascalName %> | null>(null)
-const countryID = ref<number>(NEW_INDEX)
+const <%= struct.name.pascalName %>ID = ref<number>(NEW_INDEX)
 
 const { $api } = useNuxtApp()
 const <%= struct.name.lowerCamelName %>Api = $api.<%= struct.name.lowerCamelName %>Api()
@@ -35,7 +35,7 @@ onMounted(async () => {
   }
 })
 
-const remove = async(countryID: number) => {
+const remove = async(<%= struct.name.lowerCamelName %>ID: number) => {
   dialog.showDialog({
     title: '削除確認',
     message: '削除してもよろしいですか？',
