@@ -165,7 +165,7 @@ const remove = async(index: number) => {
       @onChangePageInfo="reFetch"
       @update:items-per-page="handleItemPerPage"
       @onChangeSearch="reFetch"
-      @openEntryForm="navigateEntryForm"
+      @click:row="navigateEntryForm"
       @remove="removeRow"
     ></<%= struct.name.lowerCamelName %>-data-table>
   </v-layout>

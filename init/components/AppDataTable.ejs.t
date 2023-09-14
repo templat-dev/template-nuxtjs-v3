@@ -4,7 +4,7 @@ force: true
 ---
 <script setup lang="ts" generic="I, S">
 import appUtils from '@/utils/appUtils'
-import {DataTablePageInfo, INITIAL_DATA_TABLE_PAGE_INFO} from "~/types/dataTable";
+import {DataTablePageInfo, DEFAULT_FOOTER_PROPS} from "~/types/DataTableType"
 
 interface Props {
   /** ヘッダー定義 */

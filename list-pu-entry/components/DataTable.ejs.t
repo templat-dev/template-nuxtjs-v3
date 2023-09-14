@@ -46,7 +46,7 @@ interface Props {
   /** 検索条件 */
   searchCondition: <%= struct.name.pascalName %>SearchCondition
   /** 表示方式 (true: 子要素として表示, false: 親要素として表示) */
-  hasParent: boolean
+  hasParent?: boolean
 <%_ } -%>
 }
 const props = withDefaults(defineProps<Props>(), {
@@ -67,7 +67,7 @@ interface Emits {
 <%_ if (struct.structType !== 'struct') { -%>
   (e: "update:searchCondition", searchCondition: <%= struct.name.pascalName %>SearchCondition): void;
 <%_ } -%>
-  (e: "openEntryForm", item?: Model<%= struct.name.pascalName %>): void;
+  (e: "click:row", item?: Model<%= struct.name.pascalName %>): void;
   (e: "remove", item: Model<%= struct.name.pascalName %>): void;
 }
 const emit = defineEmits<Emits>()
@@ -110,7 +110,7 @@ const search = (searchCondition: <%= struct.name.pascalName %>SearchCondition) =
 <%_ } -%>
 
 const openEntryForm = (item?: Model<%= struct.name.pascalName %>) => {
-  emit('openEntryForm', item)
+  emit('click:row', item)
 }
 
 const remove = (item: Model<%= struct.name.pascalName %>) => {
@@ -147,8 +147,14 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
           </template>
 <%_ } -%>
           <v-spacer></v-spacer>
-          <v-btn class="action-button" color="primary" dark fab right small top @click="openEntryForm()">
-            <v-icon>mdi-plus</v-icon>
+          <v-btn
+            density="compact"
+            icon="mdi-plus"
+            color="primary"
+            size="x-large"
+            flat
+            @click="openEntryForm()"
+          >
           </v-btn>
         </v-toolbar>
       </template>
@@ -212,8 +218,9 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
 <%_ if (struct.structType !== 'struct') { -%>
     <<%= struct.name.lowerCamelName %>-search-form
       :current-search-condition="searchCondition"
-      :open.sync="isSearchFormOpen"
+      :open="isSearchFormOpen"
       @search="search"
+      @update:open="isSearchFormOpen = $event"
     ></<%= struct.name.lowerCamelName %>-search-form>
 <%_ } -%>
   </div>
