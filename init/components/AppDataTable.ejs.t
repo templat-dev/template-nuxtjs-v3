@@ -85,6 +85,9 @@ const openEntryForm = (item: I) => {
 </template>
 
 <style scoped>
+.data-table {
+  width: 900px;
+}
 .data-table >>> tbody tr:not(.v-data-table__empty-wrapper) {
   cursor: pointer;
 }
