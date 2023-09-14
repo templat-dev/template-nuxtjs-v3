@@ -77,7 +77,7 @@ const openEntryForm = (item: I) => {
     :sort-by.sync="pageInfo.sortBy"
     :sort-desc.sync="pageInfo.sortDesc"
     class="data-table"
-    @click:row="item => openEntryForm(item)"
+    @click:row="(event: Event, item: any) => openEntryForm(item.item.raw)"
     @update:page="handleChangePageInfo()"
     @update:items-per-page="handleItemPerPage"
     @update:sort-by="handleChangePageInfo('sortBy')"
