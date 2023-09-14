@@ -163,6 +163,7 @@ const remove = async(index: number) => {
       :total-count="totalCount"
       class="elevation-1"
       @onChangePageInfo="reFetch"
+      @update:items-per-page="handleItemPerPage"
       @onChangeSearch="reFetch"
       @openEntryForm="navigateEntryForm"
       @remove="removeRow"

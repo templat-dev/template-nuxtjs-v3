@@ -31,6 +31,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 interface Emits {
   (e: "reFetch"): void
+  (e: "update:itemsPerPage", count: number): void
   (e: "openEntryForm", item: I): void
 }
 const emit = defineEmits<Emits>()
@@ -54,6 +55,10 @@ const handleChangePageInfo = async (event?: string) => {
   emit('reFetch')
 }
 
+const handleItemPerPage = (itemsPerPage: number) => {
+  emit('update:itemsPerPage', itemsPerPage)
+}
+
 const openEntryForm = (item: I) => {
   emit('openEntryForm', item)
 }
@@ -74,7 +79,7 @@ const openEntryForm = (item: I) => {
     class="data-table"
     @click:row="item => openEntryForm(item)"
     @update:page="handleChangePageInfo()"
-    @update:items-per-page="handleChangePageInfo()"
+    @update:items-per-page="handleItemPerPage"
     @update:sort-by="handleChangePageInfo('sortBy')"
     @update:sort-desc="handleChangePageInfo('sortDesc')"
   >

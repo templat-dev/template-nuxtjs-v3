@@ -63,6 +63,7 @@ const props = withDefaults(defineProps<Props>(), {
 interface Emits {
   (e: "changed:pageInfo"): void;
   (e: "update:pageInfo", pageInfo: DataTablePageInfo): void;
+  (e: "update:itemsPerPage", itemsPerPage: number): void;
 <%_ if (struct.structType !== 'struct') { -%>
   (e: "update:searchCondition", searchCondition: <%= struct.name.pascalName %>SearchCondition): void;
 <%_ } -%>
@@ -96,6 +97,11 @@ const previewSearchCondition = computed(() => {
 const onChangePageInfo = () => {
   emit('changed:pageInfo')
 }
+
+const handleItemPerPage = (itemsPerPage: number) => {
+  emit('update:itemsPerPage', itemsPerPage)
+}
+
 <%_ if (struct.structType !== 'struct') { -%>
 
 const search = (searchCondition: <%= struct.name.pascalName %>SearchCondition) => {
@@ -113,8 +119,8 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
 </script>
 
 <template>
-  <v-flex>
-    <app-data-table
+  <div>
+    <common-app-data-table
       :headers="headers"
       :is-loading="isLoading"
       :items="items || []"
@@ -123,8 +129,10 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
       :total-count="totalCount"
       loading-text="読み込み中"
       no-data-text="該当データ無し"
-      @onChangePageInfo="onChangePageInfo"
-      @openEntryForm="openEntryForm">
+      @re-fetch="onChangePageInfo"
+      @update:items-per-page="handleItemPerPage"
+      @click:row="openEntryForm"
+    >
       <!-- ヘッダー -->
       <template #top>
         <v-toolbar color="white" flat>
@@ -198,11 +206,9 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
 <%_ } -%>
       <!-- 行操作列 -->
       <template #item.action="{ item }">
-        <v-btn icon @click.stop="remove(item)">
-          <v-icon>mdi-delete</v-icon>
-        </v-btn>
+        <v-btn icon="mdi-delete" flat @click="remove(item)"/>
       </template>
-    </app-data-table>
+    </common-app-data-table>
 <%_ if (struct.structType !== 'struct') { -%>
     <<%= struct.name.lowerCamelName %>-search-form
       :current-search-condition="searchCondition"
@@ -210,7 +216,7 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
       @search="search"
     ></<%= struct.name.lowerCamelName %>-search-form>
 <%_ } -%>
-  </v-flex>
+  </div>
 </template>
 
 <style scoped>
