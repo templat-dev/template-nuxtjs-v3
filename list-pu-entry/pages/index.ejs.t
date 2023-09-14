@@ -24,14 +24,12 @@ import {cloneDeep} from 'lodash-es'
 import {<%= struct.name.pascalName %>Api, Model<%= struct.name.pascalName %>, Model<%= struct.name.pascalPluralName %>} from '@/apis'
 import {DataTablePageInfo, DataTableSortItem, INITIAL_DATA_TABLE_PAGE_INFO} from "~/types/DataTableType";
 import {
-  INITIAL_<%= struct.name.upperSnakeName %>,
   <%= struct.name.pascalName %>SearchCondition,
   INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION
 } from '@/types/<%= struct.name.pascalName %>Type'
 import {useAppLoading} from "~/composables/useLoading"
 import {useAppSnackbar} from "~/composables/useSnackbar"
 import {useAppDialog} from "~/composables/useDialog";
-import {NEW_INDEX} from '@/constants/appConstants'
 
 const loading = useAppLoading()
 const snackbar = useAppSnackbar()
@@ -51,15 +49,6 @@ const isLoading = ref<boolean>(false)
 
 /** 検索条件 */
 const searchCondition = ref<<%= struct.name.pascalName %>SearchCondition>(cloneDeep(INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION))
-
-/** 入力フォームの表示表示状態 (true: 表示, false: 非表示) */
-const isEntryFormOpen = ref<boolean>(false)
-
-/** 編集対象 */
-const editTarget = ref<Model<%= struct.name.pascalName %> | null>(null)
-
-/** 編集対象のインデックス */
-const editIndex = ref<number>(0)
 
 const { $api } = useNuxtApp()
 const <%= struct.name.lowerCamelName %>Api = $api.<%= struct.name.lowerCamelName %>Api()
@@ -113,6 +102,10 @@ onMounted(async () => {
   pageInfo.value = pi || 0
 })
 
+const handleItemPerPage = (itemsPerPage: number) => {
+  pageInfo.value.itemsPerPage = itemsPerPage
+}
+
 const reFetch = async () => {
   loading.isLoading = true
   try {
@@ -132,24 +125,13 @@ const reFetch = async () => {
   }
 }
 
-const openEntryForm = (target?: Model<%= struct.name.pascalName %>) => {
-  if (!!target) {
-    editTarget.value = cloneDeep(target)
-    editIndex.value = <%= struct.name.lowerCamelPluralName %>.value.indexOf(target)
-  } else {
-    editTarget.value = cloneDeep(INITIAL_<%= struct.name.upperSnakeName %>)
-    editIndex.value = NEW_INDEX
-  }
-  isEntryFormOpen.value = true
+const navigateEntryForm = (target?: Model<%= struct.name.pascalName %>) => {
+  navigateTo(`/<%= struct.name.lowerCamelName %>/${target?.id || 'new'}`)
 }
 
 const removeRow = (item: Model<%= struct.name.pascalName %>) => {
   const index = <%= struct.name.lowerCamelPluralName %>.value.indexOf(item)
   remove(index)
-}
-
-const removeForm = () => {
-  remove(editIndex.value)
 }
 
 const remove = async(index: number) => {
@@ -161,7 +143,6 @@ const remove = async(index: number) => {
       loading.showLoading()
       try {
         await new <%= struct.name.pascalName %>Api().delete<%= struct.name.pascalName %>({id: <%= struct.name.lowerCamelPluralName %>.value[index].id!})
-        isEntryFormOpen.value = false
         await reFetch()
       } finally {
         loading.hideLoading()
@@ -183,19 +164,9 @@ const remove = async(index: number) => {
       class="elevation-1"
       @onChangePageInfo="reFetch"
       @onChangeSearch="reFetch"
-      @openEntryForm="openEntryForm"
+      @openEntryForm="navigateEntryForm"
       @remove="removeRow"
     ></<%= struct.name.lowerCamelName %>-data-table>
-    <v-dialog v-if="editTarget" v-model="isEntryFormOpen" max-width="800px" persistent>
-      <<%= struct.name.lowerCamelName %>-entry-form
-        :dialog="true"
-        :is-new="editIndex === NEW_INDEX"
-        v-model:open="isEntryFormOpen"
-        v-model:target="editTarget"
-        @remove="removeForm"
-        @updated="reFetch"
-      ></<%= struct.name.lowerCamelName %>-entry-form>
-    </v-dialog>
   </v-layout>
 </template>
 
