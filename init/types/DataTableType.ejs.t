@@ -2,6 +2,12 @@
 to: <%= rootDirectory %>/types/DataTableType.ts
 force: true
 ---
+export interface DataTableSortItem {
+  /** ソートカラム */
+  key: string
+  /** ソート順序 */
+  order: 'asc' | 'desc'
+}
 export interface DataTablePageInfo {
   /** ページ番号 (初期ページは1) */
   page: number
@@ -12,9 +18,7 @@ export interface DataTablePageInfo {
   cursors: string[]
 <%_ } -%>
   /** ソートカラム配列 */
-  sortBy: string[]
-  /** ソート順序配列 */
-  sortDesc: boolean[]
+  sortBy: DataTableSortItem[]
 }
 
 export const INITIAL_DATA_TABLE_PAGE_INFO: DataTablePageInfo = {
@@ -24,7 +28,6 @@ export const INITIAL_DATA_TABLE_PAGE_INFO: DataTablePageInfo = {
   cursors: [],
 <%_ } -%>
   sortBy: [],
-  sortDesc: [],
 }
 
 export const DEFAULT_FOOTER_PROPS = {
