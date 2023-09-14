@@ -22,7 +22,7 @@ to: "<%= struct.generateEnable ? `${rootDirectory}/pages/${struct.name.lowerCame
 <%_ }) -%>
 import {cloneDeep} from 'lodash-es'
 import {<%= struct.name.pascalName %>Api, Model<%= struct.name.pascalName %>, Model<%= struct.name.pascalPluralName %>} from '@/apis'
-import {DataTablePageInfo, INITIAL_DATA_TABLE_PAGE_INFO} from "~/types/DataTableType";
+import {DataTablePageInfo, DataTableSortItem, INITIAL_DATA_TABLE_PAGE_INFO} from "~/types/DataTableType";
 import {
   INITIAL_<%= struct.name.upperSnakeName %>,
   <%= struct.name.pascalName %>SearchCondition,
@@ -92,25 +92,25 @@ const fetch = async (
     limit: pageInfo.itemsPerPage !== -1 ? pageInfo.itemsPerPage : undefined,
 <%_ if (project.dbType === 'datastore') { -%>
     cursor: pageInfo.page !== 1 ? pageInfo.cursors[pageInfo.page - 2] : undefined,
-    orderBy: pageInfo.sortBy.map((sb: string, i: number) => `${(pageInfo.sortDesc)[i] ? '-' : ''}${sb}`).join(',') || undefined
+    orderBy: pageInfo.sortBy.map((sb: DataTableSortItem, i: number) => `${sb.key ? '-' : ''}${sb.order}`).join(',') || undefined
 <%_ } else { -%>
     offset: (pageInfo.page - 1) * pageInfo.itemsPerPage,
-    orderBy: pageInfo.sortBy.map((sb: string, i: number) => `${sb} ${(pageInfo.sortDesc)[i] ? 'desc' : 'asc'}`).join(',') || undefined
+    orderBy: pageInfo.sortBy.map((sb: DataTableSortItem, i: number) => `${sb.key ? '-' : ''}${sb.order}`).join(',') || undefined
 <%_ } -%>
   }).then(res => res.data)
 }
 
 onMounted(async () => {
   const data = await fetch()
-  const pageInfo = cloneDeep(INITIAL_DATA_TABLE_PAGE_INFO)
+  const pi = cloneDeep(INITIAL_DATA_TABLE_PAGE_INFO)
 <%_ if (project.dbType === 'datastore') { -%>
   if (data.cursor) {
-    pageInfo.cursors[0] = data.cursor
+    pi.cursors[0] = data.cursor
   }
 <%_ } -%>
   <%= struct.name.lowerCamelPluralName %>.value = data.<%= struct.name.lowerCamelPluralName %> || []
   totalCount.value = data.count || 0
-  pageInfo.value = pageInfo || 0
+  pageInfo.value = pi || 0
 })
 
 const reFetch = async () => {
