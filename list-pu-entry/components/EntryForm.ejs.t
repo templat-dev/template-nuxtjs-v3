@@ -3,9 +3,6 @@ to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct
 ---
 <script setup lang="ts">
 import {
-<%_ if (struct.structType !== 'struct') { -%>
-  <%= struct.name.pascalName %>Api,
-<%_ } -%>
   Model<%= struct.name.pascalName %>,
 <%_ struct.fields.forEach(function (field, key) { -%>
   <%_ if (field.editType === 'array-struct' || field.editType === 'struct') { -%>
@@ -51,38 +48,44 @@ import {INITIAL_<%= field.structName.upperSnakeName %>} from '@/types/<%= field.
 <%_ } -%>
 <%_ } -%>
 <%_ }) -%>
-import {NEW_INDEX} from '@/constants/appConstants'
+import {cloneDeep} from "lodash-es";
 
 interface Props {
-  /** 表示状態 (true: 表示, false: 非表示) */
-  open: boolean
   /** 編集対象 */
   target: Model<%= struct.name.pascalName %>
-  /** 表示方式 (true: 埋め込み, false: ダイアログ) */
-  isEmbedded: boolean
-  /** 表示方式 (true: 子要素として表示, false: 親要素として表示) */
-  hasParent: boolean
   /** 編集状態 (true: 新規, false: 更新) */
-  isNew: boolean
+  isNew?: boolean
+  /** 表示方式 (true: 埋め込み, false: ダイアログ) */
+  dialog?: boolean
+  /** 表示状態 (true: 表示, false: 非表示) */
+  open?: boolean
+  /** 表示方式 (true: 子要素として表示, false: 親要素として表示) */
+  hasParent?: boolean
 }
 const props = withDefaults(defineProps<Props>(), {
   open: true,
   target: (props: Props) => INITIAL_<%= struct.name.upperSnakeName %>,
-  isEmbedded: false,
+  dialog: false,
   hasParent: false,
   isNew: true,
 })
 
 interface Emits {
-  (e: "updated", item: Model<%= struct.name.pascalName %>): void;
+  // save: 保存リクエスト
+  (e: "save:target", item: Model<%= struct.name.pascalName %>): void;
+  // update: モデルの更新リクエスト
   (e: "update:target", item: Model<%= struct.name.pascalName %>): void;
-  (e: "remove", item: Model<%= struct.name.pascalName %>): void;
-  (e: "update:open", open: boolean): void;
+  // remove: 削除リクエスト
+  (e: "remove:target", id: number): void;
+  // cancel: 編集処理のキャンセルリクエスト
+  (e: "cancel"): void;
 }
 const emit = defineEmits<Emits>()
 
-const dialog = useAppDialog()
+const appDialog = useAppDialog()
 const loading = useAppLoading()
+
+const editTarget = ref<Model<%= field.structName.pascalName %> | null>(null)
 
 <%_ struct.fields.forEach(function (field, key) { -%>
   <%_ if (field.editType === 'array-struct') { -%>
@@ -114,7 +117,7 @@ const validationRules = ref<any>({
 <%_ }) -%>
 })
 
-watch(open, (open) => {
+watch(props, () => {
   if (props.open) {
     <%= struct.name.lowerCamelName %>Form.value.resetValidation()
 <%_ struct.fields.forEach(function (field, key) { -%>
@@ -123,10 +126,14 @@ watch(open, (open) => {
   <%_ } -%>
 <%_ }) -%>
   }
+  if (props.target) {
+    editTarget.value = cloneDeep(props.target)
+  }
 })
 
-const initializeTarget = () => {
-  emit('update:target', INITIAL_<%= struct.name.upperSnakeName %>)
+const updateTarget = () => {
+  if (!editTarget.value) return
+  emit('update:target', editTarget.value)
 }
 
 const save = async () => {
@@ -141,7 +148,7 @@ const save = async () => {
 <%_ }) -%>
   ) {
 <%_ } -%>
-      dialog.showDialog({
+      appDialog.showDialog({
         title: 'エラー',
         message: '入力項目を確認して下さい。'
       })
@@ -152,50 +159,27 @@ const save = async () => {
       // 親要素側で保存
       return
     }
-    loading.showLoading()
-    try {
-      if (props.isNew) {
-        // 新規の場合
-        await new <%= struct.name.pascalName %>Api().create<%= struct.name.pascalName %>({
-          body: props.target
-        })
-      } else {
-        // 更新の場合
-        await new <%= struct.name.pascalName %>Api().update<%= struct.name.pascalName %>({
-          id: props.target.id!,
-          body: props.target
-        })
-      }
-      close()
-      emit('updated', props.target)
-    } finally {
-      loading.hideLoading()
-    }
-<%_ } else { -%>
-  close()
-<%_ } -%>
+    emit('save:target', props.target)
 }
 
 const remove = async () => {
-  emit('remove', props.target)
+  emit('remove:target', props.target.id!)
 }
 
-const close = () => {
-  if (!props.isEmbedded) {
-    emit('update:open', false)
-  }
+const cancel = () => {
+  emit('cancel')
 }
 </script>
 
 <template>
   <v-card :elevation="0">
-    <v-card-title v-if="!isEmbedded"><%= struct.label || struct.name.pascalName %>{{ isNew ? '追加' : '編集' }}</v-card-title>
+    <v-card-title v-if="!hasParent"><%= struct.label || struct.name.pascalName %>{{ isNew ? '追加' : '編集' }}</v-card-title>
     <v-card-text>
-      <v-layout v-if="target" wrap>
-        <v-form ref="<%= struct.name.lowerCamelName %>Form"  v-model="valid<%= struct.name.pascalName %>Form" class="full-width" lazy-validation>
-        <%_ struct.fields.forEach(function (field, key) { -%>
-          <%_ if (field.editType === 'string' && field.name.lowerCamelName === 'id') { -%>
-          <v-flex md12 sm12 xs12>
+      <v-form v-if="target" ref="<%= struct.name.lowerCamelName %>Form"  v-model="valid<%= struct.name.pascalName %>Form" class="full-width" lazy-validation>
+      <%_ struct.fields.forEach(function (field, key) { -%>
+        <%_ if (field.editType === 'string' && field.name.lowerCamelName === 'id') { -%>
+        <v-row>
+          <v-col cols="12">
             <v-text-field
               v-model="target.<%= field.name.lowerCamelName %>"
               :disabled="!isNew"
@@ -203,88 +187,121 @@ const close = () => {
               label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
               required
             ></v-text-field>
-          </v-flex>
-          <%_ } -%>
-          <%_ if (field.editType === 'string' && field.name.lowerCamelName !== 'id') { -%>
-          <v-flex md12 sm12 xs12>
+          </v-col>
+        </v-row>
+        <%_ } -%>
+        <%_ if (field.editType === 'string' && field.name.lowerCamelName !== 'id') { -%>
+        <v-row>
+          <v-col cols="12">
             <v-text-field
-              v-model="target.<%= field.name.lowerCamelName %>"
+              :modelValue="target.<%= field.name.lowerCamelName %>"
+              @update:modelValue="v => {
+                editTarget!.<%= field.name.lowerCamelName %> = v
+                updateTarget()
+              }"
               :rules="validationRules.<%= field.name.lowerCamelName %>"
               label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
             ></v-text-field>
-          </v-flex>
-          <%_ } -%>
-          <%_ if (field.editType === 'number' && field.name.lowerCamelName === 'id') { -%>
-          <v-flex md12 sm12 xs12>
+          </v-col>
+        </v-row>
+        <%_ } -%>
+        <%_ if (field.editType === 'number' && field.name.lowerCamelName === 'id') { -%>
+        <v-row>
+          <v-col cols="12">
             <v-text-field
               :disabled="!isNew"
               :rules="validationRules.<%= field.name.lowerCamelName %>"
-              :value="target.<%= field.name.lowerCamelName %>"
+              :modelValue="target.<%= field.name.lowerCamelName %>"
               label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
               required
               type="number"
-              @input="v => target.<%= field.name.lowerCamelName %> = v === '' ? undefined : Number(v)"
+              @update:modelValue="v => {
+                editTarget!.<%= field.name.lowerCamelName %> = v === '' ? undefined : Number(v)
+              }"
             ></v-text-field>
-          </v-flex>
-          <%_ } -%>
-          <%_ if (field.editType === 'number' && field.name.lowerCamelName !== 'id') { -%>
-          <v-flex md12 sm12 xs12>
+          </v-col>
+        </v-row>
+        <%_ } -%>
+        <%_ if (field.editType === 'number' && field.name.lowerCamelName !== 'id') { -%>
+        <v-row>
+          <v-col cols="12">
             <v-text-field
               :rules="validationRules.<%= field.name.lowerCamelName %>"
-              :value="target.<%= field.name.lowerCamelName %>"
+              :modelValue="target.<%= field.name.lowerCamelName %>"
               label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
               type="number"
-              @input="v => target.<%= field.name.lowerCamelName %> = v === '' ? undefined : Number(v)"
+              @update:modelValue="v => {
+                editTarget!.<%= field.name.lowerCamelName %> = v === '' ? undefined : Number(v)
+                updateTarget()
+              }"
             ></v-text-field>
-          </v-flex>
-          <%_ } -%>
-          <%_ if (field.editType === 'time') { -%>
-          <date-time-form
-            :date-time.sync="target.<%= field.name.lowerCamelName %>"
-            :rules="validationRules.<%= field.name.lowerCamelName %>"
-            label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
-          ></date-time-form>
-          <%_ } -%>
-          <%_ if (field.editType === 'textarea') { -%>
-          <v-flex md12 sm12 xs12>
+          </v-col>
+        </v-row>
+        <%_ } -%>
+        <%_ if (field.editType === 'time') { -%>
+        <date-time-form
+          :date-time.sync="target.<%= field.name.lowerCamelName %>"
+          :rules="validationRules.<%= field.name.lowerCamelName %>"
+          label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
+        ></date-time-form>
+        <%_ } -%>
+        <%_ if (field.editType === 'textarea') { -%>
+        <v-row>
+          <v-col cols="12">
             <v-textarea
-              v-model="target.<%= field.name.lowerCamelName %>"
+              :modelValue="target.<%= field.name.lowerCamelName %>"
+              @update:modelValue="v => {
+                editTarget!.<%= field.name.lowerCamelName %> = v
+                updateTarget()
+              }"
               :rules="validationRules.<%= field.name.lowerCamelName %>"
               label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
             ></v-textarea>
-          </v-flex>
-          <%_ } -%>
-          <%_ if (field.editType === 'bool') { -%>
-          <v-flex md12 sm12 xs12>
+          </v-col>
+        </v-row>
+        <%_ } -%>
+        <%_ if (field.editType === 'bool') { -%>
+        <v-row>
+          <v-col cols="12">
             <v-checkbox
-              v-model="target.<%= field.name.lowerCamelName %>"
+              :modelValue="target.<%= field.name.lowerCamelName %>"
+              @update:modelValue="v => {
+                editTarget!.<%= field.name.lowerCamelName %> = v
+                updateTarget()
+              }"
               :rules="validationRules.<%= field.name.lowerCamelName %>"
               label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
             ></v-checkbox>
-          </v-flex>
-          <%_ } -%>
-          <%_ if (field.editType === 'image' && field.dataType === 'string') { -%>
-          <v-flex xs12>
+          </v-col>
+        </v-row>
+        <%_ } -%>
+        <%_ if (field.editType === 'image' && field.dataType === 'string') { -%>
+        <v-row>
+          <v-col cols="12">
             <image-form
               :image-url.sync="target.<%= field.name.lowerCamelName %>"
               :rules="validationRules.<%= field.name.lowerCamelName %>"
               dir="<%= struct.name.lowerCamelName %>/<%= field.name.lowerCamelName %>"
               label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
             ></image-form>
-          </v-flex>
-          <%_ } -%>
-          <%_ if (field.editType === 'array-image') { -%>
-          <v-flex xs12>
+          </v-col>
+        </v-row>
+        <%_ } -%>
+        <%_ if (field.editType === 'array-image') { -%>
+        <v-row>
+          <v-col cols="12">
             <image-array-form
               :image-urls.sync="target.<%= field.name.lowerCamelName %>"
               :rules="validationRules.<%= field.name.lowerCamelName %>"
               dir="<%= struct.name.lowerCamelName %>/<%= field.name.lowerCamelName %>"
               label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
             ></image-array-form>
-          </v-flex>
-          <%_ } -%>
-          <%_ if (field.editType === 'array-string' || field.editType === 'array-textarea' || field.editType === 'array-number' || field.editType === 'array-time' || field.editType === 'array-bool') { -%>
-          <v-flex xs12>
+          </v-col>
+        </v-row>
+        <%_ } -%>
+        <%_ if (field.editType === 'array-string' || field.editType === 'array-textarea' || field.editType === 'array-number' || field.editType === 'array-time' || field.editType === 'array-bool') { -%>
+        <v-row>
+          <v-col cols="12">
             <expansion label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>一覧">
               <%_ if (field.childType === 'string') { -%>
               <array-form
@@ -293,7 +310,11 @@ const close = () => {
                 initial="">
                 <v-text-field
                   :rules="validationRules.<%= field.name.lowerCamelName %>"
-                  :value="editTarget"
+                  :modelValue="editTarget"
+                  @update:modelValue="v => {
+                    editTarget!.<%= field.name.lowerCamelName %> = v
+                    updateTarget()
+                  }"
                   label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
                   @input="updatedForm"
                 ></v-text-field>
@@ -306,7 +327,11 @@ const close = () => {
                 initial="">
                 <v-textarea
                   :rules="validationRules.<%= field.name.lowerCamelName %>"
-                  :value="editTarget"
+                  :modelValue="editTarget"
+                  @update:modelValue="v => {
+                    editTarget!.<%= field.name.lowerCamelName %> = v
+                    updateTarget()
+                  }"
                   label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
                   @input="updatedForm"
                 ></v-textarea>
@@ -319,7 +344,11 @@ const close = () => {
                 :items.sync="target.<%= field.name.lowerCamelName %>">
                 <v-text-field
                   :rules="validationRules.<%= field.name.lowerCamelName %>"
-                  :value="editTarget"
+                  :modelValue="editTarget"
+                  @update:modelValue="v => {
+                    editTarget!.<%= field.name.lowerCamelName %> = v
+                    updateTarget()
+                  }"
                   label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
                   type="number"
                   @input="v => updatedForm(v === '' ? undefined : Number(v))"
@@ -333,7 +362,11 @@ const close = () => {
                 :items.sync="target.<%= field.name.lowerCamelName %>">
                 <v-checkbox
                   :rules="validationRules.<%= field.name.lowerCamelName %>"
-                  :value="editTarget"
+                  :modelValue="editTarget"
+                  @update:modelValue="v => {
+                    editTarget!.<%= field.name.lowerCamelName %> = v
+                    updateTarget()
+                  }"
                   label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
                   @change="updatedForm"
                 ></v-checkbox>
@@ -353,10 +386,12 @@ const close = () => {
               </array-form>
               <%_ } -%>
             </expansion>
-          </v-flex>
-          <%_ } -%>
-          <%_ if (field.editType === 'array-struct') { -%>
-          <v-flex xs12>
+          </v-col>
+        </v-row>
+        <%_ } -%>
+        <%_ if (field.editType === 'array-struct') { -%>
+        <v-row>
+          <v-col cols="12">
             <expansion label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>一覧">
               <struct-array-form
                 :initial="initial<%= field.structName.pascalName %>"
@@ -382,32 +417,26 @@ const close = () => {
                 </template>
               </struct-array-form>
             </expansion>
-          </v-flex>
-          <%_ } -%>
-          <%_ if (field.editType === 'struct') { -%>
-          <v-flex xs12>
-            <expansion expanded label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>">
-              <<%= field.structName.lowerCamelName %>-entry-form
-                ref="<%= field.name.lowerCamelName %>Form"
-                :has-parent="true"
-                :is-embedded="true"
-                :target.sync="target.<%= field.name.lowerCamelName %>"
-              ></<%= field.structName.lowerCamelName %>-entry-form>
-            </expansion>
-          </v-flex>
-          <%_ } -%>
-        <%_ }) -%>
-        </v-form>
-      </v-layout>
-      <v-layout v-else>
-        <v-spacer></v-spacer>
-        <v-btn class="action-button" color="primary" dark fab small top @click="initializeTarget">
-          <v-icon>mdi-plus</v-icon>
-        </v-btn>
-      </v-layout>
+          </v-col>
+        </v-row>
+        <%_ } -%>
+        <%_ if (field.editType === 'struct') { -%>
+        <v-flex xs12>
+          <expansion expanded label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>">
+            <<%= field.structName.lowerCamelName %>-entry-form
+              ref="<%= field.name.lowerCamelName %>Form"
+              :has-parent="true"
+              :is-embedded="true"
+              :target.sync="target.<%= field.name.lowerCamelName %>"
+            ></<%= field.structName.lowerCamelName %>-entry-form>
+          </expansion>
+        </v-flex>
+        <%_ } -%>
+      <%_ }) -%>
+      </v-form>
     </v-card-text>
-    <v-card-actions v-if="!isEmbedded">
-      <v-btn color="grey darken-1" text @click="close">キャンセル</v-btn>
+    <v-card-actions v-if="!hasParent">
+      <v-btn color="grey darken-1" text @click="cancel">{{dialog ? '閉じる' : '戻る'}}</v-btn>
       <v-spacer></v-spacer>
       <v-btn v-if="!isNew" color="red darken-1" text @click="remove">削除</v-btn>
       <v-spacer></v-spacer>

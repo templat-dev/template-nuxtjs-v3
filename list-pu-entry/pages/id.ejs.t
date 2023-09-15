@@ -16,7 +16,7 @@ const dialog = useAppDialog()
 
 /** 編集対象 */
 const editTarget = ref<Model<%= struct.name.pascalName %> | null>(null)
-const <%= struct.name.pascalName %>ID = ref<number>(NEW_INDEX)
+const <%= struct.name.lowerCamelName %>ID = ref<number>(NEW_INDEX)
 
 const { $api } = useNuxtApp()
 const <%= struct.name.lowerCamelName %>Api = $api.<%= struct.name.lowerCamelName %>Api()
@@ -35,6 +35,31 @@ onMounted(async () => {
   }
 })
 
+const updateTarget = (target: Model<%= struct.name.pascalName %>) => {
+  editTarget.value = target
+}
+
+const save = async (target: Model<%= struct.name.pascalName %>) => {
+  if (!editTarget.value) return
+  loading.showLoading()
+  try {
+    if (<%= struct.name.lowerCamelName %>ID.value === NEW_INDEX) {
+      // 新規の場合
+      await <%= struct.name.lowerCamelName %>Api.create<%= struct.name.pascalName %>({
+        body: target
+      })
+    } else {
+      // 更新の場合
+      await <%= struct.name.lowerCamelName %>Api.update<%= struct.name.pascalName %>({
+        id: target.id!,
+        body: target
+      })
+    }
+  } finally {
+    loading.hideLoading()
+  }
+}
+
 const remove = async(<%= struct.name.lowerCamelName %>ID: number) => {
   dialog.showDialog({
     title: '削除確認',
@@ -51,16 +76,22 @@ const remove = async(<%= struct.name.lowerCamelName %>ID: number) => {
     }
   })
 }
+
+const back = () => {
+  navigateTo('/company')
+}
 </script>
 
 <template>
   <<%= struct.name.lowerCamelName %>-entry-form
     v-if="editTarget"
     :dialog="false"
-    :is-new="countryID === NEW_INDEX"
+    :is-new="<%= struct.name.lowerCamelName %>ID === NEW_INDEX"
     v-model:target="editTarget"
-    @remove="remove"
-    @back="navigateTo('/<%= struct.name.lowerCamelName %>')"
+    @save:target="save"
+    @update:target="updateTarget"
+    @remove:target="remove"
+    @cancel="back"
   ></<%= struct.name.lowerCamelName %>-entry-form>
 </template>
 
