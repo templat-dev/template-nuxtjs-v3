@@ -85,7 +85,7 @@ const emit = defineEmits<Emits>()
 const appDialog = useAppDialog()
 const loading = useAppLoading()
 
-const editTarget = ref<Model<%= field.structName.pascalName %> | null>(null)
+const editTarget = ref<Model<%= struct.name.pascalName %> | null>(null)
 
 <%_ struct.fields.forEach(function (field, key) { -%>
   <%_ if (field.editType === 'array-struct') { -%>
