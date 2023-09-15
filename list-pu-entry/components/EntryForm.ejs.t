@@ -159,6 +159,7 @@ const save = async () => {
       // 親要素側で保存
       return
     }
+<%_ } -%>
     emit('save:target', props.target)
 }
 
