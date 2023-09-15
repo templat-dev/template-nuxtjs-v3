@@ -1,6 +1,8 @@
 ---
 to: <%= rootDirectory %>/types/<%= struct.name.pascalName %>Type.ts
 ---
+import {Model<%= struct.name.pascalName %>} from "~/apis";
+
 <%_ const searchConditions = [] -%>
 <%_ let importDateTime = false -%>
 <%_ if (struct.fields) { -%>

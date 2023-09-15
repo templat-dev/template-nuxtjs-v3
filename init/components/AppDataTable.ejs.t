@@ -10,7 +10,7 @@ interface Props {
   /** ヘッダー定義 */
   headers: any[],
   /** フッター定義 */
-  footerProps: {},
+  footerProps?: {},
   /** 一覧表示用の配列 */
   items: I[],
   /** ベージ表示情報 */
@@ -32,7 +32,7 @@ const props = withDefaults(defineProps<Props>(), {
 interface Emits {
   (e: "reFetch"): void
   (e: "update:itemsPerPage", count: number): void
-  (e: "openEntryForm", item: I): void
+  (e: "click:row", item: I): void
 }
 const emit = defineEmits<Emits>()
 
@@ -59,29 +59,26 @@ const handleItemPerPage = (itemsPerPage: number) => {
   emit('update:itemsPerPage', itemsPerPage)
 }
 
-const openEntryForm = (item: I) => {
-  emit('openEntryForm', item)
+const clickRow = (item: I) => {
+  emit('click:row', item)
 }
 </script>
 
 <template>
   <v-data-table
-    v-bind="$attrs"
     :footer-props="footerProps"
     :headers="headers"
     :items="items || []"
-    :items-per-page.sync="pageInfo.itemsPerPage"
+    :items-per-page="pageInfo.itemsPerPage"
     :loading="isLoading"
-    :page.sync="pageInfo.page"
+    :page="pageInfo.page"
     :server-items-length="totalCount"
-    :sort-by.sync="pageInfo.sortBy"
-    :sort-desc.sync="pageInfo.sortDesc"
+    :sort-by="pageInfo.sortBy"
     class="data-table"
-    @click:row="(event: Event, item: any) => openEntryForm(item.item.raw)"
+    @click:row="(event: Event, item: any) => clickRow(item.item.raw)"
     @update:page="handleChangePageInfo()"
     @update:items-per-page="handleItemPerPage"
     @update:sort-by="handleChangePageInfo('sortBy')"
-    @update:sort-desc="handleChangePageInfo('sortDesc')"
   >
     <template v-for="(_, slotName) in $slots" v-slot:[slotName]="props">
       <slot v-bind="props" :name="slotName"/>

@@ -55,7 +55,7 @@ const emit = defineEmits<Emits>()
 /** 変更対象の検索条件 */
 const searchCondition = ref<<%= struct.name.pascalName %>SearchCondition>(cloneDeep(INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION))
 
-watch(open, (open) => {
+watch(props, () => {
   if (props.open) {
     searchCondition.value = cloneDeep(props.currentSearchCondition)
   }

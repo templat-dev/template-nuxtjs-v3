@@ -20,7 +20,7 @@ const headers = ref<any[]>([
   {
     text: '<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName === 'id' ? 'ID' : field.name.lowerCamelName %>',
     align: '<%= field.align %>',
-    value: '<%= field.name.lowerCamelName %>'
+    key: '<%= field.name.lowerCamelName %>'
   },
     <%_ } -%>
   <%_ }) -%>
@@ -28,7 +28,7 @@ const headers = ref<any[]>([
   {
     text: '',
     align: 'center',
-    value: 'action',
+    key: 'action',
     sortable: false
   }
 ])
@@ -109,7 +109,7 @@ const search = (searchCondition: <%= struct.name.pascalName %>SearchCondition) =
 }
 <%_ } -%>
 
-const openEntryForm = (item?: Model<%= struct.name.pascalName %>) => {
+const clickRow = (item?: Model<%= struct.name.pascalName %>) => {
   emit('click:row', item)
 }
 
@@ -131,7 +131,7 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
       no-data-text="該当データ無し"
       @re-fetch="onChangePageInfo"
       @update:items-per-page="handleItemPerPage"
-      @click:row="openEntryForm"
+      @click:row="clickRow"
     >
       <!-- ヘッダー -->
       <template #top>
