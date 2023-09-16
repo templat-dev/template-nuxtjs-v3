@@ -4,34 +4,34 @@ force: true
 ---
 import '@mdi/font/css/materialdesignicons.css'
 import { createVuetify } from 'vuetify'
-import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import {
   VDataTable,
   VDataTableServer,
   VDataTableVirtual,
 } from "vuetify/labs/VDataTable";
+import { MAIN_THEME, mainTheme, MAIN_DARK_THEME, mainDarkTheme } from '~/helpers/themes'
+import { defaults } from '~/helpers/defaults'
 
 export default defineNuxtPlugin(nuxtApp => {
-  // テーマを定義
-  const customTheme = {
-    colors: {
-      primary: '#2196F3',
-      secondary: '#b0bec5',
-      white: '#ffffff',
-    }
-  }
   const vuetify = createVuetify({
     ssr: true,
+    defaults,
     components: {
       VDataTable,
       VDataTableServer,
       VDataTableVirtual,
     },
     theme: {
-      defaultTheme: 'customTheme',
+      defaultTheme: MAIN_THEME,
       themes: {
-        customTheme // テーマを設定
+        mainTheme,
+        mainDarkTheme,
+      },
+      variations: {
+        colors: ['primary', 'secondary', 'accent'],
+        lighten: 9,
+        darken: 9,
       },
     },
     directives,
