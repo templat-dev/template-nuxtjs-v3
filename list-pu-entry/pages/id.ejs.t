@@ -58,6 +58,7 @@ const save = async (target: Model<%= struct.name.pascalName %>) => {
   } finally {
     loading.hideLoading()
   }
+  back()
 }
 
 const remove = async(<%= struct.name.lowerCamelName %>ID: number) => {

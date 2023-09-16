@@ -2,6 +2,7 @@
 to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct.name.pascalName %>EntryForm.vue
 ---
 <script setup lang="ts">
+import {cloneDeep} from "lodash-es";
 import {
   Model<%= struct.name.pascalName %>,
 <%_ struct.fields.forEach(function (field, key) { -%>
@@ -10,6 +11,7 @@ import {
   <%_ } -%>
 <%_ }) -%>
 } from '@/apis'
+import {INITIAL_<%= struct.name.upperSnakeName %>} from "~/types/<%= struct.name.pascalName %>Type";
 <%_ if (struct.exists.edit.time || struct.exists.edit.arrayTime) { -%>
 import DateTimeForm from '@/components/form/DateTimeForm.vue'
 <%_ } -%>
@@ -48,7 +50,6 @@ import {INITIAL_<%= field.structName.upperSnakeName %>} from '@/types/<%= field.
 <%_ } -%>
 <%_ } -%>
 <%_ }) -%>
-import {cloneDeep} from "lodash-es";
 
 interface Props {
   /** 編集対象 */
@@ -117,6 +118,12 @@ const validationRules = ref<any>({
 <%_ }) -%>
 })
 
+onMounted(async () => {
+  if (props.target) {
+    editTarget.value = cloneDeep(props.target)
+  }
+})
+
 watch(props, () => {
   if (props.open) {
     <%= struct.name.lowerCamelName %>Form.value.resetValidation()
@@ -125,9 +132,6 @@ watch(props, () => {
     ;<%= field.name.lowerCamelName %>Form.value.resetValidation()
   <%_ } -%>
 <%_ }) -%>
-  }
-  if (props.target) {
-    editTarget.value = cloneDeep(props.target)
   }
 })
 

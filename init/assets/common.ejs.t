@@ -2,6 +2,8 @@
 to: <%= rootDirectory %>/assets/common.scss
 force: true
 ---
+@use "vuetify/styles";
+
 // width/height
 .full-width {
   width: 100%;

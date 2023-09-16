@@ -60,13 +60,6 @@ export default defineNuxtConfig({
     define: {
       'process.env.DEBUG': false,
     },
-    // css: {
-    //   preprocessorOptions: {
-    //     scss: {
-    //       additionalData: '@import "@/assets/common.scss"',
-    //     },
-    //   },
-    // },
   },
   css: ['@/assets/common.scss'],
   plugins: [
