@@ -101,7 +101,7 @@ const signOut = computed(async () =>
     </v-main>
 
     <v-footer app color="primary">
-      <span class="white--text">&copy; 2020</span>
+      <span class="white--text">&copy; 2023</span>
     </v-footer>
 
     <app-loading/>

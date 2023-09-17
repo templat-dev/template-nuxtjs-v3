@@ -214,6 +214,7 @@ const cancel = () => {
         <v-row>
           <v-col cols="12">
             <v-text-field
+              v-if="!isNew"
               :disabled="!isNew"
               :rules="validationRules.<%= field.name.lowerCamelName %>"
               :modelValue="target.<%= field.name.lowerCamelName %>"

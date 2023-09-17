@@ -16,9 +16,24 @@ export interface AppDialogState {
   persistent?: boolean
 }
 
+const INIT_STATE: AppDialogState = {
+  open: false,
+  title: '',
+  message: '',
+  positiveText: 'OK',
+  neutralText: '',
+  negativeText: '',
+  positive: () => {},
+  neutral: () => {},
+  negative: () => {},
+  close: () => {},
+  persistent: false
+}
+
 export const useAppDialog = () => {
-  const state = useState<AppDialogState>('appDialog', () => ({} as AppDialogState));
+  const state = useState<AppDialogState>('appDialog', () => (INIT_STATE));
   return {
+    state: readonly(state),
     isOpen: isOpen(state),
     isPersistent: isPersistent(state),
     title: title(state),
@@ -35,6 +50,7 @@ export const useAppDialog = () => {
 }
 
 const isOpen = (state: Ref<AppDialogState>): boolean => {
+  console.log(`isOpen: ${state.value.open}`)
   return state.value.open || false
 }
 
@@ -67,6 +83,7 @@ const showDialog = (state: Ref<AppDialogState>) => {
     title, message, positiveText = 'OK', neutralText = '', negativeText = '',
     positive = () => {}, neutral = () => {}, negative = () => {}, close = () => {}, persistent = false
   }: AppDialogState) => {
+    console.log(`showDialog: ${title}`)
     state.value = {
       open: true, title, message, positiveText, neutralText, negativeText,
       positive, neutral, negative, close, persistent

@@ -129,12 +129,11 @@ const navigateEntryForm = (target?: Model<%= struct.name.pascalName %>) => {
   navigateTo(`/<%= struct.name.lowerCamelName %>/${target?.id || 'new'}`)
 }
 
-const removeRow = (item: Model<%= struct.name.pascalName %>) => {
-  const index = <%= struct.name.lowerCamelPluralName %>.value.indexOf(item)
-  remove(index)
-}
-
-const remove = async(index: number) => {
+const remove = async(id: number) => {
+  const <%= struct.name.lowerCamelName %> = <%= struct.name.lowerCamelPluralName %>.value.find((c: Model<%= struct.name.pascalName %>) => c.id === id)
+  if (!<%= struct.name.lowerCamelName %>) {
+    return
+  }
   dialog.showDialog({
     title: '削除確認',
     message: '削除してもよろしいですか？',
@@ -142,7 +141,7 @@ const remove = async(index: number) => {
     positive: async () => {
       loading.showLoading()
       try {
-        await new <%= struct.name.pascalName %>Api().delete<%= struct.name.pascalName %>({id: <%= struct.name.lowerCamelPluralName %>.value[index].id!})
+        await <%= struct.name.lowerCamelName %>Api().delete<%= struct.name.pascalName %>({id: <%= struct.name.lowerCamelName %>.id!})
         await reFetch()
       } finally {
         loading.hideLoading()

@@ -5,46 +5,50 @@ force: true
 <script setup lang="ts">
 import {useAppDialog} from "@/composables/useDialog"
 
-const appDialog = useAppDialog()
+const {state: dialogState, close: dialogClose, positive: dialogPositive, neutral: dialogNeural, negative: dialogNegative} = useAppDialog()
+const open = ref<boolean>(false)
 
-const close = () => {
-  appDialog.close()
-}
+const openValue = computed(() => {
+  console.log(`dialogState.value.open: ${dialogState.value.open}`)
+  return dialogState.value.open
+})
+
+const isPersistent = computed<boolean>(() => dialogState.value.persistent || false)
 
 const positive = () => {
-  appDialog.positive()
-  close()
+  dialogPositive()
+  dialogClose()
 }
 
 const neutral = () => {
-  appDialog.neutral()
-  close()
+  dialogNeural()
+  dialogClose()
 }
 
 const negative = () => {
-  appDialog.negative()
-  close()
+  dialogNegative()
+  dialogClose()
 }
 </script>
 
 <template>
-  <v-dialog v-model="appDialog.isOpen" :persistent="appDialog.isPersistent" width="400">
+  <v-dialog v-model="openValue" :persistent="isPersistent" width="400">
     <v-card>
-      <v-card-title class="dialog-title">{{ appDialog.title }}</v-card-title>
+      <v-card-title class="dialog-title">{{ dialogState.title }}</v-card-title>
 
-      <v-card-text class="dialog-text">{{ appDialog.message }}</v-card-text>
+      <v-card-text class="dialog-text">{{ dialogState.message }}</v-card-text>
 
       <v-card-actions>
-        <v-btn v-if="!!appDialog.negativeText" color="grey darken-1" text @click="negative">
-          {{ appDialog.negativeText }}
+        <v-btn v-if="!!dialogState.negativeText" color="grey darken-1" text @click="negative">
+          {{ dialogState.negativeText }}
         </v-btn>
         <v-spacer></v-spacer>
-        <v-btn v-if="!!appDialog.neutralText" color="red darken-1" text @click="neutral">
-          {{ appDialog.neutralText }}
+        <v-btn v-if="!!dialogState.neutralText" color="red darken-1" text @click="neutral">
+          {{ dialogState.neutralText }}
         </v-btn>
         <v-spacer></v-spacer>
         <v-btn color="blue darken-1" text @click="positive">
-          {{ appDialog.positiveText }}
+          {{ dialogState.positiveText }}
         </v-btn>
       </v-card-actions>
     </v-card>

@@ -68,7 +68,8 @@ interface Emits {
   (e: "update:searchCondition", searchCondition: <%= struct.name.pascalName %>SearchCondition): void;
 <%_ } -%>
   (e: "click:row", item?: Model<%= struct.name.pascalName %>): void;
-  (e: "remove", item: Model<%= struct.name.pascalName %>): void;
+  (e: "remove", id: number): void;
+  (e: "create:<%= struct.name.lowerCamelName %>"): void;
 }
 const emit = defineEmits<Emits>()
 
@@ -113,8 +114,12 @@ const clickRow = (item?: Model<%= struct.name.pascalName %>) => {
   emit('click:row', item)
 }
 
+const create<%= struct.name.pascalName %> = () => {
+  emit('create:<%= struct.name.lowerCamelName %>')
+}
+
 const remove = (item: Model<%= struct.name.pascalName %>) => {
-  emit('remove', item)
+  emit('remove', item.id!)
 }
 </script>
 
@@ -153,7 +158,7 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
             color="primary"
             size="x-large"
             flat
-            @click="openEntryForm()"
+            @click="createCompany()"
           >
           </v-btn>
         </v-toolbar>
@@ -212,7 +217,7 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
 <%_ } -%>
       <!-- 行操作列 -->
       <template #item.action="{ item }">
-        <v-btn icon="mdi-delete" flat @click="remove(item)"/>
+        <v-btn icon="mdi-delete" flat @click="remove(item.raw)"/>
       </template>
     </common-app-data-table>
 <%_ if (struct.structType !== 'struct') { -%>
