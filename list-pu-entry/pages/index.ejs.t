@@ -106,6 +106,10 @@ const handleItemPerPage = (itemsPerPage: number) => {
   pageInfo.value.itemsPerPage = itemsPerPage
 }
 
+const handlePageInfo = (pi: DataTablePageInfo) => {
+  pageInfo.value = pi
+}
+
 const reFetch = async () => {
   loading.isLoading = true
   try {
@@ -161,9 +165,10 @@ const remove = async(id: number) => {
       v-model:search-condition="searchCondition"
       :total-count="totalCount"
       class="elevation-1"
-      @onChangePageInfo="reFetch"
+      @changed:pageInfo="reFetch"
+      @update:pageInfo="handlePageInfo"
       @update:items-per-page="handleItemPerPage"
-      @onChangeSearch="reFetch"
+      @update:searchCondition="reFetch"
       @click:row="navigateEntryForm"
       @remove="remove"
       @create:<%= struct.name.lowerCamelName %>="navigateEntryForm"

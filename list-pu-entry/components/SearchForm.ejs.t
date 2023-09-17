@@ -86,7 +86,8 @@ const search = () => {
     <v-card :elevation="0">
       <v-card-title><%= struct.screenLabel || struct.name.pascalName %>検索</v-card-title>
       <v-card-text>
-        <v-layout column>
+        <v-row>
+          <v-col>
       <%_ if (struct.fields) { -%>
       <%_ struct.fields.forEach(function (field, key) { -%>
         <%_ if ((field.listType === 'string' || field.listType === 'array-string' || field.listType === 'textarea' || field.listType === 'array-textarea') && field.searchType === 1) { -%>
@@ -141,7 +142,8 @@ const search = () => {
         <%_ } -%>
       <%_ }) -%>
       <%_ } -%>
-        </v-layout>
+          </v-col>
+        </v-row>
       </v-card-text>
       <v-card-actions>
         <v-btn color="grey darken-1" text @click="close">キャンセル</v-btn>

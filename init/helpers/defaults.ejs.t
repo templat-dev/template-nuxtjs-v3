@@ -16,7 +16,7 @@ export const defaults: DefaultsInstance = {
   },
   VTextField: {
     color: 'primary',
-    variant: 'outlined',
+    variant: 'underlined',
     density: 'comfortable',
   },
 }
