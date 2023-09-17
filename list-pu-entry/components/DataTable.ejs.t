@@ -217,7 +217,7 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
 <%_ } -%>
       <!-- 行操作列 -->
       <template #item.action="{ item }">
-        <v-btn icon="mdi-delete" flat @click="remove(item.raw)"/>
+        <v-btn icon="mdi-delete" flat @click.stop="remove(item.raw)"/>
       </template>
     </common-app-data-table>
 <%_ if (struct.structType !== 'struct') { -%>

@@ -141,7 +141,7 @@ const remove = async(id: number) => {
     positive: async () => {
       loading.showLoading()
       try {
-        await <%= struct.name.lowerCamelName %>Api().delete<%= struct.name.pascalName %>({id: <%= struct.name.lowerCamelName %>.id!})
+        await <%= struct.name.lowerCamelName %>Api.delete<%= struct.name.pascalName %>({id: <%= struct.name.lowerCamelName %>.id!})
         await reFetch()
       } finally {
         loading.hideLoading()
@@ -165,7 +165,8 @@ const remove = async(id: number) => {
       @update:items-per-page="handleItemPerPage"
       @onChangeSearch="reFetch"
       @click:row="navigateEntryForm"
-      @remove="removeRow"
+      @remove="remove"
+      @create:<%= struct.name.lowerCamelName %>="navigateEntryForm"
     ></<%= struct.name.lowerCamelName %>-data-table>
   </v-layout>
 </template>
