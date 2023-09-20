@@ -49,6 +49,9 @@ import {INITIAL_<%= field.structName.upperSnakeName %>} from '@/types/<%= field.
 <%_ importStructFormSet.add(field.structName.pascalName) -%>
 <%_ } -%>
 <%_ } -%>
+<%_ if (field.editType === 'segment') { -%>
+import {<%= field.structName.upperSnakeName %>_LIST} from "~/constants/segmentConstants";
+<%_ } -%>
 <%_ }) -%>
 
 interface Props {
