@@ -10,14 +10,14 @@ export const <%= group.name.upperSnakeName %>_CONST = {
   <%_ }) -%>
 }
 
-<%_ project.segmentGroups.forEach(function (value, index) { -%>
+  <%_ group.segmentValues.forEach(function (value, index) { -%>
 export const <%= group.name.upperSnakeName %>_<%= value.name.upperSnakeName %> =
   {name: '<%= value.title %>', value: <%= group.name.upperSnakeName %>_CONST.<%= value.name.upperSnakeName %>}
-<%_ }) -%>
+  <%_ }) -%>
 
 export const <%= group.name.upperSnakeName %>S = [
-<%_ project.segmentGroups.forEach(function (value, index) { -%>
+  <%_ group.segmentValues.forEach(function (value, index) { -%>
   <%= group.name.upperSnakeName %>_<%= value.name.upperSnakeName %>,
-<%_ }) -%>
+  <%_ }) -%>
 ]
 <%_ }) -%>
