@@ -50,7 +50,7 @@ import {INITIAL_<%= field.structName.upperSnakeName %>} from '@/types/<%= field.
 <%_ } -%>
 <%_ } -%>
 <%_ if (field.editType === 'segment') { -%>
-import {<%= field.structName.upperSnakeName %>_LIST} from "~/constants/segmentConstants";
+import {<%= field.name.upperSnakeName %>_LIST} from "~/constants/segmentConstants"
 <%_ } -%>
 <%_ }) -%>
 
