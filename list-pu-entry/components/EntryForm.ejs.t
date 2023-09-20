@@ -228,6 +228,26 @@ const cancel = () => {
           </v-col>
         </v-row>
         <%_ } -%>
+        <%_ if (field.editType === 'segment') { -%>
+        <v-row>
+          <v-col cols="12">
+            <v-select
+              :modelValue="target.<%= field.name.lowerCamelName %>"
+              @update:modelValue="v => {
+                editTarget!.<%= field.name.lowerCamelName %> = v === '' ? undefined : Number(v)
+                updateTarget()
+              }"
+              :items="<%= field.name.upperSnakeName %>_LIST"
+              label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
+              item-title="name"
+              item-value="value"
+              outlined
+              dense
+              style="width: 100%;"
+            ></v-select>
+          </v-col>
+        </v-row>
+        <%_ } -%>
         <%_ if (field.editType === 'number' && field.name.lowerCamelName !== 'id') { -%>
         <v-row>
           <v-col cols="12">

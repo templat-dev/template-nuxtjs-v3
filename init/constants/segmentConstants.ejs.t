@@ -15,7 +15,7 @@ export const <%= group.name.upperSnakeName %>_<%= value.name.upperSnakeName %> =
   {name: '<%= value.title %>', value: <%= group.name.upperSnakeName %>_CONST.<%= value.name.upperSnakeName %>}
   <%_ }) -%>
 
-export const <%= group.name.upperSnakeName %>S = [
+export const <%= group.name.upperSnakeName %>_LIST = [
   <%_ group.segmentValues.forEach(function (value, index) { -%>
   <%= group.name.upperSnakeName %>_<%= value.name.upperSnakeName %>,
   <%_ }) -%>
