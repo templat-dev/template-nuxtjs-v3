@@ -121,6 +121,22 @@ const create<%= struct.name.pascalName %> = () => {
 const remove = (item: Model<%= struct.name.pascalName %>) => {
   emit('remove', item.id!)
 }
+<%_ if (struct.fields) { -%>
+<%_ struct.fields.forEach(function(field, index){ -%>
+<%_ if (field.listType !== 'segment') { -%>
+const <%= field.name.lowerCamelName %>Name = (<%= field.name.lowerCamelName %>: number) => {
+  const segment = <%= field.name.upperSnakeName %>_LIST.find(
+          (item) => item.value === <%= field.name.lowerCamelName %>
+  )
+  if (segment) {
+    return segment.name
+  } else {
+    return ''
+  }
+}
+<%_ } -%>
+<%_ }) -%>
+<%_ } -%>
 </script>
 
 <template>
@@ -165,32 +181,37 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
       </template>
 <%_ if (struct.fields) { -%>
 <%_ struct.fields.forEach(function(field, index){ -%>
-<%_ if (field.type === 'time' || field.type === 'time-range') { -%>
+<%_ if (field.listType === 'segment') { -%>
+  <template #item.<%= field.name.lowerCamelName %>="{ item }">
+    <span>{{ companyTypeName(item.raw.<%= field.name.lowerCamelName %>) }}</span>
+  </template>
+<%_ } -%>
+<%_ if (field.listType === 'time' || field.listType === 'time-range') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
         <span>{{ formatDate(item.<%= field.name.lowerCamelName %>) }}</span>
       </template>
 <%_ } -%>
-<%_ if (field.type === 'bool') { -%>
+<%_ if (field.listType === 'bool') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
         <v-checkbox v-model="item.<%= field.name.lowerCamelName %>" :ripple="false" class="ma-0 pa-0" hide-details readonly></v-checkbox>
       </template>
 <%_ } -%>
-<%_ if (field.type === 'array-string' || field.type === 'array-number' || field.type === 'array-bool') { -%>
+<%_ if (field.listType === 'array-string' || field.listType === 'array-number' || field.listType === 'array-bool') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
         <span>{{ toStringArray(item.<%= field.name.lowerCamelName %>) }}</span>
       </template>
 <%_ } -%>
-<%_ if (field.type === 'array-time') { -%>
+<%_ if (field.listType === 'array-time') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
         <span>{{ toStringTimeArray(item.<%= field.name.lowerCamelName %>) }}</span>
       </template>
 <%_ } -%>
-<%_ if (field.type === 'image' && field.dataType === 'string') { -%>
+<%_ if (field.listType === 'image' && field.dataType === 'string') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
         <v-img :src="item.<%= field.name.lowerCamelName %>" max-height="100px" max-width="100px"></v-img>
       </template>
 <%_ } -%>
-<%_ if (field.type === 'array-image') { -%>
+<%_ if (field.listType === 'array-image') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
         <v-carousel
           v-if="item.<%= field.name.lowerCamelName %> && item.<%= field.name.lowerCamelName %>.length > 0"

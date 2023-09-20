@@ -104,6 +104,19 @@ const search = () => {
             @input="v => searchCondition.<%= field.name.lowerCamelName %> = v === '' ? undefined : Number(v)"
           ></v-text-field>
         <%_ } -%>
+        <%_ if (field.listType === 'segment' && field.searchType !== 0) { -%>
+          <v-select
+            :modelValue="searchCondition.<%= field.name.lowerCamelName %>"
+            @update:modelValue="v => searchCondition.<%= field.name.lowerCamelName %> = v === '' ? undefined : Number(v)"
+            :items="<%= field.name.upperSnakeName %>_LIST"
+            label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
+            item-title="name"
+            item-value="value"
+            outlined
+            dense
+            style="width: 100%;"
+          ></v-select>
+        <%_ } -%>
         <%_ if ((field.listType === 'number' || field.listType === 'array-number') && 2 <= field.searchType && field.searchType <= 5) { -%>
           <v-text-field
             :value="searchCondition.<%= field.name.lowerCamelName %>From"

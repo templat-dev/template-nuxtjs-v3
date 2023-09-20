@@ -20,7 +20,7 @@ const headers = ref<any[]>([
   {
     text: '<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName === 'id' ? 'ID' : field.name.lowerCamelName %>',
     align: '<%= field.align %>',
-    value: '<%= field.name.lowerCamelName %>'
+    key: '<%= field.name.lowerCamelName %>'
   },
     <%_ } -%>
   <%_ }) -%>
@@ -28,7 +28,7 @@ const headers = ref<any[]>([
   {
     text: '',
     align: 'center',
-    value: 'action',
+    key: 'action',
     sortable: false
   }
 ])
@@ -46,7 +46,7 @@ interface Props {
   /** 検索条件 */
   searchCondition: <%= struct.name.pascalName %>SearchCondition
   /** 表示方式 (true: 子要素として表示, false: 親要素として表示) */
-  hasParent: boolean
+  hasParent?: boolean
 <%_ } -%>
 }
 const props = withDefaults(defineProps<Props>(), {
@@ -63,11 +63,13 @@ const props = withDefaults(defineProps<Props>(), {
 interface Emits {
   (e: "changed:pageInfo"): void;
   (e: "update:pageInfo", pageInfo: DataTablePageInfo): void;
+  (e: "update:itemsPerPage", itemsPerPage: number): void;
 <%_ if (struct.structType !== 'struct') { -%>
   (e: "update:searchCondition", searchCondition: <%= struct.name.pascalName %>SearchCondition): void;
 <%_ } -%>
-  (e: "openEntryForm", item?: Model<%= struct.name.pascalName %>): void;
-  (e: "remove", item: Model<%= struct.name.pascalName %>): void;
+  (e: "click:row", item?: Model<%= struct.name.pascalName %>): void;
+  (e: "remove", id: number): void;
+  (e: "create:<%= struct.name.lowerCamelName %>"): void;
 }
 const emit = defineEmits<Emits>()
 
@@ -96,6 +98,11 @@ const previewSearchCondition = computed(() => {
 const onChangePageInfo = () => {
   emit('changed:pageInfo')
 }
+
+const handleItemPerPage = (itemsPerPage: number) => {
+  emit('update:itemsPerPage', itemsPerPage)
+}
+
 <%_ if (struct.structType !== 'struct') { -%>
 
 const search = (searchCondition: <%= struct.name.pascalName %>SearchCondition) => {
@@ -103,18 +110,38 @@ const search = (searchCondition: <%= struct.name.pascalName %>SearchCondition) =
 }
 <%_ } -%>
 
-const openEntryForm = (item?: Model<%= struct.name.pascalName %>) => {
-  emit('openEntryForm', item)
+const clickRow = (item?: Model<%= struct.name.pascalName %>) => {
+  emit('click:row', item)
+}
+
+const create<%= struct.name.pascalName %> = () => {
+  emit('create:<%= struct.name.lowerCamelName %>')
 }
 
 const remove = (item: Model<%= struct.name.pascalName %>) => {
-  emit('remove', item)
+  emit('remove', item.id!)
 }
+<%_ if (struct.fields) { -%>
+<%_ struct.fields.forEach(function(field, index){ -%>
+<%_ if (field.listType !== 'segment') { -%>
+const <%= field.name.lowerCamelName %>Name = (<%= field.name.lowerCamelName %>: number) => {
+  const segment = <%= field.name.upperSnakeName %>_LIST.find(
+          (item) => item.value === <%= field.name.lowerCamelName %>
+  )
+  if (segment) {
+    return segment.name
+  } else {
+    return ''
+  }
+}
+<%_ } -%>
+<%_ }) -%>
+<%_ } -%>
 </script>
 
 <template>
-  <v-flex>
-    <app-data-table
+  <div>
+    <common-app-data-table
       :headers="headers"
       :is-loading="isLoading"
       :items="items || []"
@@ -123,8 +150,10 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
       :total-count="totalCount"
       loading-text="読み込み中"
       no-data-text="該当データ無し"
-      @onChangePageInfo="onChangePageInfo"
-      @openEntryForm="openEntryForm">
+      @re-fetch="onChangePageInfo"
+      @update:items-per-page="handleItemPerPage"
+      @click:row="clickRow"
+    >
       <!-- ヘッダー -->
       <template #top>
         <v-toolbar color="white" flat>
@@ -139,39 +168,50 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
           </template>
 <%_ } -%>
           <v-spacer></v-spacer>
-          <v-btn class="action-button" color="primary" dark fab right small top @click="openEntryForm()">
-            <v-icon>mdi-plus</v-icon>
+          <v-btn
+            density="compact"
+            icon="mdi-plus"
+            color="primary"
+            size="x-large"
+            flat
+            @click="create<%= struct.name.pascalName %>()"
+          >
           </v-btn>
         </v-toolbar>
       </template>
 <%_ if (struct.fields) { -%>
 <%_ struct.fields.forEach(function(field, index){ -%>
-<%_ if (field.type === 'time' || field.type === 'time-range') { -%>
+<%_ if (field.listType === 'segment') { -%>
+  <template #item.<%= field.name.lowerCamelName %>="{ item }">
+    <span>{{ companyTypeName(item.raw.<%= field.name.lowerCamelName %>) }}</span>
+  </template>
+<%_ } -%>
+<%_ if (field.listType === 'time' || field.listType === 'time-range') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
         <span>{{ formatDate(item.<%= field.name.lowerCamelName %>) }}</span>
       </template>
 <%_ } -%>
-<%_ if (field.type === 'bool') { -%>
+<%_ if (field.listType === 'bool') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
         <v-checkbox v-model="item.<%= field.name.lowerCamelName %>" :ripple="false" class="ma-0 pa-0" hide-details readonly></v-checkbox>
       </template>
 <%_ } -%>
-<%_ if (field.type === 'array-string' || field.type === 'array-number' || field.type === 'array-bool') { -%>
+<%_ if (field.listType === 'array-string' || field.listType === 'array-number' || field.listType === 'array-bool') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
         <span>{{ toStringArray(item.<%= field.name.lowerCamelName %>) }}</span>
       </template>
 <%_ } -%>
-<%_ if (field.type === 'array-time') { -%>
+<%_ if (field.listType === 'array-time') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
         <span>{{ toStringTimeArray(item.<%= field.name.lowerCamelName %>) }}</span>
       </template>
 <%_ } -%>
-<%_ if (field.type === 'image' && field.dataType === 'string') { -%>
+<%_ if (field.listType === 'image' && field.dataType === 'string') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
         <v-img :src="item.<%= field.name.lowerCamelName %>" max-height="100px" max-width="100px"></v-img>
       </template>
 <%_ } -%>
-<%_ if (field.type === 'array-image') { -%>
+<%_ if (field.listType === 'array-image') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
         <v-carousel
           v-if="item.<%= field.name.lowerCamelName %> && item.<%= field.name.lowerCamelName %>.length > 0"
@@ -198,19 +238,18 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
 <%_ } -%>
       <!-- 行操作列 -->
       <template #item.action="{ item }">
-        <v-btn icon @click.stop="remove(item)">
-          <v-icon>mdi-delete</v-icon>
-        </v-btn>
+        <v-btn icon="mdi-delete" flat @click.stop="remove(item.raw)"/>
       </template>
-    </app-data-table>
+    </common-app-data-table>
 <%_ if (struct.structType !== 'struct') { -%>
     <<%= struct.name.lowerCamelName %>-search-form
       :current-search-condition="searchCondition"
-      :open.sync="isSearchFormOpen"
+      :open="isSearchFormOpen"
       @search="search"
+      @update:open="isSearchFormOpen = $event"
     ></<%= struct.name.lowerCamelName %>-search-form>
 <%_ } -%>
-  </v-flex>
+  </div>
 </template>
 
 <style scoped>
