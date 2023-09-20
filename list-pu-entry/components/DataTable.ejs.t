@@ -158,7 +158,7 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
             color="primary"
             size="x-large"
             flat
-            @click="createCompany()"
+            @click="create<%= struct.name.pascalName %>()"
           >
           </v-btn>
         </v-toolbar>
