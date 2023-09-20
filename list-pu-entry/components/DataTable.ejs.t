@@ -11,6 +11,13 @@ import {
   INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION
 } from '@/types/<%= struct.name.pascalName %>Type'
 <%_ } -%>
+<%_ if (struct.exists.list.segment) { -%>
+<%_ struct.fields.forEach(function (field, key) { -%>
+<%_ if (field.editType === 'segment') { -%>
+import {<%= field.name.upperSnakeName %>_LIST} from "~/constants/segmentConstants"
+<%_ } -%>
+<%_ }) -%>
+<%_ } -%>
 
 /** ヘッダー定義 */
 const headers = ref<any[]>([
