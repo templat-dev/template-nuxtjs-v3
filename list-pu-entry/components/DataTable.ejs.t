@@ -123,7 +123,7 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
 }
 <%_ if (struct.fields) { -%>
 <%_ struct.fields.forEach(function(field, index){ -%>
-<%_ if (field.listType !== 'segment') { -%>
+<%_ if (field.listType === 'segment') { -%>
 const <%= field.name.lowerCamelName %>Name = (<%= field.name.lowerCamelName %>: number) => {
   const segment = <%= field.name.upperSnakeName %>_LIST.find(
           (item) => item.value === <%= field.name.lowerCamelName %>
