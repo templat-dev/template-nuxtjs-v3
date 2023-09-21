@@ -129,6 +129,11 @@ onMounted(async () => {
   <%= struct.name.lowerCamelPluralName %>.value = data.<%= struct.name.lowerCamelPluralName %> || []
   totalCount.value = data.count || 0
   pageInfo.value = pi || 0
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if (field.listType === 'relation') { -%>
+  <%= field.related.lowerCamelPluralName %>.value = await fetch<%= field.related.pascalPluralName %>()
+  <%_ } -%>
+<%_ }) -%>
 })
 
 const handleItemPerPage = (itemsPerPage: number) => {
