@@ -2,7 +2,14 @@
 to: "<%= struct.generateEnable ? `${rootDirectory}/pages/${struct.name.lowerCamelName}/[id].vue` : null %>"
 ---
 <script setup lang="ts">
-import {Model<%= struct.name.pascalName %>} from '@/apis'
+import {
+  Model<%= struct.name.pascalName %>
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if (field.listType === 'relation') { -%>
+  Model<%= field.related.pascalName %>,
+  <%_ } -%>
+<%_ }) -%>
+} from '@/apis'
 import {useAppLoading} from "~/composables/useLoading"
 import {useAppSnackbar} from "~/composables/useSnackbar"
 import {useAppDialog} from "~/composables/useDialog";
@@ -18,8 +25,20 @@ const dialog = useAppDialog()
 const editTarget = ref<Model<%= struct.name.pascalName %> | null>(null)
 const <%= struct.name.lowerCamelName %>ID = ref<number>(NEW_INDEX)
 
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if (field.listType === 'relation') { -%>
+const <%= field.related.lowerCamelPluralName %> = ref<Model<%= field.related.pascalName %>[]>([])
+  <%_ } -%>
+<%_ }) -%>
+
 const { $api } = useNuxtApp()
 const <%= struct.name.lowerCamelName %>Api = $api.<%= struct.name.lowerCamelName %>Api()
+const <%= struct.name.lowerCamelName %>Api = $api.<%= struct.name.lowerCamelName %>Api()
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if (field.listType === 'relation') { -%>
+const <%= field.related.lowerCamelName %>Api = $api.<%= field.related.lowerCamelName %>Api()
+  <%_ } -%>
+<%_ }) -%>
 
 onMounted(async () => {
   const route = useRoute()
@@ -33,6 +52,11 @@ onMounted(async () => {
       editTarget.value = await <%= struct.name.lowerCamelName %>Api.get<%= struct.name.pascalName %>({id: <%= struct.name.lowerCamelName %>ID.value}).then((res) => res.data)
     }
   }
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if (field.listType === 'relation') { -%>
+  <%= field.related.lowerCamelPluralName %>.value = await fetch<%= field.related.pascalPluralName %>()
+  <%_ } -%>
+<%_ }) -%>
 })
 
 const updateTarget = (target: Model<%= struct.name.pascalName %>) => {
@@ -89,6 +113,11 @@ const back = () => {
     :dialog="false"
     :is-new="<%= struct.name.lowerCamelName %>ID === NEW_INDEX"
     v-model:target="editTarget"
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if (field.listType === 'relation') { -%>
+      :<%= field.related.lowerCamelPluralName %>="<%= field.related.lowerCamelPluralName %>"
+  <%_ } -%>
+<%_ }) -%>
     @save:target="save"
     @update:target="updateTarget"
     @remove:target="remove"

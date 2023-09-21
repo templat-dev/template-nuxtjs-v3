@@ -82,7 +82,7 @@ const props = withDefaults(defineProps<Props>(), {
 <%_ } -%>
 <%_ struct.fields.forEach(function(field, index){ -%>
   <%_ if (field.listType === 'relation') { -%>
-  <%= field.name.lowerCamelPluralName %>: (props: Props) => [],
+  <%= field.related.lowerCamelPluralName %>: (props: Props) => [],
   <%_ } -%>
 <%_ }) -%>
 })

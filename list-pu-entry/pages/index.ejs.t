@@ -22,7 +22,6 @@ to: "<%= struct.generateEnable ? `${rootDirectory}/pages/${struct.name.lowerCame
 <%_ }) -%>
 import {cloneDeep} from 'lodash-es'
 import {
-  <%= struct.name.pascalName %>Api,
   Model<%= struct.name.pascalName %>,
   Model<%= struct.name.pascalPluralName %>,
 <%_ struct.fields.forEach(function(field, index){ -%>
@@ -72,7 +71,6 @@ const <%= struct.name.lowerCamelName %>Api = $api.<%= struct.name.lowerCamelName
 const <%= field.related.lowerCamelName %>Api = $api.<%= field.related.lowerCamelName %>Api()
   <%_ } -%>
 <%_ }) -%>
-
 
 const fetch = async (
   {searchCondition = INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION, pageInfo = INITIAL_DATA_TABLE_PAGE_INFO}
