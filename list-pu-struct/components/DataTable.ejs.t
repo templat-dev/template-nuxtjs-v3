@@ -16,10 +16,10 @@ import {
 <%_ if (field.editType === 'segment') { -%>
 import {<%= field.name.upperSnakeName %>_LIST} from "~/constants/segmentConstants"
 <%_ } -%>
-<%_ if (field.editType === 'time' || field.editType === 'array-time') { -%>
-import AppUtils from '@/utils/appUtils'
-<%_ } -%>
 <%_ }) -%>
+<%_ } -%>
+<%_ if (struct.exists.list.time) { -%>
+import AppUtils from '@/utils/appUtils'
 <%_ } -%>
 
 /** ヘッダー定義 */
@@ -28,7 +28,7 @@ const headers = ref<any[]>([
   <%_ struct.fields.forEach(function(field, index){ -%>
     <%_ if (field.listType !== 'none' && field.dataType !== 'struct' && field.dataType !== 'array-struct') { -%>
   {
-    text: '<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName === 'id' ? 'ID' : field.name.lowerCamelName %>',
+    title: '<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName === 'id' ? 'ID' : field.name.lowerCamelName %>',
     align: '<%= field.align %>',
     key: '<%= field.name.lowerCamelName %>'
   },
