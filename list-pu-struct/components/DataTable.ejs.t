@@ -198,7 +198,7 @@ const <%= field.name.lowerCamelName %>Name = (<%= field.name.lowerCamelName %>: 
 <%_ } -%>
 <%_ if (field.listType === 'time' || field.listType === 'time-range') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
-        <span>{{ formatDate(item.<%= field.name.lowerCamelName %>) }}</span>
+        <span>{{ AppUtils.formatDate(item.<%= field.name.lowerCamelName %>) }}</span>
       </template>
 <%_ } -%>
 <%_ if (field.listType === 'bool') { -%>
