@@ -5,7 +5,7 @@ to: "<%= struct.generateEnable ? `${rootDirectory}/pages/${struct.name.lowerCame
 import {
   Model<%= struct.name.pascalName %>,
 <%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if (field.listType === 'relation') { -%>
+  <%_ if (field.editType === 'relation') { -%>
   Model<%= field.related.pascalName %>,
   <%_ } -%>
 <%_ }) -%>
@@ -26,7 +26,7 @@ const editTarget = ref<Model<%= struct.name.pascalName %> | null>(null)
 const <%= struct.name.lowerCamelName %>ID = ref<number>(NEW_INDEX)
 
 <%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if (field.listType === 'relation') { -%>
+  <%_ if (field.editType === 'relation') { -%>
 const <%= field.related.lowerCamelPluralName %> = ref<Model<%= field.related.pascalName %>[]>([])
   <%_ } -%>
 <%_ }) -%>
@@ -34,13 +34,13 @@ const <%= field.related.lowerCamelPluralName %> = ref<Model<%= field.related.pas
 const { $api } = useNuxtApp()
 const <%= struct.name.lowerCamelName %>Api = $api.<%= struct.name.lowerCamelName %>Api()
 <%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if (field.listType === 'relation') { -%>
+  <%_ if (field.editType === 'relation') { -%>
 const <%= field.related.lowerCamelName %>Api = $api.<%= field.related.lowerCamelName %>Api()
   <%_ } -%>
 <%_ }) -%>
 
 <%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if (field.listType === 'relation') { -%>
+  <%_ if (field.editType === 'relation') { -%>
 const fetch<%= field.related.pascalPluralName %> = async () => {
   return await <%= field.related.lowerCamelName %>Api.search<%= field.related.pascalName %>({}).then((res: any) => res.data.<%= field.related.lowerCamelPluralName %>) || []
 }
@@ -60,7 +60,7 @@ onMounted(async () => {
     }
   }
 <%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if (field.listType === 'relation') { -%>
+  <%_ if (field.editType === 'relation') { -%>
   <%= field.related.lowerCamelPluralName %>.value = await fetch<%= field.related.pascalPluralName %>()
   <%_ } -%>
 <%_ }) -%>
@@ -121,7 +121,7 @@ const back = () => {
     :is-new="<%= struct.name.lowerCamelName %>ID === NEW_INDEX"
     v-model:target="editTarget"
 <%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if (field.listType === 'relation') { -%>
+  <%_ if (field.editType === 'relation') { -%>
       :<%= field.related.lowerCamelPluralName %>="<%= field.related.lowerCamelPluralName %>"
   <%_ } -%>
 <%_ }) -%>

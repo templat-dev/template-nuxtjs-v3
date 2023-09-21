@@ -66,7 +66,7 @@ interface Props {
   /** 表示方式 (true: 子要素として表示, false: 親要素として表示) */
   hasParent?: boolean
 <%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if (field.listType === 'relation') { -%>
+  <%_ if (field.editType === 'relation') { -%>
   <%= field.related.lowerCamelPluralName %>?: Model<%= field.related.pascalName %>[]
   <%_ } -%>
 <%_ }) -%>
@@ -78,7 +78,7 @@ const props = withDefaults(defineProps<Props>(), {
   hasParent: false,
   isNew: true,
 <%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if (field.listType === 'relation') { -%>
+  <%_ if (field.editType === 'relation') { -%>
   <%= field.related.lowerCamelPluralName %>: (props: Props) => [],
   <%_ } -%>
 <%_ }) -%>
@@ -188,7 +188,7 @@ const cancel = () => {
   emit('cancel')
 }
 <%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if (field.listType === 'relation') { -%>
+  <%_ if (field.editType === 'relation') { -%>
 const <%= field.related.lowerCamelName %>Name = (id: number): string => {
   const <%= field.related.lowerCamelName %> = props.<%= field.related.lowerCamelPluralName %>?.find((c: Model<%= field.related.pascalName %>) => c.id === id)
   if (!<%= field.related.lowerCamelName %> || !<%= field.related.lowerCamelName %>.name) {
