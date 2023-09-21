@@ -6,8 +6,8 @@ import {cloneDeep} from "lodash-es";
 import {
   Model<%= struct.name.pascalName %>,
 <%_ struct.fields.forEach(function (field, key) { -%>
-  <%_ if (field.editType === 'array-struct' || field.editType === 'struct') { -%>
-  Model<%= field.structName.pascalName %>,
+  <%_ if (field.editType === 'relation') { -%>
+  Model<%= field.related.pascalName %>,
   <%_ } -%>
 <%_ }) -%>
 } from '@/apis'
@@ -65,6 +65,11 @@ interface Props {
   open?: boolean
   /** 表示方式 (true: 子要素として表示, false: 親要素として表示) */
   hasParent?: boolean
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if (field.editType === 'relation') { -%>
+  <%= field.related.lowerCamelPluralName %>?: Model<%= field.related.pascalName %>[]
+  <%_ } -%>
+<%_ }) -%>
 }
 const props = withDefaults(defineProps<Props>(), {
   open: true,
@@ -72,6 +77,11 @@ const props = withDefaults(defineProps<Props>(), {
   dialog: false,
   hasParent: false,
   isNew: true,
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if (field.editType === 'relation') { -%>
+  <%= field.related.lowerCamelPluralName %>: (props: Props) => [],
+  <%_ } -%>
+<%_ }) -%>
 })
 
 interface Emits {
@@ -177,6 +187,17 @@ const remove = async () => {
 const cancel = () => {
   emit('cancel')
 }
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if (field.editType === 'relation') { -%>
+const <%= field.related.lowerCamelName %>Name = (id: number): string => {
+  const <%= field.related.lowerCamelName %> = props.<%= field.related.lowerCamelPluralName %>?.find((c: Model<%= field.related.pascalName %>) => c.id === id)
+  if (!<%= field.related.lowerCamelName %> || !<%= field.related.lowerCamelName %>.name) {
+    return ''
+  }
+  return <%= field.related.lowerCamelName %>.name
+}
+  <%_ } -%>
+<%_ }) -%>
 </script>
 
 <template>
@@ -244,8 +265,26 @@ const cancel = () => {
               label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
               item-title="name"
               item-value="value"
-              outlined
-              dense
+              variant="underlined"
+              style="width: 100%;"
+            ></v-select>
+          </v-col>
+        </v-row>
+        <%_ } -%>
+        <%_ if (field.editType === 'relation') { -%>
+        <v-row>
+          <v-col cols="12">
+            <v-select
+              :modelValue="target.<%= field.name.lowerCamelName %>"
+              @update:modelValue="v => {
+                editTarget!.<%= field.name.lowerCamelName %> = v === '' ? undefined : Number(v)
+                updateTarget()
+              }"
+              :items="<%= field.related.upperSnakeName %>_LIST"
+              label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
+              item-title="name"
+              item-value="id"
+              variant="underlined"
               style="width: 100%;"
             ></v-select>
           </v-col>
@@ -269,7 +308,11 @@ const cancel = () => {
         <%_ } -%>
         <%_ if (field.editType === 'time') { -%>
         <date-time-form
-          :date-time.sync="target.<%= field.name.lowerCamelName %>"
+          :date-time="target.<%= field.name.lowerCamelName %>"
+          @update:datetime="v => {
+            editTarget!.<%= field.name.lowerCamelName %> = v
+            updateTarget()
+          }"
           :rules="validationRules.<%= field.name.lowerCamelName %>"
           label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
         ></date-time-form>

@@ -3,7 +3,14 @@ to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct
 ---
 <script setup lang="ts">
 import {cloneDeep} from 'lodash-es'
-import {Model<%= struct.name.pascalName %>} from '@/apis'
+import {
+  Model<%= struct.name.pascalName %>,
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if (field.listType === 'relation') { -%>
+  Model<%= field.related.pascalName %>,
+  <%_ } -%>
+<%_ }) -%>
+} from '@/apis'
 import {DataTablePageInfo, INITIAL_DATA_TABLE_PAGE_INFO} from '@/types/DataTableType'
 <%_ if (struct.screenType !== 'struct') { -%>
 import {
@@ -58,6 +65,11 @@ interface Props {
   /** 表示方式 (true: 子要素として表示, false: 親要素として表示) */
   hasParent?: boolean
 <%_ } -%>
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if (field.listType === 'relation') { -%>
+  <%= field.related.lowerCamelPluralName %>?: Model<%= field.related.pascalName %>[]
+  <%_ } -%>
+<%_ }) -%>
 }
 const props = withDefaults(defineProps<Props>(), {
   items: (props: Props) => [],
@@ -68,6 +80,11 @@ const props = withDefaults(defineProps<Props>(), {
   searchCondition: (props: Props) => cloneDeep(INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION),
   hasParent: false,
 <%_ } -%>
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if (field.listType === 'relation') { -%>
+  <%= field.related.lowerCamelPluralName %>: (props: Props) => [],
+  <%_ } -%>
+<%_ }) -%>
 })
 
 interface Emits {
@@ -89,7 +106,6 @@ const currentPageInfo = computed({
 })
 
 <%_ if (struct.structType !== 'struct') { -%>
-
 /** 検索フォームの表示表示状態 (true: 表示, false: 非表示) */
 const isSearchFormOpen = ref<boolean>(false)
 
@@ -134,7 +150,7 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
 <%_ if (struct.fields) { -%>
 <%_ struct.fields.forEach(function(field, index){ -%>
 <%_ if (field.listType === 'segment') { -%>
-const <%= field.name.lowerCamelName %>Name = (<%= field.name.lowerCamelName %>: number) => {
+const <%= field.name.lowerCamelName %>Name = (<%= field.name.lowerCamelName %>: number): string => {
   const segment = <%= field.name.upperSnakeName %>_LIST.find(
           (item) => item.value === <%= field.name.lowerCamelName %>
   )
@@ -147,6 +163,17 @@ const <%= field.name.lowerCamelName %>Name = (<%= field.name.lowerCamelName %>: 
 <%_ } -%>
 <%_ }) -%>
 <%_ } -%>
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if (field.listType === 'relation') { -%>
+const <%= field.related.lowerCamelName %>Name = (id: number): string => {
+  const <%= field.related.lowerCamelName %> = props.<%= field.related.lowerCamelPluralName %>?.find((c: Model<%= field.related.pascalName %>) => c.id === id)
+  if (!<%= field.related.lowerCamelName %> || !<%= field.related.lowerCamelName %>.name) {
+    return ''
+  }
+  return <%= field.related.lowerCamelName %>.name
+}
+  <%_ } -%>
+<%_ }) -%>
 </script>
 
 <template>
@@ -191,6 +218,13 @@ const <%= field.name.lowerCamelName %>Name = (<%= field.name.lowerCamelName %>: 
       </template>
 <%_ if (struct.fields) { -%>
 <%_ struct.fields.forEach(function(field, index){ -%>
+<%_ if (field.listType === 'relation') { -%>
+  <template #item.<%= field.name.lowerCamelName %>="{ item }">
+    <v-btn tonal size="large" @click.stop="navigateTo(`/<%= field.related.lowerCamelName %>/${item.raw.<%= field.name.lowerCamelName %>}`)">
+      <span>{{ <%= field.related.lowerCamelName %>Name(item.raw.<%= field.name.lowerCamelName %>) }}</span>
+    </v-btn>
+  </template>
+<%_ } -%>
 <%_ if (field.listType === 'segment') { -%>
   <template #item.<%= field.name.lowerCamelName %>="{ item }">
     <span>{{ companyTypeName(item.raw.<%= field.name.lowerCamelName %>) }}</span>
@@ -198,33 +232,33 @@ const <%= field.name.lowerCamelName %>Name = (<%= field.name.lowerCamelName %>: 
 <%_ } -%>
 <%_ if (field.listType === 'time' || field.listType === 'time-range') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
-        <span>{{ AppUtils.formatDate(item.<%= field.name.lowerCamelName %>) }}</span>
+        <span>{{ AppUtils.formatDate(item.raw.<%= field.name.lowerCamelName %>) }}</span>
       </template>
 <%_ } -%>
 <%_ if (field.listType === 'bool') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
-        <v-checkbox v-model="item.<%= field.name.lowerCamelName %>" :ripple="false" class="ma-0 pa-0" hide-details readonly></v-checkbox>
+        <v-checkbox v-model="item.raw.<%= field.name.lowerCamelName %>" :ripple="false" class="ma-0 pa-0" hide-details readonly></v-checkbox>
       </template>
 <%_ } -%>
 <%_ if (field.listType === 'array-string' || field.listType === 'array-number' || field.listType === 'array-bool') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
-        <span>{{ toStringArray(item.<%= field.name.lowerCamelName %>) }}</span>
+        <span>{{ toStringArray(item.raw.<%= field.name.lowerCamelName %>) }}</span>
       </template>
 <%_ } -%>
 <%_ if (field.listType === 'array-time') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
-        <span>{{ toStringTimeArray(item.<%= field.name.lowerCamelName %>) }}</span>
+        <span>{{ toStringTimeArray(item.raw.<%= field.name.lowerCamelName %>) }}</span>
       </template>
 <%_ } -%>
 <%_ if (field.listType === 'image' && field.dataType === 'string') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
-        <v-img :src="item.<%= field.name.lowerCamelName %>" max-height="100px" max-width="100px"></v-img>
+        <v-img :src="item.raw.<%= field.name.lowerCamelName %>" max-height="100px" max-width="100px"></v-img>
       </template>
 <%_ } -%>
 <%_ if (field.listType === 'array-image') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
         <v-carousel
-          v-if="item.<%= field.name.lowerCamelName %> && item.<%= field.name.lowerCamelName %>.length > 0"
+          v-if="item.raw.<%= field.name.lowerCamelName %> && item.raw.<%= field.name.lowerCamelName %>.length > 0"
           class="carousel" height="100px" hide-delimiters>
           <template #prev="{ on, attrs }">
             <v-btn v-bind="attrs" v-on="on" icon x-small>
@@ -236,7 +270,7 @@ const <%= field.name.lowerCamelName %>Name = (<%= field.name.lowerCamelName %>: 
               <v-icon>mdi-chevron-right</v-icon>
             </v-btn>
           </template>
-          <v-carousel-item v-for="(image,i) in item.<%= field.name.lowerCamelName %>" :key="i">
+          <v-carousel-item v-for="(image,i) in item.raw.<%= field.name.lowerCamelName %>" :key="i">
             <v-layout justify-center>
               <v-img :src="image" contain max-height="100px" max-width="100px"/>
             </v-layout>
