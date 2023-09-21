@@ -16,10 +16,10 @@ import {
 <%_ if (field.editType === 'segment') { -%>
 import {<%= field.name.upperSnakeName %>_LIST} from "~/constants/segmentConstants"
 <%_ } -%>
-<%_ if (field.editType === 'time' || field.editType === 'array-time') { -%>
-import AppUtils from '@/utils/appUtils'
-<%_ } -%>
 <%_ }) -%>
+<%_ } -%>
+<%_ if (struct.exists.list.time) { -%>
+import AppUtils from '@/utils/appUtils'
 <%_ } -%>
 
 /** ヘッダー定義 */
