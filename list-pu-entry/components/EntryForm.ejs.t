@@ -6,7 +6,7 @@ import {cloneDeep} from "lodash-es";
 import {
   Model<%= struct.name.pascalName %>,
 <%_ struct.fields.forEach(function (field, key) { -%>
-  <%_ if (field.editType === 'array-struct' || field.editType === 'struct') { -%>
+  <%_ if (field.editType === 'relation') { -%>
   Model<%= field.structName.pascalName %>,
   <%_ } -%>
 <%_ }) -%>

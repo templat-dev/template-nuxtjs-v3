@@ -3,7 +3,7 @@ to: "<%= struct.generateEnable ? `${rootDirectory}/pages/${struct.name.lowerCame
 ---
 <script setup lang="ts">
 import {
-  Model<%= struct.name.pascalName %>
+  Model<%= struct.name.pascalName %>,
 <%_ struct.fields.forEach(function(field, index){ -%>
   <%_ if (field.listType === 'relation') { -%>
   Model<%= field.related.pascalName %>,
@@ -33,10 +33,17 @@ const <%= field.related.lowerCamelPluralName %> = ref<Model<%= field.related.pas
 
 const { $api } = useNuxtApp()
 const <%= struct.name.lowerCamelName %>Api = $api.<%= struct.name.lowerCamelName %>Api()
-const <%= struct.name.lowerCamelName %>Api = $api.<%= struct.name.lowerCamelName %>Api()
 <%_ struct.fields.forEach(function(field, index){ -%>
   <%_ if (field.listType === 'relation') { -%>
 const <%= field.related.lowerCamelName %>Api = $api.<%= field.related.lowerCamelName %>Api()
+  <%_ } -%>
+<%_ }) -%>
+
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if (field.listType === 'relation') { -%>
+const fetch<%= field.related.pascalPluralName %> = async () => {
+  return await <%= field.related.lowerCamelName %>Api.search<%= field.related.pascalName %>({}).then((res: any) => res.data.<%= field.related.lowerCamelPluralName %>) || []
+}
   <%_ } -%>
 <%_ }) -%>
 
