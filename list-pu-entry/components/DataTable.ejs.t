@@ -7,7 +7,7 @@ import {
   Model<%= struct.name.pascalName %>,
 <%_ struct.fields.forEach(function(field, index){ -%>
   <%_ if (field.listType === 'relation') { -%>
-  Model<%= field.name.pascalName %>,
+  Model<%= field.related.pascalName %>,
   <%_ } -%>
 <%_ }) -%>
 } from '@/apis'

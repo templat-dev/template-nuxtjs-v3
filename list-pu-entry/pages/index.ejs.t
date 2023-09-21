@@ -52,7 +52,7 @@ const searchCondition = ref<<%= struct.name.pascalName %>SearchCondition>(cloneD
 
 <%_ struct.fields.forEach(function(field, index){ -%>
   <%_ if (field.listType === 'relation') { -%>
-const <%= field.name.lowerCamelPluralName %> = ref<Model<%= field.name.pascalName %>[]>([])
+const <%= field.related.lowerCamelPluralName %> = ref<Model<%= field.related.pascalName %>[]>([])
   <%_ } -%>
 <%_ }) -%>
 
@@ -60,7 +60,7 @@ const { $api } = useNuxtApp()
 const <%= struct.name.lowerCamelName %>Api = $api.<%= struct.name.lowerCamelName %>Api()
 <%_ struct.fields.forEach(function(field, index){ -%>
   <%_ if (field.listType === 'relation') { -%>
-const <%= field.name.lowerCamelName %>Api = $api.<Model<%= field.name.pascalName %>Api()
+const <%= field.related.lowerCamelName %>Api = $api.Model<%= field.related.pascalName %>Api()
   <%_ } -%>
 <%_ }) -%>
 
@@ -103,8 +103,8 @@ const fetch = async (
 
 <%_ struct.fields.forEach(function(field, index){ -%>
   <%_ if (field.listType === 'relation') { -%>
-const fetch<%= field.name.pascalPluralName %> = async () => {
-  return await <%= field.name.lowerCamelName %>Api.search<%= field.name.pascalName %>({}).then(res => res.data.<%= field.name.lowerCamelPluralName %>) || []
+const fetch<%= field.related.pascalPluralName %> = async () => {
+  return await <%= field.related.lowerCamelName %>Api.search<%= field.related.pascalName %>({}).then(res => res.data.<%= field.related.lowerCamelPluralName %>) || []
 }
   <%_ } -%>
 <%_ }) -%>
@@ -183,7 +183,7 @@ const remove = async(id: number) => {
       :items="<%= struct.name.lowerCamelPluralName %>"
 <%_ struct.fields.forEach(function(field, index){ -%>
   <%_ if (field.listType === 'relation') { -%>
-      :<%= field.name.lowerCamelPluralName %>="<%= field.name.lowerCamelPluralName %>"
+      :<%= field.related.lowerCamelPluralName %>="<%= field.related.lowerCamelPluralName %>"
   <%_ } -%>
 <%_ }) -%>
       v-model:page-info="pageInfo"
