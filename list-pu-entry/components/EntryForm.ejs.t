@@ -269,7 +269,11 @@ const cancel = () => {
         <%_ } -%>
         <%_ if (field.editType === 'time') { -%>
         <date-time-form
-          :date-time.sync="target.<%= field.name.lowerCamelName %>"
+          :date-time="target.<%= field.name.lowerCamelName %>"
+          @update:datetime="v => {
+            editTarget!.<%= field.name.lowerCamelName %> = v
+            updateTarget()
+          }"
           :rules="validationRules.<%= field.name.lowerCamelName %>"
           label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
         ></date-time-form>

@@ -28,6 +28,7 @@ force: true
     "@nuxt/typescript-build": "^3.0.1",
     "@openapitools/openapi-generator-cli": "^2.5.2",
     "@types/node": "^18",
+    "@vuepic/vue-datepicker": "^6.1.0",
     "axios": "^1.4.0",
     "date-fns": "^2.30.0",
 <%_ if (project.plugins.find(p => p.name === 'auth')?.enable) { -%>

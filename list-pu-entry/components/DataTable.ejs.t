@@ -198,33 +198,33 @@ const <%= field.name.lowerCamelName %>Name = (<%= field.name.lowerCamelName %>: 
 <%_ } -%>
 <%_ if (field.listType === 'time' || field.listType === 'time-range') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
-        <span>{{ AppUtils.formatDate(item.<%= field.name.lowerCamelName %>) }}</span>
+        <span>{{ AppUtils.formatDate(item.raw.<%= field.name.lowerCamelName %>) }}</span>
       </template>
 <%_ } -%>
 <%_ if (field.listType === 'bool') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
-        <v-checkbox v-model="item.<%= field.name.lowerCamelName %>" :ripple="false" class="ma-0 pa-0" hide-details readonly></v-checkbox>
+        <v-checkbox v-model="item.raw.<%= field.name.lowerCamelName %>" :ripple="false" class="ma-0 pa-0" hide-details readonly></v-checkbox>
       </template>
 <%_ } -%>
 <%_ if (field.listType === 'array-string' || field.listType === 'array-number' || field.listType === 'array-bool') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
-        <span>{{ toStringArray(item.<%= field.name.lowerCamelName %>) }}</span>
+        <span>{{ toStringArray(item.raw.<%= field.name.lowerCamelName %>) }}</span>
       </template>
 <%_ } -%>
 <%_ if (field.listType === 'array-time') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
-        <span>{{ toStringTimeArray(item.<%= field.name.lowerCamelName %>) }}</span>
+        <span>{{ toStringTimeArray(item.raw.<%= field.name.lowerCamelName %>) }}</span>
       </template>
 <%_ } -%>
 <%_ if (field.listType === 'image' && field.dataType === 'string') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
-        <v-img :src="item.<%= field.name.lowerCamelName %>" max-height="100px" max-width="100px"></v-img>
+        <v-img :src="item.raw.<%= field.name.lowerCamelName %>" max-height="100px" max-width="100px"></v-img>
       </template>
 <%_ } -%>
 <%_ if (field.listType === 'array-image') { -%>
       <template #item.<%= field.name.lowerCamelName %>="{ item }">
         <v-carousel
-          v-if="item.<%= field.name.lowerCamelName %> && item.<%= field.name.lowerCamelName %>.length > 0"
+          v-if="item.raw.<%= field.name.lowerCamelName %> && item.raw.<%= field.name.lowerCamelName %>.length > 0"
           class="carousel" height="100px" hide-delimiters>
           <template #prev="{ on, attrs }">
             <v-btn v-bind="attrs" v-on="on" icon x-small>
@@ -236,7 +236,7 @@ const <%= field.name.lowerCamelName %>Name = (<%= field.name.lowerCamelName %>: 
               <v-icon>mdi-chevron-right</v-icon>
             </v-btn>
           </template>
-          <v-carousel-item v-for="(image,i) in item.<%= field.name.lowerCamelName %>" :key="i">
+          <v-carousel-item v-for="(image,i) in item.raw.<%= field.name.lowerCamelName %>" :key="i">
             <v-layout justify-center>
               <v-img :src="image" contain max-height="100px" max-width="100px"/>
             </v-layout>

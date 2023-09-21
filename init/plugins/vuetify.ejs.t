@@ -12,6 +12,8 @@ import {
 } from "vuetify/labs/VDataTable";
 import { MAIN_THEME, mainTheme, MAIN_DARK_THEME, mainDarkTheme } from '~/helpers/themes'
 import { defaults } from '~/helpers/defaults'
+import Datepicker from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
 
 export default defineNuxtPlugin(nuxtApp => {
   const vuetify = createVuetify({
@@ -43,4 +45,5 @@ export default defineNuxtPlugin(nuxtApp => {
 
   // Vue.js で Vuetify を使用する
   nuxtApp.vueApp.use(vuetify)
+  nuxtApp.vueApp.component('Datepicker', Datepicker)
 })
