@@ -21,7 +21,16 @@ to: "<%= struct.generateEnable ? `${rootDirectory}/pages/${struct.name.lowerCame
   <%_ } -%>
 <%_ }) -%>
 import {cloneDeep} from 'lodash-es'
-import {<%= struct.name.pascalName %>Api, Model<%= struct.name.pascalName %>, Model<%= struct.name.pascalPluralName %>} from '@/apis'
+import {
+  <%= struct.name.pascalName %>Api,
+  Model<%= struct.name.pascalName %>,
+  Model<%= struct.name.pascalPluralName %>,
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if (field.listType === 'relation') { -%>
+  Model<%= field.related.pascalName %>,
+  <%_ } -%>
+<%_ }) -%>
+} from '@/apis'
 import {DataTablePageInfo, DataTableSortItem, INITIAL_DATA_TABLE_PAGE_INFO} from "~/types/DataTableType";
 import {
   <%= struct.name.pascalName %>SearchCondition,
@@ -60,7 +69,7 @@ const { $api } = useNuxtApp()
 const <%= struct.name.lowerCamelName %>Api = $api.<%= struct.name.lowerCamelName %>Api()
 <%_ struct.fields.forEach(function(field, index){ -%>
   <%_ if (field.listType === 'relation') { -%>
-const <%= field.related.lowerCamelName %>Api = $api.Model<%= field.related.pascalName %>Api()
+const <%= field.related.lowerCamelName %>Api = $api.<%= field.related.lowerCamelName %>Api()
   <%_ } -%>
 <%_ }) -%>
 
@@ -104,7 +113,7 @@ const fetch = async (
 <%_ struct.fields.forEach(function(field, index){ -%>
   <%_ if (field.listType === 'relation') { -%>
 const fetch<%= field.related.pascalPluralName %> = async () => {
-  return await <%= field.related.lowerCamelName %>Api.search<%= field.related.pascalName %>({}).then(res => res.data.<%= field.related.lowerCamelPluralName %>) || []
+  return await <%= field.related.lowerCamelName %>Api.search<%= field.related.pascalName %>({}).then((res: any) => res.data.<%= field.related.lowerCamelPluralName %>) || []
 }
   <%_ } -%>
 <%_ }) -%>

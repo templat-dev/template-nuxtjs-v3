@@ -67,7 +67,7 @@ interface Props {
 <%_ } -%>
 <%_ struct.fields.forEach(function(field, index){ -%>
   <%_ if (field.listType === 'relation') { -%>
-  <%= field.name.lowerCamelPluralName %>?: Model<%= field.name.pascalName %>[]
+  <%= field.related.lowerCamelPluralName %>?: Model<%= field.related.pascalName %>[]
   <%_ } -%>
 <%_ }) -%>
 }
@@ -150,7 +150,7 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
 <%_ if (struct.fields) { -%>
 <%_ struct.fields.forEach(function(field, index){ -%>
 <%_ if (field.listType === 'segment') { -%>
-const <%= field.name.lowerCamelName %>Name = (<%= field.name.lowerCamelName %>: number) => {
+const <%= field.name.lowerCamelName %>Name = (<%= field.name.lowerCamelName %>: number): string => {
   const segment = <%= field.name.upperSnakeName %>_LIST.find(
           (item) => item.value === <%= field.name.lowerCamelName %>
   )
@@ -165,12 +165,12 @@ const <%= field.name.lowerCamelName %>Name = (<%= field.name.lowerCamelName %>: 
 <%_ } -%>
 <%_ struct.fields.forEach(function(field, index){ -%>
   <%_ if (field.listType === 'relation') { -%>
-const <%= field.name.lowerCamelName %>Name = (id: number): string => {
-  const <%= field.name.lowerCamelName %> = props.<%= field.name.lowerCamelPluralName %>?.find((c: Model<%= field.name.pascalName %>) => c.id === id)
-  if (!<%= field.name.lowerCamelName %> || !<%= field.name.lowerCamelName %>.name) {
+const <%= field.related.lowerCamelName %>Name = (id: number): string => {
+  const <%= field.related.lowerCamelName %> = props.<%= field.related.lowerCamelPluralName %>?.find((c: Model<%= field.related.pascalName %>) => c.id === id)
+  if (!<%= field.related.lowerCamelName %> || !<%= field.related.lowerCamelName %>.name) {
     return ''
   }
-  return <%= field.name.lowerCamelName %>.name
+  return <%= field.related.lowerCamelName %>.name
 }
   <%_ } -%>
 <%_ }) -%>
@@ -220,8 +220,8 @@ const <%= field.name.lowerCamelName %>Name = (id: number): string => {
 <%_ struct.fields.forEach(function(field, index){ -%>
 <%_ if (field.listType === 'relation') { -%>
   <template #item.<%= field.name.lowerCamelName %>="{ item }">
-    <v-btn tonal size="large" @click.stop="navigateTo(`/<%= field.name.lowerCamelName %>/${item.raw.<%= field.name.lowerCamelName %>}`)">
-      <span>{{ <%= field.name.lowerCamelName %>Name(item.raw.<%= field.name.lowerCamelName %>) }}</span>
+    <v-btn tonal size="large" @click.stop="navigateTo(`/<%= field.related.lowerCamelName %>/${item.raw.<%= field.name.lowerCamelName %>}`)">
+      <span>{{ <%= field.related.lowerCamelName %>Name(item.raw.<%= field.name.lowerCamelName %>) }}</span>
     </v-btn>
   </template>
 <%_ } -%>
