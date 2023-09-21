@@ -3,7 +3,14 @@ to: <%= rootDirectory %>/components/<%= struct.name.lowerCamelName %>/<%= struct
 ---
 <script setup lang="ts">
 import {cloneDeep} from 'lodash-es'
-import {Model<%= struct.name.pascalName %>} from '@/apis'
+import {
+  Model<%= struct.name.pascalName %>,
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if ((field.listType === 'relation') { -%>
+  Model<%= field.name.pascalName %>,
+  <%_ } -%>
+<%_ }) -%>
+} from '@/apis'
 import {DataTablePageInfo, INITIAL_DATA_TABLE_PAGE_INFO} from '@/types/DataTableType'
 <%_ if (struct.screenType !== 'struct') { -%>
 import {
@@ -58,6 +65,11 @@ interface Props {
   /** 表示方式 (true: 子要素として表示, false: 親要素として表示) */
   hasParent?: boolean
 <%_ } -%>
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if ((field.listType === 'relation') { -%>
+  <%= field.name.lowerCamelPluralName %>?: Model<%= field.name.pascalName %>[]
+  <%_ } -%>
+<%_ }) -%>
 }
 const props = withDefaults(defineProps<Props>(), {
   items: (props: Props) => [],
@@ -68,6 +80,11 @@ const props = withDefaults(defineProps<Props>(), {
   searchCondition: (props: Props) => cloneDeep(INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION),
   hasParent: false,
 <%_ } -%>
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if ((field.listType === 'relation') { -%>
+  <%= field.name.lowerCamelPluralName %>: (props: Props) => [],
+  <%_ } -%>
+<%_ }) -%>
 })
 
 interface Emits {
@@ -89,7 +106,6 @@ const currentPageInfo = computed({
 })
 
 <%_ if (struct.structType !== 'struct') { -%>
-
 /** 検索フォームの表示表示状態 (true: 表示, false: 非表示) */
 const isSearchFormOpen = ref<boolean>(false)
 
@@ -147,6 +163,17 @@ const <%= field.name.lowerCamelName %>Name = (<%= field.name.lowerCamelName %>: 
 <%_ } -%>
 <%_ }) -%>
 <%_ } -%>
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if ((field.listType === 'relation') { -%>
+const <%= field.name.lowerCamelName %>Name = (id: number): string => {
+  const <%= field.name.lowerCamelName %> = props.<%= field.name.lowerCamelPluralName %>?.find((c: Model<%= field.name.pascalName %>) => c.id === id)
+  if (!<%= field.name.lowerCamelName %> || !<%= field.name.lowerCamelName %>.name) {
+    return ''
+  }
+  return <%= field.name.lowerCamelName %>.name
+}
+  <%_ } -%>
+<%_ }) -%>
 </script>
 
 <template>
@@ -191,6 +218,13 @@ const <%= field.name.lowerCamelName %>Name = (<%= field.name.lowerCamelName %>: 
       </template>
 <%_ if (struct.fields) { -%>
 <%_ struct.fields.forEach(function(field, index){ -%>
+<%_ if (field.listType === 'relation') { -%>
+  <template #item.<%= field.name.lowerCamelName %>="{ item }">
+    <v-btn tonal size="large" @click.stop="navigateTo(`/<%= field.name.lowerCamelName %>/${item.raw.<%= field.name.lowerCamelName %>}`)">
+      <span>{{ <%= field.name.lowerCamelName %>Name(item.raw.<%= field.name.lowerCamelName %>) }}</span>
+    </v-btn>
+  </template>
+<%_ } -%>
 <%_ if (field.listType === 'segment') { -%>
   <template #item.<%= field.name.lowerCamelName %>="{ item }">
     <span>{{ companyTypeName(item.raw.<%= field.name.lowerCamelName %>) }}</span>

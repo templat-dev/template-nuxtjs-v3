@@ -50,8 +50,20 @@ const isLoading = ref<boolean>(false)
 /** 検索条件 */
 const searchCondition = ref<<%= struct.name.pascalName %>SearchCondition>(cloneDeep(INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION))
 
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if ((field.listType === 'relation') { -%>
+const <%= field.name.lowerCamelPluralName %> = ref<Model<%= field.name.pascalName %>[]>([])
+  <%_ } -%>
+<%_ }) -%>
+
 const { $api } = useNuxtApp()
 const <%= struct.name.lowerCamelName %>Api = $api.<%= struct.name.lowerCamelName %>Api()
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if ((field.listType === 'relation') { -%>
+const <%= field.name.lowerCamelName %>Api = $api.<Model<%= field.name.pascalName %>Api()
+  <%_ } -%>
+<%_ }) -%>
+
 
 const fetch = async (
   {searchCondition = INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION, pageInfo = INITIAL_DATA_TABLE_PAGE_INFO}
@@ -88,6 +100,14 @@ const fetch = async (
 <%_ } -%>
   }).then(res => res.data)
 }
+
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if ((field.listType === 'relation') { -%>
+const fetch<%= field.name.pascalPluralName %> = async () => {
+  return await <%= field.name.lowerCamelName %>Api.search<%= field.name.pascalName %>({}).then(res => res.data.<%= field.name.lowerCamelPluralName %>) || []
+}
+  <%_ } -%>
+<%_ }) -%>
 
 onMounted(async () => {
   const data = await fetch()
@@ -161,6 +181,11 @@ const remove = async(id: number) => {
     <<%= struct.name.lowerCamelName %>-data-table
       :is-loading="isLoading"
       :items="<%= struct.name.lowerCamelPluralName %>"
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if ((field.listType === 'relation') { -%>
+      :<%= field.name.lowerCamelPluralName %>="<%= field.name.lowerCamelPluralName %>"
+  <%_ } -%>
+<%_ }) -%>
       v-model:page-info="pageInfo"
       v-model:search-condition="searchCondition"
       :total-count="totalCount"
