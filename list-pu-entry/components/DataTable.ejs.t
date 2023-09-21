@@ -6,7 +6,7 @@ import {cloneDeep} from 'lodash-es'
 import {
   Model<%= struct.name.pascalName %>,
 <%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if ((field.listType === 'relation') { -%>
+  <%_ if (field.listType === 'relation') { -%>
   Model<%= field.name.pascalName %>,
   <%_ } -%>
 <%_ }) -%>
@@ -66,7 +66,7 @@ interface Props {
   hasParent?: boolean
 <%_ } -%>
 <%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if ((field.listType === 'relation') { -%>
+  <%_ if (field.listType === 'relation') { -%>
   <%= field.name.lowerCamelPluralName %>?: Model<%= field.name.pascalName %>[]
   <%_ } -%>
 <%_ }) -%>
@@ -81,7 +81,7 @@ const props = withDefaults(defineProps<Props>(), {
   hasParent: false,
 <%_ } -%>
 <%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if ((field.listType === 'relation') { -%>
+  <%_ if (field.listType === 'relation') { -%>
   <%= field.name.lowerCamelPluralName %>: (props: Props) => [],
   <%_ } -%>
 <%_ }) -%>
@@ -164,7 +164,7 @@ const <%= field.name.lowerCamelName %>Name = (<%= field.name.lowerCamelName %>: 
 <%_ }) -%>
 <%_ } -%>
 <%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if ((field.listType === 'relation') { -%>
+  <%_ if (field.listType === 'relation') { -%>
 const <%= field.name.lowerCamelName %>Name = (id: number): string => {
   const <%= field.name.lowerCamelName %> = props.<%= field.name.lowerCamelPluralName %>?.find((c: Model<%= field.name.pascalName %>) => c.id === id)
   if (!<%= field.name.lowerCamelName %> || !<%= field.name.lowerCamelName %>.name) {

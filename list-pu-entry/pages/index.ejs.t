@@ -51,7 +51,7 @@ const isLoading = ref<boolean>(false)
 const searchCondition = ref<<%= struct.name.pascalName %>SearchCondition>(cloneDeep(INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION))
 
 <%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if ((field.listType === 'relation') { -%>
+  <%_ if (field.listType === 'relation') { -%>
 const <%= field.name.lowerCamelPluralName %> = ref<Model<%= field.name.pascalName %>[]>([])
   <%_ } -%>
 <%_ }) -%>
@@ -59,7 +59,7 @@ const <%= field.name.lowerCamelPluralName %> = ref<Model<%= field.name.pascalNam
 const { $api } = useNuxtApp()
 const <%= struct.name.lowerCamelName %>Api = $api.<%= struct.name.lowerCamelName %>Api()
 <%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if ((field.listType === 'relation') { -%>
+  <%_ if (field.listType === 'relation') { -%>
 const <%= field.name.lowerCamelName %>Api = $api.<Model<%= field.name.pascalName %>Api()
   <%_ } -%>
 <%_ }) -%>
@@ -102,7 +102,7 @@ const fetch = async (
 }
 
 <%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if ((field.listType === 'relation') { -%>
+  <%_ if (field.listType === 'relation') { -%>
 const fetch<%= field.name.pascalPluralName %> = async () => {
   return await <%= field.name.lowerCamelName %>Api.search<%= field.name.pascalName %>({}).then(res => res.data.<%= field.name.lowerCamelPluralName %>) || []
 }
@@ -182,7 +182,7 @@ const remove = async(id: number) => {
       :is-loading="isLoading"
       :items="<%= struct.name.lowerCamelPluralName %>"
 <%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if ((field.listType === 'relation') { -%>
+  <%_ if (field.listType === 'relation') { -%>
       :<%= field.name.lowerCamelPluralName %>="<%= field.name.lowerCamelPluralName %>"
   <%_ } -%>
 <%_ }) -%>
