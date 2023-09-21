@@ -18,6 +18,13 @@ export default class AppUtils {
     return result
   }
 
+  static formatDate(date?: string) {
+    if (!date) {
+      return ''
+    }
+    return format(new Date(date), 'yyyy-MM-dd')
+  }
+
   static toStringArray(array: any[]): string {
     if (!array) return ''
     let result = '['

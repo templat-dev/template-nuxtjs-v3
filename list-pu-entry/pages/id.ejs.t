@@ -79,7 +79,7 @@ const remove = async(<%= struct.name.lowerCamelName %>ID: number) => {
 }
 
 const back = () => {
-  navigateTo('/company')
+  navigateTo('/<%= struct.name.lowerCamelName %>')
 }
 </script>
 

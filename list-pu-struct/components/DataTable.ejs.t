@@ -11,6 +11,16 @@ import {
   INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION
 } from '@/types/<%= struct.name.pascalName %>Type'
 <%_ } -%>
+<%_ if (struct.exists.list.segment) { -%>
+<%_ struct.fields.forEach(function (field, key) { -%>
+<%_ if (field.editType === 'segment') { -%>
+import {<%= field.name.upperSnakeName %>_LIST} from "~/constants/segmentConstants"
+<%_ } -%>
+<%_ if (field.editType === 'time' || field.editType === 'array-time') { -%>
+import AppUtils from '@/utils/appUtils'
+<%_ } -%>
+<%_ }) -%>
+<%_ } -%>
 
 /** ヘッダー定義 */
 const headers = ref<any[]>([
@@ -123,7 +133,7 @@ const remove = (item: Model<%= struct.name.pascalName %>) => {
 }
 <%_ if (struct.fields) { -%>
 <%_ struct.fields.forEach(function(field, index){ -%>
-<%_ if (field.listType !== 'segment') { -%>
+<%_ if (field.listType === 'segment') { -%>
 const <%= field.name.lowerCamelName %>Name = (<%= field.name.lowerCamelName %>: number) => {
   const segment = <%= field.name.upperSnakeName %>_LIST.find(
           (item) => item.value === <%= field.name.lowerCamelName %>
