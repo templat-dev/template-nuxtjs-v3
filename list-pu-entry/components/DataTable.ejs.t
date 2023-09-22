@@ -167,11 +167,11 @@ const <%= field.name.lowerCamelName %>Name = (<%= field.name.lowerCamelName %>: 
   <%_ if (field.listType === 'relation') { -%>
 const <%= field.related.lowerCamelName %>Name = (id: number): string => {
   const <%= field.related.lowerCamelName %> = props.<%= field.related.lowerCamelPluralName %>?.find((c: Model<%= field.related.pascalName %>) => c.id === id)
-  if (!<%= field.related.lowerCamelName %> || !<%= field.related.lowerCamelName %>.name) {
+  if (!<%= field.related.lowerCamelName %>) {
     return ''
   }
-  if (<%= field.related.lowerCamelName %>.name) {
-    return <%= field.related.lowerCamelName %>.name
+  if (<%= field.related.lowerCamelName %>.<%= field.relatedNameField.lowerCamelName %>) {
+    return <%= field.related.lowerCamelName %>.<%= field.relatedNameField.lowerCamelName %>
   } else if (<%= field.related.lowerCamelName %>.id) {
     return <%= field.related.lowerCamelName %>.id
   } else {
