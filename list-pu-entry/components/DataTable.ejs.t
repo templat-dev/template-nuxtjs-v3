@@ -170,12 +170,11 @@ const <%= field.related.lowerCamelName %>Name = (id: number): string => {
   if (!<%= field.related.lowerCamelName %>) {
     return ''
   }
-  if (<%= field.related.lowerCamelName %>.<%= field.relatedNameField.lowerCamelName %>) {
-    return <%= field.related.lowerCamelName %>.<%= field.relatedNameField.lowerCamelName %>
-  } else if (<%= field.related.lowerCamelName %>.id) {
-    return <%= field.related.lowerCamelName %>.id
-  } else {
-    return ''
+<%_ if (field.relatedNameField) { -%>
+  return <%= field.related.lowerCamelName %>.<%= field.relatedNameField.lowerCamelName %>
+<%_ } else { -%>
+  return String(<%= field.related.lowerCamelName %>.id)
+<%_ } -%>
   }
 }
   <%_ } -%>
