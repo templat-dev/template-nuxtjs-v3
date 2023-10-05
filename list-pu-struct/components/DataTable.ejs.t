@@ -198,7 +198,7 @@ const <%= field.related.lowerCamelName %>Name = (id: number): string => {
       <!-- ヘッダー -->
       <template #top>
         <v-toolbar color="white" flat>
-          <v-toolbar-title><%= struct.listLabel %></v-toolbar-title>
+          <v-toolbar-title><%= struct.screenLabel %>一覧</v-toolbar-title>
 <%_ if (struct.structType !== 'struct') { -%>
           <template v-if="!hasParent">
             <v-divider class="mx-4" inset vertical></v-divider>
@@ -293,6 +293,11 @@ const <%= field.related.lowerCamelName %>Name = (id: number): string => {
     <<%= struct.name.lowerCamelName %>-search-form
       :current-search-condition="searchCondition"
       :open="isSearchFormOpen"
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if (field.listType === 'relation') { -%>
+      :<%= field.related.lowerCamelPluralName %>="<%= field.related.lowerCamelPluralName %>"
+  <%_ } -%>
+<%_ }) -%>
       @search="search"
       @update:open="isSearchFormOpen = $event"
     ></<%= struct.name.lowerCamelName %>-search-form>
