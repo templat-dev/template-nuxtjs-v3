@@ -280,7 +280,7 @@ const <%= field.related.lowerCamelName %>Name = (id: number): string => {
                 editTarget!.<%= field.name.lowerCamelName %> = v === '' ? undefined : Number(v)
                 updateTarget()
               }"
-              :items="<%= field.related.upperSnakeName %>_LIST"
+              :items="<%= field.related.lowerCamelPluralName %>"
               label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
               item-title="name"
               item-value="id"
