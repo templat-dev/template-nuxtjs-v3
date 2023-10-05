@@ -75,7 +75,7 @@ const clickRow = (item: I) => {
     :server-items-length="totalCount"
     :sort-by="pageInfo.sortBy"
     class="data-table"
-    @click:row="(event: Event, item: any) => clickRow(item.item.raw)"
+    @click:row="(event: Event, item: any) => clickRow(item.item)"
     @update:page="handleChangePageInfo()"
     @update:items-per-page="handleItemPerPage"
     @update:sort-by="handleChangePageInfo('sortBy')"
