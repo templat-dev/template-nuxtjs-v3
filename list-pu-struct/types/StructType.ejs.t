@@ -30,8 +30,8 @@ export interface <%= struct.name.pascalName %>SearchCondition {
     <%_ if (searchCondition.type === 'string' && !searchCondition.range) { -%>
   <%= searchCondition.name %>?: <%= searchCondition.type %>
     <%_ } -%>
-    <%_ if (searchCondition.type === 'boolean' && !searchCondition.range) { -%>
-  <%= searchCondition.name %>?: <%= searchCondition.type %>
+    <%_ if (searchCondition.type === 'bool' && !searchCondition.range) { -%>
+  <%= searchCondition.name %>?: boolean
     <%_ } -%>
     <%_ if (searchCondition.type === 'number' && !searchCondition.range) { -%>
   <%= searchCondition.name %>?: <%= searchCondition.type %>
