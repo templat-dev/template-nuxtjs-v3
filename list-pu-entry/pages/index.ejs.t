@@ -80,7 +80,7 @@ const fetch = async (
   return await <%= struct.name.lowerCamelName %>Api.search<%= struct.name.pascalName %>({
   <%_ struct.fields.forEach(function(field, index){ -%>
 <%#_ 通常の検索 -%>
-    <%_ if ((field.listType === 'string' || field.listType === 'time' || field.listType === 'bool' || field.listType === 'number')  && field.searchType === 1) { -%>
+    <%_ if ((field.listType === 'string' || field.listType === 'time' || field.listType === 'bool' || field.listType === 'number' || field.listType === 'segment' || field.listType === 'relation')  && field.searchType === 1) { -%>
     <%= field.name.lowerCamelName %>: searchCondition.<%= field.name.lowerCamelName %> || undefined,
 <%#_ 配列の検索 -%>
     <%_ } else if ((field.listType === 'array-string' || field.listType === 'array-time' || field.listType === 'array-bool' || field.listType === 'array-number')  && field.searchType === 1) { -%>
@@ -142,11 +142,11 @@ const handlePageInfo = (pi: DataTablePageInfo) => {
   pageInfo.value = pi
 }
 
-const reFetch = async () => {
+const reFetch = async (searchCondition: <%= struct.name.pascalName %>SearchCondition) => {
   loading.isLoading = true
   try {
     const data = await fetch({
-      searchCondition: searchCondition.value,
+      searchCondition: searchCondition,
       pageInfo: pageInfo.value
     })
 <%_ if (project.dbType === 'datastore') { -%>

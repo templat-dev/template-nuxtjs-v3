@@ -41,6 +41,13 @@ import {<%= field.name.upperSnakeName %>_LIST} from '~/constants/segmentConstant
   <%_ } -%>
 <%_ }) -%>
 <%_ } -%>
+import {
+<%_ struct.fields.forEach(function (field, key) { -%>
+  <%_ if (field.editType === 'relation') { -%>
+  Model<%= field.related.pascalName %>,
+  <%_ } -%>
+<%_ }) -%>
+} from '@/apis'
 
 interface Props {
   /** 表示状態 (true: 表示, false: 非表示) */

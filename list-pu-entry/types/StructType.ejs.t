@@ -16,7 +16,7 @@ import {Model<%= struct.name.pascalName %>} from "~/apis";
   <%_ if ((field.editType === 'bool' || field.editType === 'array-bool') && field.searchType === 1) { -%>
     <%_ searchConditions.push({name: field.name.lowerCamelName, type: 'boolean', range: false}) -%>
   <%_ } -%>
-  <%_ if ((field.editType === 'number' || field.editType === 'array-number' || field.editType === 'segment' || field.editType === 'relation') && field.searchType === 1) { -%>
+  <%_ if ((field.editType === 'number' || field.editType === 'array-number' || field.editType === 'segment') && field.searchType === 1) { -%>
     <%_ searchConditions.push({name: field.name.lowerCamelName, type: 'number', range: false}) -%>
   <%_ } -%>
   <%_ if (field.editType === 'relation' && field.dataType === 'number' && field.searchType === 1) { -%>
@@ -92,13 +92,7 @@ export const INITIAL_<%= struct.name.upperSnakeName %>: Model<%= struct.name.pas
   <%_ if (field.editType.startsWith('array')) { -%>
   <%= field.name.lowerCamelName %>: [],
   <%_ } -%>
-  <%_ if (field.editType === 'string' || field.editType === 'textarea' || field.editType === 'time') { -%>
-  <%= field.name.lowerCamelName %>: undefined,
-  <%_ } -%>
-  <%_ if (field.editType === 'bool') { -%>
-  <%= field.name.lowerCamelName %>: undefined,
-  <%_ } -%>
-  <%_ if (field.editType === 'number') { -%>
+  <%_ if (field.editType === 'string' || field.editType === 'textarea' || field.editType === 'time' || field.editType === 'bool' || field.editType === 'number' || field.editType === 'segment' || field.editType === 'relation') { -%>
   <%= field.name.lowerCamelName %>: undefined,
   <%_ } -%>
 <%_ }) -%>
