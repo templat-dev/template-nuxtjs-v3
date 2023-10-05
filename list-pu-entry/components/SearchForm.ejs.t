@@ -34,6 +34,13 @@ import {
   <%= struct.name.pascalName %>SearchCondition,
   INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION
 } from '@/types/<%= struct.name.pascalName %>Type'
+<%_ if (struct.fields) { -%>
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if (field.listType === 'segment' && field.searchType !== 0) { -%>
+import {<%= field.name.upperSnakeName %>_LIST} from '~/constants/segmentConstants'
+  <%_ } -%>
+<%_ }) -%>
+<%_ } -%>
 
 interface Props {
   /** 表示状態 (true: 表示, false: 非表示) */
