@@ -293,6 +293,11 @@ const <%= field.related.lowerCamelName %>Name = (id: number): string => {
     <<%= struct.name.lowerCamelName %>-search-form
       :current-search-condition="searchCondition"
       :open="isSearchFormOpen"
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if (field.listType === 'relation') { -%>
+      :<%= field.related.lowerCamelPluralName %>="<%= field.related.lowerCamelPluralName %>"
+  <%_ } -%>
+<%_ }) -%>
       @search="search"
       @update:open="isSearchFormOpen = $event"
     ></<%= struct.name.lowerCamelName %>-search-form>

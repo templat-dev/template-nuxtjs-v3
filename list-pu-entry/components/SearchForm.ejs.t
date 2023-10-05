@@ -47,6 +47,11 @@ interface Props {
   open: boolean
   /** 検索条件 */
   currentSearchCondition: <%= struct.name.pascalName %>SearchCondition
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if (field.listType === 'relation') { -%>
+  <%= field.related.lowerCamelPluralName %>?: Model<%= field.related.pascalName %>[]
+  <%_ } -%>
+<%_ }) -%>
 }
 const props = withDefaults(defineProps<Props>(), {
   open: true,
@@ -119,6 +124,19 @@ const search = () => {
             label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
             item-title="name"
             item-value="value"
+            outlined
+            dense
+            style="width: 100%;"
+          ></v-select>
+        <%_ } -%>
+        <%_ if (field.listType === 'relation') { -%>
+          <v-select
+            :modelValue="searchCondition.<%= field.name.lowerCamelName %>"
+            @update:modelValue="v => searchCondition.<%= field.name.lowerCamelName %> = v === '' ? undefined : Number(v)"
+            :items="<%= field.related.lowerCamelPluralName %>"
+            label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
+            item-title="name"
+            item-value="id"
             outlined
             dense
             style="width: 100%;"
