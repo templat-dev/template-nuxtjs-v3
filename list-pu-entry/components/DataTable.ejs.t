@@ -198,7 +198,7 @@ const <%= field.related.lowerCamelName %>Name = (id: number): string => {
       <!-- ヘッダー -->
       <template #top>
         <v-toolbar color="white" flat>
-          <v-toolbar-title><%= struct.listLabel %></v-toolbar-title>
+          <v-toolbar-title><%= struct.screenLabel %>一覧</v-toolbar-title>
 <%_ if (struct.structType !== 'struct') { -%>
           <template v-if="!hasParent">
             <v-divider class="mx-4" inset vertical></v-divider>
