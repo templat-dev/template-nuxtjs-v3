@@ -49,13 +49,18 @@ interface Props {
   currentSearchCondition: <%= struct.name.pascalName %>SearchCondition
 <%_ struct.fields.forEach(function(field, index){ -%>
   <%_ if (field.listType === 'relation') { -%>
-  <%= field.related.lowerCamelPluralName %>?: Model<%= field.related.pascalName %>[]
+  <%= field.related.lowerCamelPluralName %>: Model<%= field.related.pascalName %>[]
   <%_ } -%>
 <%_ }) -%>
 }
 const props = withDefaults(defineProps<Props>(), {
   open: true,
   currentSearchCondition: (props: Props) => INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION,
+<%_ struct.fields.forEach(function(field, index){ -%>
+  <%_ if (field.listType === 'relation') { -%>
+  <%= field.related.lowerCamelPluralName %>:  (props: Props) => []
+  <%_ } -%>
+<%_ }) -%>
 })
 
 interface Emits {

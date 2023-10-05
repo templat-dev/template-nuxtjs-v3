@@ -10,10 +10,16 @@ import {Model<%= struct.name.pascalName %>} from "~/apis";
   <%_ if ((field.editType === 'string' || field.editType === 'array-string' || field.editType === 'time' || field.editType === 'array-time') && field.searchType === 1) { -%>
     <%_ searchConditions.push({name: field.name.lowerCamelName, type: 'string', range: false}) -%>
   <%_ } -%>
+  <%_ if (field.editType === 'relation' && field.dataType === 'string' && field.searchType === 1) { -%>
+    <%_ searchConditions.push({name: field.name.lowerCamelName, type: 'string', range: false}) -%>
+  <%_ } -%>
   <%_ if ((field.editType === 'bool' || field.editType === 'array-bool') && field.searchType === 1) { -%>
     <%_ searchConditions.push({name: field.name.lowerCamelName, type: 'boolean', range: false}) -%>
   <%_ } -%>
-  <%_ if ((field.editType === 'number' || field.editType === 'array-number') && field.searchType === 1) { -%>
+  <%_ if ((field.editType === 'number' || field.editType === 'array-number' || field.editType === 'segment' || field.editType === 'relation') && field.searchType === 1) { -%>
+    <%_ searchConditions.push({name: field.name.lowerCamelName, type: 'number', range: false}) -%>
+  <%_ } -%>
+  <%_ if (field.editType === 'relation' && field.dataType === 'number' && field.searchType === 1) { -%>
     <%_ searchConditions.push({name: field.name.lowerCamelName, type: 'number', range: false}) -%>
   <%_ } -%>
   <%_ if ((field.editType === 'number' || field.editType === 'array-number') && 2 <= field.searchType &&  field.searchType <= 5) { -%>
@@ -32,7 +38,7 @@ export interface <%= struct.name.pascalName %>SearchCondition {
     <%_ if (searchCondition.type === 'string' && !searchCondition.range) { -%>
   <%= searchCondition.name %>?: <%= searchCondition.type %>
     <%_ } -%>
-    <%_ if (searchCondition.type === 'bool' && !searchCondition.range) { -%>
+    <%_ if (searchCondition.type === 'boolean' && !searchCondition.range) { -%>
   <%= searchCondition.name %>?: boolean
     <%_ } -%>
     <%_ if (searchCondition.type === 'number' && !searchCondition.range) { -%>
