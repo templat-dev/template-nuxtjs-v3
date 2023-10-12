@@ -191,10 +191,17 @@ const cancel = () => {
   <%_ if (field.editType === 'relation') { -%>
 const <%= field.related.lowerCamelName %>Name = (id: number): string => {
   const <%= field.related.lowerCamelName %> = props.<%= field.related.lowerCamelPluralName %>?.find((c: Model<%= field.related.pascalName %>) => c.id === id)
-  if (!<%= field.related.lowerCamelName %> || !<%= field.related.lowerCamelName %>.<%= field.relatedNameField.lowerCamelName ? field.relatedNameField.lowerCamelName : 'name' %>) {
+    <%_ if (!field.relatedNameField.lowerCamelName && field.relatedNameField.lowerCamelName !== '') { -%>
+  if (!<%= field.related.lowerCamelName %> || !<%= field.related.lowerCamelName %>.<%= field.relatedNameField.lowerCamelName %>) {
     return ''
   }
-  return <%= field.related.lowerCamelName %>.<%= field.relatedNameField.lowerCamelName ? field.relatedNameField.lowerCamelName : 'name' %>
+  return <%= field.related.lowerCamelName %>.<%= field.relatedNameField.lowerCamelName %>
+    <%_ } else { -%>
+  if (!<%= field.related.lowerCamelName %> || !<%= field.related.lowerCamelName %>.name) {
+    return ''
+  }
+  return <%= field.related.lowerCamelName %>.name
+    <%_ } -%>
 }
   <%_ } -%>
 <%_ }) -%>
