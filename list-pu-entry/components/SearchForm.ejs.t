@@ -65,7 +65,7 @@ const props = withDefaults(defineProps<Props>(), {
   currentSearchCondition: (props: Props) => INITIAL_<%= struct.name.upperSnakeName %>_SEARCH_CONDITION,
 <%_ struct.fields.forEach(function(field, index){ -%>
   <%_ if (field.listType === 'relation') { -%>
-  <%= field.related.lowerCamelPluralName %>:  (props: Props) => []
+  <%= field.related.lowerCamelPluralName %>:  (props: Props) => [],
   <%_ } -%>
 <%_ }) -%>
 })
