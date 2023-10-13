@@ -231,7 +231,7 @@ const <%= field.related.lowerCamelName %>Name = (id: number): string => {
 <%_ } -%>
 <%_ if (field.listType === 'segment') { -%>
   <template #item.<%= field.name.lowerCamelName %>="{ item }">
-    <span>{{ <%= field.related.lowerCamelName %>Name(item.<%= field.name.lowerCamelName %>) }}</span>
+    <span>{{ <%= field.name.lowerCamelName %>Name(item.<%= field.name.lowerCamelName %>) }}</span>
   </template>
 <%_ } -%>
 <%_ if (field.listType === 'time' || field.listType === 'time-range') { -%>
