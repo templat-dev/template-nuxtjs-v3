@@ -187,22 +187,11 @@ const remove = async () => {
 const cancel = () => {
   emit('cancel')
 }
-<%_ struct.fields.forEach(function(field, index){ -%>
-  <%_ if (field.editType === 'relation') { -%>
-const <%= field.related.lowerCamelName %>Name = (id: number): string => {
-  const <%= field.related.lowerCamelName %> = props.<%= field.related.lowerCamelPluralName %>?.find((c: Model<%= field.related.pascalName %>) => c.id === id)
-  if (!<%= field.related.lowerCamelName %> || !<%= field.related.lowerCamelName %>.name) {
-    return ''
-  }
-  return <%= field.related.lowerCamelName %>.name
-}
-  <%_ } -%>
-<%_ }) -%>
 </script>
 
 <template>
   <v-card :elevation="0">
-    <v-card-title v-if="!hasParent"><%= struct.label || struct.name.pascalName %>{{ isNew ? '追加' : '編集' }}</v-card-title>
+    <v-card-title v-if="!hasParent"><%= struct.screenLabel || struct.name.pascalName %>{{ isNew ? '追加' : '編集' }}</v-card-title>
     <v-card-text>
       <v-form v-if="target" ref="<%= struct.name.lowerCamelName %>Form"  v-model="valid<%= struct.name.pascalName %>Form" class="full-width" lazy-validation>
       <%_ struct.fields.forEach(function (field, key) { -%>
@@ -282,7 +271,11 @@ const <%= field.related.lowerCamelName %>Name = (id: number): string => {
               }"
               :items="<%= field.related.lowerCamelPluralName %>"
               label="<%= field.screenLabel ? field.screenLabel : field.name.lowerCamelName %>"
+              <%_ if (field.relatedNameField && field.relatedNameField.lowerCamelName !== '') { -%>
+              item-title="<%= field.relatedNameField.lowerCamelName %>"
+              <%_ } else { -%>
               item-title="name"
+              <%_ } -%>
               item-value="id"
               variant="underlined"
               style="width: 100%;"

@@ -173,7 +173,7 @@ const <%= field.related.lowerCamelName %>Name = (id: number): string => {
 <%_ if (field.relatedNameField) { -%>
   return <%= field.related.lowerCamelName %>.<%= field.relatedNameField.lowerCamelName %> ? <%= field.related.lowerCamelName %>.<%= field.relatedNameField.lowerCamelName %> : ''
 <%_ } else { -%>
-  return String(<%= field.related.lowerCamelName %>.id!)
+  return String(<%= field.related.lowerCamelName %>.name!)
 <%_ } -%>
 }
   <%_ } -%>
@@ -231,7 +231,7 @@ const <%= field.related.lowerCamelName %>Name = (id: number): string => {
 <%_ } -%>
 <%_ if (field.listType === 'segment') { -%>
   <template #item.<%= field.name.lowerCamelName %>="{ item }">
-    <span>{{ companyTypeName(item.<%= field.name.lowerCamelName %>) }}</span>
+    <span>{{ <%= field.name.lowerCamelName %>Name(item.<%= field.name.lowerCamelName %>) }}</span>
   </template>
 <%_ } -%>
 <%_ if (field.listType === 'time' || field.listType === 'time-range') { -%>

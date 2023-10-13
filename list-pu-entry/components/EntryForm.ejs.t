@@ -191,7 +191,7 @@ const cancel = () => {
 
 <template>
   <v-card :elevation="0">
-    <v-card-title v-if="!hasParent"><%= struct.label || struct.name.pascalName %>{{ isNew ? '追加' : '編集' }}</v-card-title>
+    <v-card-title v-if="!hasParent"><%= struct.screenLabel || struct.name.pascalName %>{{ isNew ? '追加' : '編集' }}</v-card-title>
     <v-card-text>
       <v-form v-if="target" ref="<%= struct.name.lowerCamelName %>Form"  v-model="valid<%= struct.name.pascalName %>Form" class="full-width" lazy-validation>
       <%_ struct.fields.forEach(function (field, key) { -%>
